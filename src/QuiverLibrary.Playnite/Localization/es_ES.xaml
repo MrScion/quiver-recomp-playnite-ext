@@ -1,0 +1,80 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- Ajustes -->
+    <sys:String x:Key="LOCQuiverSettingsFolderHeader">Carpeta de Quiver Launcher</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsFolderHint">La carpeta donde descomprimiste Quiver Launcher portable (la que contiene QuiverLauncher.exe, Update.exe y la carpeta "current"). Quiver guarda ahí también su biblioteca de juegos. Déjala vacía para usar la ubicación de instalación por defecto de Quiver (%LocalAppData%\QuiverLauncher).</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsBrowse">Examinar...</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsStatusNotDetected">No se ha encontrado Quiver Launcher en su ubicación por defecto. Elige arriba la carpeta de tu Quiver portable.</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsStatusNoExe">No se ha encontrado QuiverLauncher.exe. Rutas buscadas: {0}</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsStatusNoLibrary">Quiver Launcher encontrado en {0}, pero todavía no tiene biblioteca de juegos (apps.json). Abre Quiver una vez para que la cree.</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsStatusOk">Quiver Launcher encontrado en {0}: {1} apps en su biblioteca.</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsSyncLastPlayed">Sincronizar la última vez jugado con Quiver Launcher</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsSyncLastPlayedHint">Gana la fecha más reciente: los juegos que arrancas desde Playnite actualizan el orden "Last played" de Quiver, y los que arrancas desde Quiver actualizan Playnite en la siguiente actualización de la biblioteca. No se tocan el tiempo de juego ni el número de partidas (Quiver no los guarda).</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsMakePortable">Hacer portables las apps instaladas</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsLudusaviBackup">Hacer copias de las partidas con Ludusavi</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsLudusaviBackupHint">Para la extensión de Ludusavi para Playnite, que no conoce estos juegos. En cada actualización de la biblioteca escribe un manifiesto de Ludusavi con cada juego por su nombre en Playnite y sus carpetas de partidas (la portable y la de AppData, así se encuentran en los dos casos), y lo añade una vez al config.yaml de Ludusavi (se guarda una copia como config.yaml.bak). Después la extensión de Ludusavi hace la copia al cerrar cada juego, en la carpeta de sus ajustes. Solo entran los juegos cuyas carpetas de partidas se conocen (ver extensions.log). Al desmarcarla no se cambia nada en Ludusavi.</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsMakePortableHint">En cada actualización de la biblioteca e instalación, crea el archivo que hace que cada app guarde sus partidas y ajustes en su propia carpeta en lugar de AppData (casi siempre un portable.txt vacío junto a su programa). Las apps que ya tienen datos en su carpeta habitual no se tocan, y se avisa una vez. Al desmarcarla no se borra nada.</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsFeaturesHeader">Características que se importan</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsFeaturesHint">Lo que ofrece cada port, sacado de las etiquetas de Quiver y añadido a las Características del juego en Playnite. Desmarca las que no quieras. Se aplica a los juegos nuevos que se importen, y a los que ya tienes cuando les hagas "Descargar metadatos". Las webs de mods de Quiver se añaden como enlaces y el tipo de proyecto (Recompilation, Decompilation...) como etiquetas.</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsHowItWorksHeader">Cómo funciona</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsHowItWorks">Solo se importan las apps instaladas en Quiver: instala los juegos nuevos desde Quiver Launcher y después actualiza la biblioteca de juegos. Un juego que desinstales más tarde se queda en Playnite (con sus estadísticas) como no instalado, y se puede reinstalar desde Playnite. Quiver se encarga de los archivos de los juegos. Instalar y Desinstalar ejecutan Quiver en segundo plano; Jugar arranca directamente el ejecutable del juego (no se actualiza antes de arrancar). Usa "Quiver → Actualizar todas las apps de Quiver" en el menú principal para actualizarlos.</sys:String>
+
+    <!-- Menú principal -->
+    <sys:String x:Key="LOCQuiverMenuInstallFromLibrary">Instalar desde la biblioteca de Quiver...</sys:String>
+    <sys:String x:Key="LOCQuiverMenuUpdateAll">Actualizar todas las apps de Quiver</sys:String>
+    <sys:String x:Key="LOCQuiverMenuRefresh">Actualizar estado de instalación</sys:String>
+    <sys:String x:Key="LOCQuiverMenuOpenQuiver">Abrir Quiver Launcher</sys:String>
+    <sys:String x:Key="LOCQuiverMenuSettings">Ajustes...</sys:String>
+
+    <!-- Game menu (submenu "Recomps (Quiver Launcher)") -->
+    <sys:String x:Key="LOCQuiverMenuOpenSaves">Abrir carpeta de partidas</sys:String>
+    <sys:String x:Key="LOCQuiverMenuChooseExecutable">Elegir ejecutable del juego...</sys:String>
+    <sys:String x:Key="LOCQuiverMenuResetExecutable">Usar el ejecutable por defecto</sys:String>
+
+    <!-- Acciones de juego -->
+    <sys:String x:Key="LOCQuiverInstallActionName">Instalar con Quiver</sys:String>
+    <sys:String x:Key="LOCQuiverUninstallActionName">Desinstalar con Quiver</sys:String>
+    <sys:String x:Key="LOCQuiverPlayActionName">Jugar</sys:String>
+
+    <!-- Progreso -->
+    <sys:String x:Key="LOCQuiverProgressUpdating">Quiver está actualizando todas las apps instaladas...</sys:String>
+    <sys:String x:Key="LOCQuiverProgressUninstalling">Quiver está desinstalando {0}...</sys:String>
+    <sys:String x:Key="LOCQuiverProgressInstalling">Quiver está descargando e instalando {0}...</sys:String>
+
+    <!-- Mensajes -->
+    <sys:String x:Key="LOCQuiverNotFound">No se ha encontrado Quiver Launcher. Indica su carpeta en los ajustes de la extensión (menú principal → Quiver → Ajustes...).</sys:String>
+    <sys:String x:Key="LOCQuiverNotConfiguredNotification">Quiver Library: no se ha encontrado Quiver Launcher. Pulsa aquí para indicar su carpeta.</sys:String>
+    <sys:String x:Key="LOCQuiverAppsJsonMissing">No se ha encontrado la biblioteca de juegos de Quiver: {0}. Abre Quiver Launcher una vez para que la cree.</sys:String>
+    <sys:String x:Key="LOCQuiverAppsJsonUnreadable">No se ha podido leer la biblioteca de juegos de Quiver ({0}): {1}</sys:String>
+    <sys:String x:Key="LOCQuiverPlayNotInLibrary">{0} ya no está en la biblioteca de Quiver.</sys:String>
+    <sys:String x:Key="LOCQuiverPlayNotInstalled">{0} no está instalado en Quiver.</sys:String>
+    <sys:String x:Key="LOCQuiverPlayNoExecutable">Quiver no ha elegido qué programa arranca {0}. Abre el juego una vez desde Quiver Launcher y elige su ejecutable, o elígelo con "Elegir ejecutable del juego..." en el menú del juego (Recomps (Quiver Launcher)).</sys:String>
+    <sys:String x:Key="LOCQuiverPlayNotSetUp">No se ha encontrado el juego de {0}. Ejecuta su acción "Setup" para generarlo o instalarlo; si lo pusiste fuera de la carpeta de la app, elige su programa con "Elegir ejecutable del juego..." en el menú del juego (Recomps (Quiver Launcher)).</sys:String>
+    <sys:String x:Key="LOCQuiverChosenExecutable" xml:space="preserve">Playnite arrancará {0} con:&#x0a;{1}</sys:String>
+    <sys:String x:Key="LOCQuiverSavesNotYet" xml:space="preserve">{0} todavía no ha guardado nada. Sus partidas estarán en:&#x0a;{1}</sys:String>
+    <sys:String x:Key="LOCQuiverInstallNoFiles">Quiver ha terminado pero no se encuentran los archivos de la app.</sys:String>
+    <sys:String x:Key="LOCQuiverInstallFailed">Quiver no ha podido instalar {0}: {1}</sys:String>
+    <sys:String x:Key="LOCQuiverInstallNeedsQuiver">Quiver no puede descargar {0} desde su línea de comandos. Pulsa aquí para abrir Quiver Launcher e instalarlo allí; después actualiza la biblioteca de juegos.</sys:String>
+    <sys:String x:Key="LOCQuiverInstallTimedOut">Quiver no ha terminado en 20 minutos.</sys:String>
+    <sys:String x:Key="LOCQuiverInstallListCaption">Instalar desde la biblioteca de Quiver (las apps del App Catalog hay que añadirlas antes a la biblioteca desde Quiver)</sys:String>
+    <sys:String x:Key="LOCQuiverInstallListEmpty">Todas las apps de la biblioteca de Quiver ya están instaladas. Para tener más, añade apps del App Catalog desde Quiver Launcher.</sys:String>
+    <sys:String x:Key="LOCQuiverInstallDone">Quiver ha instalado {0} y se ha añadido a Playnite.</sys:String>
+    <sys:String x:Key="LOCQuiverInstallDoneNotAdded">Quiver ha instalado {0}, pero no se ha podido añadir a Playnite ({1}). Actualiza la biblioteca de juegos para importarlo.</sys:String>
+    <sys:String x:Key="LOCQuiverUninstallFilesRemain">los archivos de la app siguen ahí.</sys:String>
+    <sys:String x:Key="LOCQuiverUninstallFailed">Quiver no ha podido desinstalar {0}: {1}</sys:String>
+    <sys:String x:Key="LOCQuiverUpdateDone">Quiver ha terminado de actualizar todas las apps instaladas.</sys:String>
+    <sys:String x:Key="LOCQuiverUpdatePartial">Quiver no ha podido actualizar todas las apps: {0}</sys:String>
+    <sys:String x:Key="LOCQuiverUpdateFailed">Ha fallado la actualización de Quiver: {0}</sys:String>
+    <sys:String x:Key="LOCQuiverRefreshDone">Estado de instalación de Quiver actualizado ({0} juego(s) cambiados).</sys:String>
+    <sys:String x:Key="LOCQuiverRefreshFailed">No se ha podido leer la biblioteca de Quiver: {0}</sys:String>
+    <sys:String x:Key="LOCQuiverCleanupDone">Quiver Library ahora importa solo las apps instaladas: se han quitado {0} juego(s) no instalados sin historial de juego.</sys:String>
+    <sys:String x:Key="LOCQuiverLudusaviAdded">Ludusavi ya conoce las carpetas de partidas de {0} recomps; la extensión de Ludusavi hará la copia al cerrarlos. Añadido a {1} (la versión anterior queda como config.yaml.bak).</sys:String>
+    <sys:String x:Key="LOCQuiverLudusaviNoConfig">No se ha encontrado la configuración de Ludusavi ({0}). Abre Ludusavi una vez para que la cree y después actualiza la biblioteca.</sys:String>
+    <sys:String x:Key="LOCQuiverLudusaviManual">No se ha podido añadir automáticamente el manifiesto de los recomps a la configuración de Ludusavi ({0}). Añádelo en Ludusavi (Otros → Manifiestos secundarios): {1}. Pulsa para abrir su carpeta.</sys:String>
+    <sys:String x:Key="LOCQuiverPortableHasUserData">{0} no se ha hecho portable: ya tiene partidas o ajustes en {1} y en modo portable dejaría de verlos. Muévelos a la carpeta del juego (o bórralos) y actualiza la biblioteca. Pulsa para abrir la carpeta.</sys:String>
+    <sys:String x:Key="LOCQuiverPortableLeftoverData">{0} es portable, pero aún hay datos en {1} que ya no usa (quizá partidas de una instalación anterior). Pulsa para abrir la carpeta.</sys:String>
+
+</ResourceDictionary>

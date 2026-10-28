@@ -1,0 +1,80 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- Settings -->
+    <sys:String x:Key="LOCQuiverSettingsFolderHeader">Quiver Launcher folder</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsFolderHint">The folder where you unzipped the portable Quiver Launcher (the one holding QuiverLauncher.exe, Update.exe and the "current" folder). Quiver keeps its game library there too. Leave it empty to use Quiver's default install location (%LocalAppData%\QuiverLauncher).</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsBrowse">Browse...</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsStatusNotDetected">Quiver Launcher was not found in its default location. Pick the folder of your portable Quiver above.</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsStatusNoExe">QuiverLauncher.exe was not found. Looked for: {0}</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsStatusNoLibrary">Quiver Launcher found in {0}, but it has no game library yet (apps.json). Open Quiver once so it creates it.</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsStatusOk">Quiver Launcher found in {0} — {1} apps in its library.</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsSyncLastPlayed">Sync the last played time with Quiver Launcher</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsSyncLastPlayedHint">The most recent time wins: games started from Playnite update Quiver's "Last played" order, and games started from Quiver update Playnite on the next library update. Play time and play count are not touched (Quiver doesn't keep them).</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsMakePortable">Make the installed apps portable</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsLudusaviBackup">Back up the saves with Ludusavi</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsLudusaviBackupHint">For the Ludusavi extension for Playnite, which doesn't know these games. On every library update, writes a Ludusavi manifest listing each game by its Playnite name with its save folders (portable and AppData, so saves are found either way), and adds it once to Ludusavi's config.yaml (a copy is kept as config.yaml.bak). The Ludusavi extension then backs them up when you close each game, to the folder set in its settings. Only games whose save folders are known are included (see extensions.log). Unticking it changes nothing in Ludusavi.</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsMakePortableHint">On every library update and install, creates the file that makes each app keep its saves and settings in its own folder instead of AppData (usually an empty portable.txt next to its program). Apps that already have data in their usual folder are left alone, and you are told once. Unticking it removes nothing.</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsFeaturesHeader">Features to import</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsFeaturesHint">What each port offers, taken from Quiver's tags and added to the game's Features in Playnite. Untick the ones you don't want. Applies to newly imported games, and to existing ones when you run "Download metadata" for them. Quiver's mod sites are added as links and the kind of project (Recompilation, Decompilation...) as tags.</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsHowItWorksHeader">How it works</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsHowItWorks">Only apps installed in Quiver are imported: install new games from Quiver Launcher, then update the game library. A game uninstalled later stays in Playnite (with its stats) as not installed, and can be reinstalled from Playnite. Quiver stays in charge of the game files. Install and Uninstall run Quiver in the background; Play starts the game's executable directly (games are not updated before launching). Use "Quiver → Update all Quiver apps" in the main menu to update them.</sys:String>
+
+    <!-- Main menu -->
+    <sys:String x:Key="LOCQuiverMenuInstallFromLibrary">Install from Quiver library...</sys:String>
+    <sys:String x:Key="LOCQuiverMenuUpdateAll">Update all Quiver apps</sys:String>
+    <sys:String x:Key="LOCQuiverMenuRefresh">Refresh install status</sys:String>
+    <sys:String x:Key="LOCQuiverMenuOpenQuiver">Open Quiver Launcher</sys:String>
+    <sys:String x:Key="LOCQuiverMenuSettings">Settings...</sys:String>
+
+    <!-- Game menu (submenu "Recomps (Quiver Launcher)") -->
+    <sys:String x:Key="LOCQuiverMenuOpenSaves">Open saves folder</sys:String>
+    <sys:String x:Key="LOCQuiverMenuChooseExecutable">Choose game executable...</sys:String>
+    <sys:String x:Key="LOCQuiverMenuResetExecutable">Use the default game executable</sys:String>
+
+    <!-- Game actions -->
+    <sys:String x:Key="LOCQuiverInstallActionName">Install with Quiver</sys:String>
+    <sys:String x:Key="LOCQuiverUninstallActionName">Uninstall with Quiver</sys:String>
+    <sys:String x:Key="LOCQuiverPlayActionName">Play</sys:String>
+
+    <!-- Progress -->
+    <sys:String x:Key="LOCQuiverProgressUpdating">Quiver is updating all installed apps...</sys:String>
+    <sys:String x:Key="LOCQuiverProgressUninstalling">Quiver is uninstalling {0}...</sys:String>
+    <sys:String x:Key="LOCQuiverProgressInstalling">Quiver is downloading and installing {0}...</sys:String>
+
+    <!-- Messages -->
+    <sys:String x:Key="LOCQuiverNotFound">Quiver Launcher was not found. Set its folder in the extension settings (main menu → Quiver → Settings...).</sys:String>
+    <sys:String x:Key="LOCQuiverNotConfiguredNotification">Quiver Library: Quiver Launcher was not found. Click here to set its folder.</sys:String>
+    <sys:String x:Key="LOCQuiverAppsJsonMissing">Quiver's game library was not found: {0}. Open Quiver Launcher once so it creates it.</sys:String>
+    <sys:String x:Key="LOCQuiverAppsJsonUnreadable">Quiver's game library could not be read ({0}): {1}</sys:String>
+    <sys:String x:Key="LOCQuiverPlayNotInLibrary">{0} is no longer in Quiver's library.</sys:String>
+    <sys:String x:Key="LOCQuiverPlayNotInstalled">{0} is not installed in Quiver.</sys:String>
+    <sys:String x:Key="LOCQuiverPlayNoExecutable">Quiver has not chosen which program starts {0}. Open the game once from Quiver Launcher and pick its executable, or choose it with "Choose game executable..." in the game's menu (Recomps (Quiver Launcher)).</sys:String>
+    <sys:String x:Key="LOCQuiverPlayNotSetUp">The game of {0} was not found. Run its "Setup" action to build or install it; if you put it outside the app's folder, choose its program with "Choose game executable..." in the game's menu (Recomps (Quiver Launcher)).</sys:String>
+    <sys:String x:Key="LOCQuiverChosenExecutable" xml:space="preserve">Playnite will start {0} with:&#x0a;{1}</sys:String>
+    <sys:String x:Key="LOCQuiverSavesNotYet" xml:space="preserve">{0} has not saved anything yet. Its saves will be in:&#x0a;{1}</sys:String>
+    <sys:String x:Key="LOCQuiverInstallNoFiles">Quiver finished but the app files were not found.</sys:String>
+    <sys:String x:Key="LOCQuiverInstallFailed">Quiver could not install {0}: {1}</sys:String>
+    <sys:String x:Key="LOCQuiverInstallNeedsQuiver">Quiver can't download {0} from its command line. Click here to open Quiver Launcher and install it there, then update the game library.</sys:String>
+    <sys:String x:Key="LOCQuiverInstallTimedOut">Quiver did not finish within 20 minutes.</sys:String>
+    <sys:String x:Key="LOCQuiverInstallListCaption">Install from Quiver library (apps in Quiver's App Catalog must be added to its library in Quiver first)</sys:String>
+    <sys:String x:Key="LOCQuiverInstallListEmpty">Every app in Quiver's library is already installed. To get more, add apps from Quiver's App Catalog in Quiver Launcher.</sys:String>
+    <sys:String x:Key="LOCQuiverInstallDone">{0} was installed by Quiver and added to Playnite.</sys:String>
+    <sys:String x:Key="LOCQuiverInstallDoneNotAdded">{0} was installed by Quiver, but could not be added to Playnite ({1}). Update the game library to import it.</sys:String>
+    <sys:String x:Key="LOCQuiverUninstallFilesRemain">the app files are still there.</sys:String>
+    <sys:String x:Key="LOCQuiverUninstallFailed">Quiver could not uninstall {0}: {1}</sys:String>
+    <sys:String x:Key="LOCQuiverUpdateDone">Quiver finished updating all installed apps.</sys:String>
+    <sys:String x:Key="LOCQuiverUpdatePartial">Quiver could not update every app: {0}</sys:String>
+    <sys:String x:Key="LOCQuiverUpdateFailed">Quiver update failed: {0}</sys:String>
+    <sys:String x:Key="LOCQuiverRefreshDone">Quiver install status refreshed ({0} game(s) changed).</sys:String>
+    <sys:String x:Key="LOCQuiverRefreshFailed">Could not read Quiver's library: {0}</sys:String>
+    <sys:String x:Key="LOCQuiverCleanupDone">Quiver Library now imports only installed apps: removed {0} not-installed game(s) without play history.</sys:String>
+    <sys:String x:Key="LOCQuiverLudusaviAdded">Ludusavi now knows the save folders of {0} recomps; the Ludusavi extension will back them up when you close them. Added to {1} (previous version kept as config.yaml.bak).</sys:String>
+    <sys:String x:Key="LOCQuiverLudusaviNoConfig">Ludusavi's configuration was not found ({0}). Open Ludusavi once so it creates it, then update the game library.</sys:String>
+    <sys:String x:Key="LOCQuiverLudusaviManual">The recomps manifest could not be added to Ludusavi's configuration ({0}) automatically. Add it in Ludusavi (Other → Secondary manifests): {1}. Click to open its folder.</sys:String>
+    <sys:String x:Key="LOCQuiverPortableHasUserData">{0} was not made portable: it already has saves or settings in {1}, and in portable mode it would stop seeing them. Move them to the game's folder (or delete them) and update the library. Click to open the folder.</sys:String>
+    <sys:String x:Key="LOCQuiverPortableLeftoverData">{0} is portable, but there is still data in {1} that it no longer uses (maybe saves from an earlier install). Click to open the folder.</sys:String>
+
+</ResourceDictionary>

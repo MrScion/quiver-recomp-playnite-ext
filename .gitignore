@@ -1,0 +1,12 @@
+bin/
+obj/
+build/
+.vs/
+*.user
+*.lnk
+*.pext
+
+# Anything local-only (packaged .pext builds, reference material, internal
+# dev notes) lives here instead of the repo root — never committed.
+extras/
+

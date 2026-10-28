@@ -1,0 +1,670 @@
+{
+  "apps": [
+    {
+      "name": "Super Mario Sunshine",
+      "repository": "chasem-dev/sms-launcher",
+      "play": { "file": "SMS-Launcher-*-win-portable.exe", "arguments": "--play" },
+      "others": [
+        { "name": "Setup", "file": "SMS-Launcher-*-win-portable.exe" }
+      ],
+      "reviewed": true,
+      "source": "README: --play starts the game with the launcher's settings and without its window. Quiver keeps older versions in the folder; the highest one is used. User data: README and src/saves.js: the win-portable exe keeps everything in SMS-Launcher-Portable\\ next to it.",
+      "userData": { "portable": "builtin", "local": "SMS-Launcher-Portable", "saves": "saves\\card-a" }
+    },
+    {
+      "name": "Super Mario Galaxy",
+      "repository": "keepvaibin/nebula",
+      "play": { "file": "Nebula.exe", "searchSubfolders": true },
+      "others": [
+        { "name": "Settings", "file": "NebulaSettings.exe", "searchSubfolders": true },
+        { "name": "Setup", "file": "staging\\nebula-recomp-*.exe" }
+      ],
+      "reviewed": true,
+      "source": "README and installer/src/Setup/Support.cs: each version is installed in versions\\<version>\\ (current.json names the current one); its Nebula.exe starts the game (the Start menu shortcut) and NebulaSettings.exe changes settings. The folder also holds the compiler toolchain (toolchain\\, about 150 programs). User data: README: saves in %LOCALAPPDATA%\\Nebula\\saves.",
+      "userData": { "portable": "none", "appData": "%LOCALAPPDATA%\\Nebula", "saves": "saves" }
+    },
+    {
+      "name": "The Simpsons Game",
+      "repository": "YesterMester/TheSimpsonsGameRecomp",
+      "play": { "file": "simpsons-launcher.exe", "arguments": "--play" },
+      "others": [
+        { "name": "Setup", "file": "simpsons-launcher.exe" }
+      ],
+      "reviewed": true,
+      "source": "README: simpsons-launcher.exe --play starts the game without the launcher window, with the same settings as its Play button. User data: README: saves and the shader cache are stored in %LOCALAPPDATA%\\simpsons. ReXGlue's user_data_root setting could move them (not verified).",
+      "userData": { "portable": "none", "appData": "%LOCALAPPDATA%\\simpsons" }
+    },
+    {
+      "name": "Silent Hill: Downpour",
+      "repository": "LittleBitUA/DownpourRecomp",
+      "play": { "file": "downpour.exe" },
+      "others": [
+        { "name": "Setup", "file": "PlayDownpour.exe" }
+      ],
+      "reviewed": true,
+      "source": "README: PlayDownpour.exe is the launcher (settings tabs, updates, Play button); it starts downpour.exe, which reads its settings from downpour.toml. User data: README and src/downpour_app.h: portable layout, saves, config and shader cache live in the game folder. Seen in a played install (2026-10-28): the saves are in user\\.",
+      "userData": { "portable": "builtin", "local": "", "saves": "user" }
+    },
+    {
+      "name": "Silent Hill",
+      "repository": "SlickAmogus/silent-hill-decomp",
+      "play": { "file": "SilentHillPC.exe" },
+      "others": [
+        { "name": "Setup", "file": "SilentHillPC_Launcher.exe" }
+      ],
+      "reviewed": true,
+      "source": "README: run SilentHillPC_Launcher to configure, or SilentHillPC to play. User data: Seen in an installed release: gamedata\\save.",
+      "userData": { "portable": "builtin", "local": "gamedata", "saves": "save" }
+    },
+    {
+      "name": "Fable II",
+      "repository": "himdo/Fable-2-Recomp",
+      "play": { "file": "fable_2.exe" },
+      "others": [
+        { "name": "Setup", "file": "Fable2Launcher.exe" }
+      ],
+      "reviewed": true,
+      "source": "README: the optional WPF launcher extracts the ISO and writes fable_2.toml; fable_2.exe is the game. User data: src/core/fable_2_app.h: saves and caches always in saves\\ next to the exe.",
+      "userData": { "portable": "builtin", "local": "", "saves": "saves" }
+    },
+    {
+      "name": "Blue Dragon",
+      "repository": "zolaware/reblue",
+      "play": { "file": "reblue.exe" },
+      "others": [
+        { "name": "Vulkan", "file": "reblue_vk.exe" },
+        { "name": "Repair", "file": "reblue.exe", "arguments": "--repair" }
+      ],
+      "reviewed": true,
+      "source": "README: reblue.exe is DirectX 12 and reblue_vk.exe Vulkan; --repair reopens the setup wizard on the existing install. User data: src/installer/install_registry.h: user data in user\\ of the install folder chosen in its setup wizard, which may be elsewhere. Seen in a played install (2026-10-28): profiles\\default holds reblue.toml and saves\\.",
+      "userData": { "portable": "builtin", "local": "profiles" }
+    },
+    {
+      "name": "The Legend of Zelda: The Wind Waker HD",
+      "repository": "ZeldaWWHDRecomp/ZeldaWWHDRecomp",
+      "play": { "file": "Wind Waker HD.exe" },
+      "others": [
+        { "name": "World Editor", "file": "Wind Waker HD.exe", "arguments": "--editor" }
+      ],
+      "reviewed": true,
+      "source": "README: --editor starts the world editor. Setup on Windows is holding Shift while starting the game (--setup is documented for Linux only). User data: README: everything stays in the release folder (data\\): saves in data\\save, settings in data\\user.",
+      "userData": { "portable": "builtin", "local": "data", "saves": "save" }
+    },
+    {
+      "name": "The Legend of Zelda: Ocarina of Time 3D",
+      "repository": "coccofresco/TriAevum",
+      "play": { "file": "TriAevum.exe" },
+      "others": [
+        { "name": "Setup", "file": "TriAevumForge.exe" }
+      ],
+      "reviewed": true,
+      "source": "README: TriAevumForge.exe prepares the game from the ROM (and applies optional mods); afterwards use TriAevum.exe."
+    },
+    {
+      "name": "Donkey Kong Country",
+      "repository": "elliotttate/DKC1Recomp",
+      "play": { "file": "DKC1Recomp.exe" },
+      "others": [
+        { "name": "Dixie Kong Country", "file": "dkc1_dixie_desktop.exe" }
+      ],
+      "reviewed": true,
+      "source": "docs/DIXIE_MOD.md: dkc1_dixie_desktop.exe is the Dixie Kong Country variant; both executables ship side by side. User data: runner/windows_platform.c: SDL_GetPrefPath(\"Flat2VR\", \"DKC1Recomp\"), no portable mode.",
+      "userData": { "portable": "none", "appData": "%APPDATA%\\Flat2VR\\DKC1Recomp" }
+    },
+    {
+      "name": "Donkey Kong Country 2: Diddy's Kong Quest",
+      "repository": "elliotttate/DKC2Recomp",
+      "play": { "file": "DKC2Recomp.exe" },
+      "others": [
+        { "name": "SDL", "file": "DKC2RecompSDL.exe" }
+      ],
+      "reviewed": true,
+      "source": "README: run DKC2Recomp.exe; DKC2RecompSDL.exe is the alternate SDL host. User data: README: save states in saves\\; portable builds keep it beside the executable.",
+      "userData": { "portable": "builtin", "local": "", "saves": "saves" }
+    },
+    {
+      "name": "Sly Cooper and the Thievius Raccoonus",
+      "repository": "theclub654/ProjectCane",
+      "play": { "file": "Sly Cooper and the Thievius Raccoonus.exe" },
+      "others": [
+        { "name": "Setup", "file": "File Extractor GUI\\File Extractor GUI.exe" }
+      ],
+      "reviewed": true,
+      "source": "README: the File Extractor GUI creates the Worlds and Cutscenes folders from the disc, then run the game executable. User data: Seen in an installed release: Saves\\ next to the exe.",
+      "userData": { "portable": "builtin", "local": "", "saves": "Saves" }
+    },
+    {
+      "name": "Kirby's Return to Dream Land",
+      "folderName": "KirbysReturnToDreamLand-KirbyWiiRecomp",
+      "repository": "ExpansionPak/ModernGekko",
+      "play": { "file": "KirbyWiiRecomp.exe" },
+      "reviewed": true,
+      "source": "README.md in the release: double-click KirbyWiiRecomp.exe; its launcher extracts the disc and starts the game. KirbyRecomp.exe is not documented. User data: KirbyWiiRecomp.exe passes Dolphin a user folder under %LOCALAPPDATA%\\kirby-wii-recomp; no documented portable mode.",
+      "userData": { "portable": "none", "appData": "%LOCALAPPDATA%\\kirby-wii-recomp" }
+    },
+    {
+      "name": "Metroid Prime Hunters",
+      "repository": "mstan/MetroidPrimeHuntersRecomp",
+      "play": { "file": "MetroidPrimeHuntersRecomp.exe" },
+      "reviewed": true,
+      "source": "README: run MetroidPrimeHuntersRecomp.exe and press Play; nds_runner.exe is the runner it starts. User data: README: the console profile lives in %APPDATA%\\MetroidPrimeHuntersRecomp; the cartridge save is kept next to the ROM.",
+      "userData": { "portable": "none", "appData": "%APPDATA%\\MetroidPrimeHuntersRecomp" }
+    },
+    {
+      "name": "F-Zero X",
+      "repository": "Zorkats/G-Diffuser",
+      "play": { "file": "G-Diffuser.exe" },
+      "reviewed": true,
+      "source": "README: gdx-extract builds the game data on first boot. User data: README: saves are stored in saves\\ beside the executable.",
+      "userData": { "portable": "builtin", "local": "", "saves": "saves" }
+    },
+    {
+      "name": "Bloodborne",
+      "repository": "Mrsuss60/bloodborne_pc_windows_port",
+      "play": { "file": "launch_gui.bat" },
+      "reviewed": true,
+      "source": "README: the graphical launcher is the recommended way; run.bat needs the game folder as an argument. User data: gpu/shadps4/common/path_util.cpp: on Windows the user folder is created in the working directory; seen in an installed release: user\\.",
+      "userData": { "portable": "builtin", "local": "user" }
+    },
+    {
+      "name": "Crash Bandicoot 2: Cortex Strikes Back",
+      "repository": "Zumbo06/Crash2Recomp",
+      "play": { "file": "Crash2Launcher\\Crash2Launcher.exe" },
+      "reviewed": true,
+      "source": "README: the launcher builds the game from the disc and is the supported way to play. User data: launcher/crash2launcher/config.py: stored next to the executable so the bundle stays portable; seen in an installed release: userdata\\.",
+      "userData": { "portable": "builtin", "local": "userdata" }
+    },
+    {
+      "name": "Blast Corps",
+      "repository": "djultra64/Power-Dozer",
+      "play": { "file": "power-dozer.exe" },
+      "reviewed": true,
+      "source": "README: run 'Run Power Dozer.cmd'; tests/test_package_windows.py: that script only runs \"%~dp0power-dozer.exe\" %*, so the exe is started directly (no console window)."
+    },
+    {
+      "name": "Bloodborne",
+      "repository": "Supermedo/bloodborne_pc",
+      "play": { "file": "Play Bloodborne.exe" },
+      "others": [
+        { "name": "Setup", "file": "Bloodborne.exe" }
+      ],
+      "reviewed": true,
+      "source": "README: Bloodborne.exe is the launcher (settings, PLAY button); 'Play Bloodborne.exe' starts the game straight away with the saved settings. User data: CUSA00207\\savedata, seen in a played install (2026-10-28).",
+      "userData": { "portable": "builtin", "local": "", "saves": "CUSA00207\\savedata" }
+    },
+    {
+      "name": "Buffy the Vampire Slayer: Chaos Bleeds",
+      "repository": "KaikoClanworth1/buffy-chaos-bleeds-pc",
+      "play": { "file": "buffy_chaos_bleeds.exe" },
+      "others": [
+        { "name": "Setup", "file": "Buffy Launcher.exe" }
+      ],
+      "reviewed": true,
+      "source": "README: 'Buffy Launcher.exe' installs, configures and starts the game; buffy_chaos_bleeds.exe starts straight into the game and itself starts buffy_chaos_bleeds_usa.exe for a North American install. User data: SaveData\\ (BUFFY A.sav), seen in a played install (2026-10-28).",
+      "userData": { "portable": "builtin", "local": "", "saves": "SaveData" }
+    },
+    {
+      "name": "Burnout 3: Takedown",
+      "repository": "danielgomesvieira2000/burnout3-pc",
+      "play": { "file": "burnout3.exe" },
+      "reviewed": true,
+      "source": "README: run burnout3.exe; on CPUs without AVX2 it starts burnout3-sse4.exe itself."
+    },
+    {
+      "name": "Crash Team Racing: Nitro-Fueled",
+      "repository": "GetLostIn/CTR-NitroFueled-PC",
+      "play": { "file": "Jugar sin launcher.bat" },
+      "others": [
+        { "name": "Setup", "file": "CTR-NitroFueled-PC.exe" }
+      ],
+      "reviewed": true,
+      "source": "README: CTR-NitroFueled-PC.exe is the launcher (game setup, settings, patches), with no --play option on Windows (launcher/windows/launcher.cpp). packaging/windows/make_portable.py ships 'Jugar sin launcher.bat', the way to play without it (run.py with the saved settings; it shows a console window). User data: user\\savedata (shadPS4 base), seen in a played install (2026-10-28).",
+      "userData": { "portable": "builtin", "local": "user", "saves": "savedata" }
+    },
+    {
+      "name": "Dead or Alive: Xtreme Beach Volleyball",
+      "repository": "NoRain211/doaxvb-re",
+      "play": { "file": "RunGame.cmd" },
+      "others": [
+        { "name": "Setup", "file": "Launcher.cmd" }
+      ],
+      "reviewed": true,
+      "source": "README: drag the ISO onto BuildGame.cmd once; Launcher.cmd picks resolution, MSAA, SMAA and sun shadows, then Play; RunGame.cmd starts the game directly with the defaults."
+    },
+    {
+      "name": "Eternal Darkness: Sanity's Requiem",
+      "repository": "griches/EternalDarknessRecomp",
+      "play": { "file": "play.bat" },
+      "reviewed": true,
+      "source": "README: double-click play.bat. tools/win/play.bat finds the disc image in dump\\ and runs EternalDarkness.exe generated/main.dol --iso <image>; the exe alone does not start the game. User data: saves\\, seen in a played install (2026-10-28).",
+      "userData": { "portable": "builtin", "local": "", "saves": "saves" }
+    },
+    {
+      "name": "God of War III Remastered",
+      "repository": "FelipePrado0/gow3_pc",
+      "play": { "file": "Play *.exe" },
+      "others": [
+        { "name": "Setup", "file": "SpartanPort.exe" },
+        { "name": "Setup", "file": "God of War III.exe" }
+      ],
+      "reviewed": true,
+      "source": "README: SpartanPort.exe is the launcher and 'Play SpartanPort.exe' starts the game straight away with the saved settings. Older releases (gow3_pc) named them 'God of War III.exe' and 'Play God of War III.exe'. User data: gpu/shadps4/common/path_util: always user\\ in the working directory on Windows; saves in user\\savedata, seen in a played install (2026-10-28).",
+      "userData": { "portable": "builtin", "local": "user", "saves": "savedata" }
+    },
+    {
+      "name": "inFAMOUS Second Son",
+      "repository": "HayatoG/iss_pc",
+      "play": { "file": "inFAMOUS Second Son.exe", "arguments": "--play" },
+      "others": [
+        { "name": "Setup", "file": "inFAMOUS Second Son.exe" },
+        { "name": "Setup (classic)", "file": "inFAMOUS Second Son (classic).exe" }
+      ],
+      "reviewed": true,
+      "source": "README: 'inFAMOUS Second Son' is the launcher (Qt), '(classic)' the old Tk one in case the new one does not open; both accept --play."
+    },
+    {
+      "name": "Jet Force Gemini",
+      "repository": "TK22-26/JetForceGemini-Recomp",
+      "play": { "file": "JFG-Launcher.exe" },
+      "reviewed": true,
+      "source": "README: open JFG-Launcher.exe. launcher/windows/Launcher.cs starts jfg-native-boot.exe with --rom, --save and --controller-pak from its private profile, so the game exe cannot be started on its own. User data: userdata\\ (profiles), seen in a played install (2026-10-28).",
+      "userData": { "portable": "builtin", "local": "userdata" }
+    },
+    {
+      "name": "Mario Kart Wii",
+      "repository": "patchzyy/Wiicompiled",
+      "play": { "file": "WheelWizardWindows.exe" },
+      "others": [
+        { "name": "Setup", "file": "WiiCompiled-Setup.exe" }
+      ],
+      "reviewed": true,
+      "source": "README: the backend is command-line only; Wheel Wizard is the wrapper that installs, updates and launches it. WiiCompiled-Setup.exe is the setup tool. User data: runtime/include/runtime_config.h: portable.txt must sit in the game's install root, which its setup creates outside Quiver's folder.",
+      "userData": { "portable": "none", "appData": "%LOCALAPPDATA%\\WiiCompiled" }
+    },
+    {
+      "name": "P.T.",
+      "repository": "LoreanXavier/pt-pc",
+      "play": { "file": "pt.exe" },
+      "others": [
+        { "name": "Update", "file": "pt-updater.exe" }
+      ],
+      "reviewed": true,
+      "source": "README: pt.exe is the game (settings live in data\\ beside it and it checks GitHub Releases at startup); existing installations are updated with the game's updater. User data: README and src/main.cpp: user data under %APPDATA% (pt-port\\pt), no portable mode.",
+      "userData": { "portable": "none", "appData": "%APPDATA%\\pt-port\\pt" }
+    },
+    {
+      "name": "Super Mario Strikers",
+      "repository": "new-coke/strikers",
+      "play": { "file": "strikers.exe" },
+      "others": [
+        { "name": "Setup", "file": "strikers-settings.exe" }
+      ],
+      "reviewed": true,
+      "source": "README: a dedicated settings app for graphics, controls, audio and game-data location; strikers.exe is the game."
+    },
+    {
+      "name": "Uncharted: The Nathan Drake Collection",
+      "repository": "Supermedo/uncharted_pc",
+      "play": { "file": "Play Uncharted.exe" },
+      "others": [
+        { "name": "Setup", "file": "Uncharted.exe" }
+      ],
+      "reviewed": true,
+      "source": "README: Uncharted.exe is the launcher (pick the game, PLAY). packaging/windows/play.c: 'Play Uncharted.exe' runs Uncharted.exe --play, the last chosen game with the saved settings. User data: user\\savedata (shadPS4 base), seen in a played install (2026-10-28).",
+      "userData": { "portable": "builtin", "local": "user", "saves": "savedata" }
+    },
+    {
+      "name": "WET",
+      "repository": "Supermedo/wet-recomp",
+      "play": { "file": "wet.exe" },
+      "others": [
+        { "name": "Setup", "file": "WetLauncher.exe" }
+      ],
+      "reviewed": true,
+      "source": "README: WetLauncher.exe adds the ISO, holds the settings and controls and its PLAY starts wet.exe (F3 in game opens the settings). extract-xiso.exe is a helper."
+    },
+    {
+      "name": "Banjo-Kazooie",
+      "repository": "BanjoRecomp/BanjoRecomp",
+      "reviewed": true,
+      "source": "User data: README: portable.txt next to the executable (in the working directory) keeps saves, config and mods there (N64ModernRuntime config.cpp).",
+      "userData": { "portable": "portable.txt", "appData": "%LOCALAPPDATA%\\BanjoRecompiled", "local": "", "saves": "saves" }
+    },
+    {
+      "name": "Bomberman 64",
+      "repository": "RevoSucks/BM64Recomp",
+      "reviewed": true,
+      "source": "User data: README: portable.txt next to the executable (in the working directory) keeps saves, config and mods there (N64ModernRuntime config.cpp).",
+      "userData": { "portable": "portable.txt", "appData": "%LOCALAPPDATA%\\BM64Recompiled", "local": "", "saves": "saves" }
+    },
+    {
+      "name": "Bomberman Hero",
+      "repository": "RevoSucks/BMHeroRecomp",
+      "reviewed": true,
+      "source": "User data: README: portable.txt next to the executable (in the working directory) keeps saves, config and mods there (N64ModernRuntime config.cpp).",
+      "userData": { "portable": "portable.txt", "appData": "%LOCALAPPDATA%\\BMHeroRecompiled", "local": "", "saves": "saves" }
+    },
+    {
+      "name": "Chameleon Twist",
+      "repository": "Rainchus/ChameleonTwist1-JP-Recomp",
+      "reviewed": true,
+      "source": "User data: README and src/game/config.cpp: portable.txt next to the executable (in the working directory) keeps saves, config and mods there (N64ModernRuntime config.cpp).",
+      "userData": { "portable": "portable.txt", "appData": "%LOCALAPPDATA%\\ChameleonTwistRecompiled", "local": "", "saves": "saves" }
+    },
+    {
+      "name": "Dinosaur Planet",
+      "repository": "DinosaurPlanetRecomp/dino-recomp",
+      "reviewed": true,
+      "source": "User data: README: portable.txt next to the executable (in the working directory) keeps saves, config and mods there (N64ModernRuntime config.cpp).",
+      "userData": { "portable": "portable.txt", "appData": "%LOCALAPPDATA%\\DinoPlanetRecompiled", "local": "", "saves": "saves" }
+    },
+    {
+      "name": "Donkey Kong 64",
+      "repository": "Rainchus/Donkey-Kong-64-Recompiled",
+      "reviewed": true,
+      "source": "User data: README (save folder); the release ships portable.txt. portable.txt next to the executable (in the working directory) keeps saves, config and mods there (N64ModernRuntime config.cpp).",
+      "userData": { "portable": "portable.txt", "appData": "%LOCALAPPDATA%\\DK64Recompiled", "local": "", "saves": "saves" }
+    },
+    {
+      "name": "Dr. Mario 64",
+      "repository": "theboy181/drmario64_recomp_plus",
+      "reviewed": true,
+      "source": "User data: include/zelda_config.h (program_id) and src/game/config.cpp: portable.txt next to the executable (in the working directory) keeps saves, config and mods there (N64ModernRuntime config.cpp).",
+      "userData": { "portable": "portable.txt", "appData": "%LOCALAPPDATA%\\drmario64_recomp", "local": "", "saves": "saves" }
+    },
+    {
+      "name": "Duke Nukem: Zero Hour",
+      "repository": "sonicdcer/DNZHRecomp",
+      "reviewed": true,
+      "source": "User data: README: portable.txt next to the executable (in the working directory) keeps saves, config and mods there (N64ModernRuntime config.cpp).",
+      "userData": { "portable": "portable.txt", "appData": "%LOCALAPPDATA%\\DNZHRecompiled", "local": "", "saves": "saves" }
+    },
+    {
+      "name": "Extreme-G",
+      "repository": "sonicdcer/ExtremeGRecomp",
+      "reviewed": true,
+      "source": "User data: Repository no longer public; the release ships portable.txt and its exe names ExtremeGRecompiled. portable.txt next to the executable (in the working directory) keeps saves, config and mods there (N64ModernRuntime config.cpp).",
+      "userData": { "portable": "portable.txt", "appData": "%LOCALAPPDATA%\\ExtremeGRecompiled", "local": "", "saves": "saves" }
+    },
+    {
+      "name": "Harvest Moon 64",
+      "repository": "HarvestMoon64Recomp/HarvestMoon64Recomp",
+      "reviewed": true,
+      "source": "User data: README: portable.txt next to the executable (in the working directory) keeps saves, config and mods there (N64ModernRuntime config.cpp).",
+      "userData": { "portable": "portable.txt", "appData": "%LOCALAPPDATA%\\HarvestMoon64Recompiled", "local": "", "saves": "saves" }
+    },
+    {
+      "name": "The Legend of Zelda: Majora's Mask and Ocarina of Time",
+      "repository": "Zelda64Recomp/Zelda64Recomp",
+      "reviewed": true,
+      "source": "User data: README: portable.txt next to the executable (in the working directory) keeps saves, config and mods there (N64ModernRuntime config.cpp).",
+      "userData": { "portable": "portable.txt", "appData": "%LOCALAPPDATA%\\Zelda64Recompiled", "local": "", "saves": "saves" }
+    },
+    {
+      "name": "Mario Kart 64",
+      "repository": "sonicdcer/MarioKart64Recomp",
+      "reviewed": true,
+      "source": "User data: README: portable.txt next to the executable (in the working directory) keeps saves, config and mods there (N64ModernRuntime config.cpp).",
+      "userData": { "portable": "portable.txt", "appData": "%LOCALAPPDATA%\\MarioKart64Recompiled", "local": "", "saves": "saves" }
+    },
+    {
+      "name": "Mega Man 64",
+      "repository": "MegaMan64Recomp/MegaMan64Recompiled",
+      "reviewed": true,
+      "source": "User data: include/zelda_config.h (program_id) and src/game/config.cpp: portable.txt next to the executable (in the working directory) keeps saves, config and mods there (N64ModernRuntime config.cpp).",
+      "userData": { "portable": "portable.txt", "appData": "%LOCALAPPDATA%\\MegaMan64Recompiled", "local": "", "saves": "saves" }
+    },
+    {
+      "name": "Mystical Ninja Starring Goemon",
+      "repository": "klorfmorf/Goemon64Recomp",
+      "reviewed": true,
+      "source": "User data: README: portable.txt next to the executable (in the working directory) keeps saves, config and mods there (N64ModernRuntime config.cpp).",
+      "userData": { "portable": "portable.txt", "appData": "%LOCALAPPDATA%\\Goemon64Recompiled", "local": "", "saves": "saves" }
+    },
+    {
+      "name": "Star Fox 64",
+      "repository": "sonicdcer/Starfox64Recomp",
+      "reviewed": true,
+      "source": "User data: README: portable.txt next to the executable (in the working directory) keeps saves, config and mods there (N64ModernRuntime config.cpp).",
+      "userData": { "portable": "portable.txt", "appData": "%LOCALAPPDATA%\\Starfox64Recompiled", "local": "", "saves": "saves" }
+    },
+    {
+      "name": "Pilotwings 64",
+      "repository": "danielgomesvieira2000/pilotwings-64-recomp",
+      "reviewed": true,
+      "source": "User data: src/main.cpp: portable.txt in the working directory keeps everything there, else %LOCALAPPDATA%\\Pilotwings64Recomp.",
+      "userData": { "portable": "portable.txt", "appData": "%LOCALAPPDATA%\\Pilotwings64Recomp", "local": "" }
+    },
+    {
+      "name": "Wave Race 64",
+      "repository": "elliotttate/wave-race-64-recomp",
+      "reviewed": true,
+      "source": "User data: src/main.cpp: portable.txt in the working directory keeps everything there, else %LOCALAPPDATA%\\WaveRace64Recomp. Seen in a played portable install (2026-10-28): saves\\ (not verified for AppData).",
+      "userData": { "portable": "portable.txt", "appData": "%LOCALAPPDATA%\\WaveRace64Recomp", "local": "", "saves": "saves" }
+    },
+    {
+      "name": "Mischief Makers",
+      "repository": "ThiagoLira/trouble-makers-pc-recomp",
+      "reviewed": true,
+      "source": "User data: README and src/game/app_dirs.cpp: portable.txt next to the binary keeps saves and config beside it.",
+      "userData": { "portable": "portable.txt", "appData": "%LOCALAPPDATA%\\troublemakers-recomp", "local": "" }
+    },
+    {
+      "name": "Castlevania: Legacy of Darkness",
+      "repository": "fliperama86/cvlod_recomp",
+      "reviewed": true,
+      "source": "User data: README and src/main/main.cpp: an empty portable.txt beside LodRecomp keeps config and saves there.",
+      "userData": { "portable": "portable.txt", "appData": "%APPDATA%\\LodRecomp", "local": "" }
+    },
+    {
+      "name": "Diddy Kong Racing",
+      "repository": "ThatGuyMcd/DKR-R",
+      "reviewed": true,
+      "source": "User data: runtime-recomp/src/game/game_main.cpp: portable.txt in the application folder moves the data to dkr-runtime-data; the release ships it.",
+      "userData": { "portable": "portable.txt", "appData": "%APPDATA%\\DKRPort", "local": "dkr-runtime-data", "saves": "saves" }
+    },
+    {
+      "name": "Sonic Unleashed",
+      "repository": "hedge-dev/UnleashedRecomp",
+      "reviewed": true,
+      "source": "User data: README and UnleashedRecomp/user/paths.cpp: an empty portable.txt in the installation folder keeps saves (save\\) and config there.",
+      "userData": { "portable": "portable.txt", "appData": "%APPDATA%\\UnleashedRecomp", "local": "", "saves": "save" }
+    },
+    {
+      "name": "The Legend of Zelda: Ocarina of Time",
+      "repository": "harbourmasters/shipwright",
+      "reviewed": true,
+      "source": "User data: libultraship Context::GetAppDirectoryPath: on Windows the data folder is the working directory; soh SaveManager uses Save\\.",
+      "userData": { "portable": "builtin", "local": "", "saves": "Save" }
+    },
+    {
+      "name": "The Legend of Zelda: Majora's Mask",
+      "repository": "harbourmasters/2ship2harkinian",
+      "reviewed": true,
+      "source": "User data: libultraship Context::GetAppDirectoryPath: on Windows the data folder is the working directory; 2s2h SaveManager uses saves\\.",
+      "userData": { "portable": "builtin", "local": "", "saves": "saves" }
+    },
+    {
+      "name": "Mario Kart 64",
+      "repository": "harbourmasters/spaghettikart",
+      "reviewed": true,
+      "source": "User data: libultraship Context::GetAppDirectoryPath: on Windows the data folder is the working directory.",
+      "userData": { "portable": "builtin", "local": "" }
+    },
+    {
+      "name": "Star Fox 64",
+      "repository": "harbourmasters/starship",
+      "reviewed": true,
+      "source": "User data: libultraship Context::GetAppDirectoryPath: on Windows the data folder is the working directory. Seen in a played install (2026-10-28): the save is default.sav.",
+      "userData": { "portable": "builtin", "local": "", "saves": "default.sav" }
+    },
+    {
+      "name": "Super Mario 64",
+      "repository": "harbourmasters/ghostship",
+      "reviewed": true,
+      "source": "User data: libultraship Context::GetAppDirectoryPath: on Windows the data folder is the working directory. Seen in a played install (2026-10-28): saves\\save_0.json.",
+      "userData": { "portable": "builtin", "local": "", "saves": "saves" }
+    },
+    {
+      "name": "The Legend of Zelda: The Minish Cap",
+      "repository": "999sian/tmc",
+      "reviewed": true,
+      "source": "User data: port/port_main.c: every file (config.json, tmc.sav, quicksaves) is relative to the working directory on Windows.",
+      "userData": { "portable": "builtin", "local": "", "saves": "tmc.sav" }
+    },
+    {
+      "name": "F-Zero",
+      "repository": "mstan/FZeroSNESRecomp",
+      "reviewed": true,
+      "source": "User data: Seen in an installed release: saves\\ next to the exe.",
+      "userData": { "portable": "builtin", "local": "", "saves": "saves" }
+    },
+    {
+      "name": "Crash Bandicoot",
+      "repository": "Matteo842/CrashBandicoot-Launcher",
+      "reviewed": true,
+      "source": "User data: README: user data (save\\, game\\, settings.json) is always written next to the real exe.",
+      "userData": { "portable": "builtin", "local": "", "saves": "save" }
+    },
+    {
+      "name": "Street Fighter EX2 Plus",
+      "repository": "strider973/Street-Fighter-EX2-Plus-Recompiled",
+      "reviewed": true,
+      "source": "User data: Seen in an installed release: memory cards (card1.mcd, card2.mcd) in psxrecomp\\.",
+      "userData": { "portable": "builtin", "local": "psxrecomp" }
+    },
+    {
+      "name": "Tekken 6",
+      "repository": "mahmoud-mess/tekken6-recomp",
+      "play": { "file": "tekken6.exe", "searchSubfolders": true },
+      "others": [
+        { "name": "Vulkan", "file": "tekken6_vulkan.exe", "searchSubfolders": true },
+        { "name": "Vulkan (framebuffer)", "file": "tekken6_vulkan_fbo.exe", "searchSubfolders": true },
+        { "name": "Setup", "file": "Tekken 6 Builder.exe" }
+      ],
+      "reviewed": true,
+      "source": "README: 'Tekken 6 Builder.exe' builds the game from the player's ISO into a folder of their choice. tools/portable_launcher.cpp: tekken6.exe there (D3D12) asks for the internal resolution and starts bin\\tekken6.exe (the ReXGlue host) with the game, user and cache folders; tekken6_vulkan(_fbo).exe pick Vulkan. User data: always user\\ next to the launcher.",
+      "userData": { "portable": "builtin", "local": "user" }
+    },
+    {
+      "name": "Tekken Tag Tournament 2",
+      "repository": "shihabal3amri/tekken-tag-tournament-2-pc",
+      "play": { "file": "Tekken Tag Tournament 2.exe", "searchSubfolders": true },
+      "others": [
+        { "name": "Setup", "file": "ttt2_setup.exe" }
+      ],
+      "reviewed": true,
+      "source": "README: ttt2_setup.exe builds the game from the player's disc image and installs it (Windows 'Installed apps' uninstalls it); saves, profiles and settings in %LOCALAPPDATA%\\TTT2Recomp.",
+      "userData": { "portable": "none", "appData": "%LOCALAPPDATA%\\TTT2Recomp" }
+    },
+    {
+      "name": "Burnout Revenge",
+      "repository": "shipa-2/Xerenge",
+      "play": { "file": "Burnout Revenge.exe", "searchSubfolders": true },
+      "others": [
+        { "name": "Setup", "file": "Burnout_Revenge_Installer-*.exe" }
+      ],
+      "reviewed": true,
+      "source": "README: the installer builds the game into a folder of the player's choice. rexglue/installer/launcher.cpp: 'Burnout Revenge.exe' reads xerenge.conf and starts bin\\burnout.exe with its settings. User data: 'portable = true' in xerenge.conf (the installer's Portable box) keeps userdata\\ and cache\\ beside it; there is no marker file. Otherwise its data is where ReXGlue puts it by default (not in the repository).",
+      "userData": { "portable": "none", "local": "userdata" }
+    },
+    {
+      "name": "Dead Rising 2: Case West",
+      "repository": "wivi514/Dead_Rising_2_Case_West_Xenon_Recomp",
+      "reviewed": true,
+      "source": "User data: runtime/host/host_paths.h: always the Saved Games known folder.",
+      "userData": { "portable": "none", "appData": "%USERPROFILE%\\Saved Games\\Dead Rising 2 Case West" }
+    },
+    {
+      "name": "Dead Rising 2: Case Zero",
+      "repository": "wivi514/Dead_Rising_2_Case_Zero_Xenon_Recomp",
+      "reviewed": true,
+      "source": "User data: runtime/host/host_paths.h: always the Saved Games known folder.",
+      "userData": { "portable": "none", "appData": "%USERPROFILE%\\Saved Games\\Dead Rising 2 Case Zero" }
+    },
+    {
+      "name": "The Legend of Zelda: Twilight Princess",
+      "repository": "TwilitRealm/dusklight",
+      "reviewed": true,
+      "source": "User data: Seen on a machine that played it; no portable mode found (not verified).",
+      "userData": { "portable": "none", "appData": "%APPDATA%\\TwilitRealm\\Dusklight" }
+    },
+    {
+      "name": "Dante's Inferno",
+      "repository": "florinp93/hells-gate-recomp",
+      "reviewed": true,
+      "source": "User data: src/user_paths.cpp: portable.txt next to dantes_inferno.exe (userdata\\) or Documents\\dantes_inferno, but Quiver only holds its installer, which installs the game elsewhere.",
+      "userData": { "portable": "none" }
+    },
+    {
+      "name": "MediEvil",
+      "repository": "bc160201983/medievil_2019_pc_port",
+      "reviewed": true,
+      "source": "User data: gpu/shadps4/common/path_util: always user\\ in the working directory on Windows; saves in user\\savedata, seen in a played install (2026-10-28).",
+      "userData": { "portable": "builtin", "local": "user", "saves": "savedata" }
+    },
+    {
+      "name": "WipEout Omega Collection",
+      "repository": "AbdelmoumenDeghbouche/wipeout_pc",
+      "reviewed": true,
+      "source": "User data: gpu/shadps4/common/path_util: always user\\ in the working directory on Windows; saves in user\\savedata, seen in a played install (2026-10-28).",
+      "userData": { "portable": "builtin", "local": "user", "saves": "savedata" }
+    },
+    {
+      "name": "The Legend of Zelda: Majora's Mask 3D",
+      "repository": "tgacquin/mm3d-dekui",
+      "reviewed": true,
+      "source": "User data: user\\ (Citra layout; load\\ holds GBs of textures), saves in sdmc\\ and nand\\, seen in a played install (2026-10-28).",
+      "userData": { "portable": "builtin", "local": "user", "saves": "sdmc;nand" }
+    },
+    {
+      "name": "Super Paper Mario",
+      "repository": "josiahg2502-glitch/NewSuperPaperBros",
+      "reviewed": true,
+      "source": "User data: engine\\UserData (Dolphin layout; texture_replacements is large), saves in NAND\\, seen in a played install (2026-10-28).",
+      "userData": { "portable": "builtin", "local": "engine\\UserData", "saves": "NAND" }
+    },
+    {
+      "name": "Spider-Man: Edge of Time",
+      "repository": "goliathret/EdgeOfTimeRecomp",
+      "reviewed": true,
+      "source": "User data: profiles\\default, seen in a played install (2026-10-28).",
+      "userData": { "portable": "builtin", "local": "profiles" }
+    },
+    {
+      "name": "Banjo-Tooie",
+      "repository": "iron-jay/banjo_tooie_xbla_recomp",
+      "reviewed": true,
+      "source": "User data: BanjoTooie-Data\\saves, seen in a played install (2026-10-28).",
+      "userData": { "portable": "builtin", "local": "BanjoTooie-Data\\saves" }
+    },
+    {
+      "name": "GoldenEye 007",
+      "repository": "CaiusCodes/GoldenEye-007-XBLA-PC-Recomp",
+      "reviewed": true,
+      "source": "User data: resources\\userdata, seen in a played install (2026-10-28).",
+      "userData": { "portable": "builtin", "local": "resources\\userdata" }
+    },
+    {
+      "name": "Super Street Fighter II Turbo HD Remix",
+      "repository": "saulob/ssf2t-hd-remix-recompiled",
+      "play": { "file": "ssf2t_hd_remix.exe" },
+      "reviewed": true,
+      "source": "README.txt: ssf2t_hd_remix.exe is the TRG launcher (it can be turned off to start the game directly; Shift opens it again); trg-updater.exe is its updater. User data: README.txt: user_data\\ next to the program.",
+      "userData": { "portable": "builtin", "local": "user_data" }
+    },
+    {
+      "name": "Super Metroid",
+      "repository": "peanutsofdoom/supermetroidplus",
+      "play": { "file": "Play.exe" },
+      "others": [
+        { "name": "Play With Coordinates", "file": "Play With Coordinates.exe" },
+        { "name": "Configure Controls", "file": "Configure Controls.exe" },
+        { "name": "Import ROM", "file": "Import ROM.cmd" }
+      ],
+      "reviewed": true,
+      "source": "START HERE.txt: Import ROM.cmd imports the ROM, Configure Controls.exe maps the controller, Play.exe plays and Play With Coordinates.exe starts with the coordinates HUD. User data: saves\\, seen in a played install (2026-10-28).",
+      "userData": { "portable": "builtin", "local": "saves" }
+    }
+  ]
+}

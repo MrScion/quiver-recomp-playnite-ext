@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net462</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <RootNamespace>QuiverLibrary.Core</RootNamespace>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AutomaticallyUseReferenceAssemblyPackages>true</AutomaticallyUseReferenceAssemblyPackages>
+    <Deterministic>true</Deterministic>
+    <!-- No .pdb in Release, so no local build path ends up in the shipped package. -->
+    <DebugType Condition="'$(Configuration)' == 'Release'">none</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Pure logic, no PlayniteSDK dependency, so it's testable in isolation. -->
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Framework assembly (DataContractJsonSerializer): no third-party JSON
+         library, so nothing can version-clash with Playnite's own copies. -->
+    <Reference Include="System.Runtime.Serialization" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Shipped inside the DLL, so the package needs no extra file. -->
+    <EmbeddedResource Include="Executables\executables.json" LogicalName="QuiverLibrary.Core.Executables.executables.json" />
+  </ItemGroup>
+
+</Project>
