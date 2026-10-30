@@ -32,8 +32,9 @@ install status and starts the games.
   Anywhere else, pick the game's program once with **Choose game executable...**.
 - **Game menu** (right-click a game → **Recomps (Quiver Launcher)**): **Open saves folder**,
   **Choose game executable...** (any program becomes Play; inside the app's folder it is
-  stored relative to it, so moving Quiver's library keeps it) and **Use the default game
-  executable**.
+  stored relative to it, so moving Quiver's library keeps it), **Use the default game
+  executable** and, with the experimental achievements setting on, **Export achievements for
+  Playnite Achievements (experimental)...**.
 - **Portable installs** (setting, off by default): creates the file that makes each app keep
   its saves and settings in its own folder instead of AppData (usually `portable.txt` next
   to its program). Apps that already have data in their usual folder are left alone, and
@@ -45,6 +46,16 @@ install status and starts the games.
   and AppData), and adds it once to Ludusavi's `config.yaml` (keeping `config.yaml.bak`).
   The Ludusavi extension then backs them up when you close each game, to the folder set in
   its settings. Only games whose save folders are known are included.
+- **Achievements for Playnite Achievements** (setting, **experimental**, off by default; not
+  fully implemented yet): for the [Playnite Achievements](https://github.com/justin-delano/PlayniteAchievements)
+  extension, which can't read these games' achievements and has no way for other extensions
+  to add them. For the apps whose achievement files are understood (today only Bloodborne's
+  trophies), the game menu gets **Export achievements for Playnite Achievements**: it writes
+  a CSV with every achievement (name, description, trophy type, hidden, icon) and the
+  unlocked ones with their date, in the extension's data folder (`achievements\<game>.csv`),
+  and the CSV is rewritten every time the game closes. Import it yourself in Playnite
+  Achievements' achievement editor for that game, again after unlocking more (rows are
+  matched by ID, nothing is duplicated). See [Achievements](#achievements).
 - **Update**: main menu → **Recomps (Quiver Launcher) → Update all Quiver apps** runs `QuiverLauncher --update`.
 - Games that Quiver lists more than once (different ports of the same game) get the
   project name added, for example *Mario Kart 64 (SpaghettiKart)*.
@@ -104,6 +115,12 @@ one chosen from the game menu does.
   variables allowed), `local` (relative to the app's folder) and `saves` (inside both;
   several folders or files separated by `;`). It feeds **Open saves folder**, portable
   installs and the Ludusavi backups.
+- `achievements` says whether the app has achievements: `kind` (`rexglue`, `retroachievements`,
+  `ps4trophy`, `custom`, or `none` when checked and there are none), `file` (where it records
+  the unlocks, relative to the app's folder or with environment variables; several places
+  separated by `;`, the one in use first) and `retroAchievementsId` (the game on
+  retroachievements.org). An entry may hold only `userData` or `achievements`: its programs
+  are then chosen automatically.
 
 Apps without an entry: the play action is the only candidate left after dropping
 setup/uninstall/crash helpers and then launchers (`*launcher*`, `*config*`, ...); the
@@ -123,12 +140,44 @@ Other actions written by the extension are the non-play file actions whose path 
 with `{InstallDir}\`; they are replaced on every update. Any other action you add to
 these games is left alone (give your own a full path rather than `{InstallDir}`).
 
+## Achievements
+
+Some recomps have achievements, but each keeps them its own way, and the Playnite
+Achievements extension knows none of these games. What the extension does today
+(**experimental**):
+
+- **Recorded in a file the extension can read** (Bloodborne: `CUSA00207\trophies.txt`, with
+  the full list and icons in `trophy_cache\`): exported as a CSV for Playnite Achievements,
+  see the setting above. Sonic Unleashed, Super Mario 64 (Ghostship), F-Zero X (G-Diffuser)
+  and Twilight Princess (Dusklight) also record theirs in a file, already listed in
+  `executables.json`; their export will follow (some don't store the achievement names).
+- **RetroAchievements built in** (Silent Hill; also The Minish Cap, not checked again): the
+  unlocks go to your RetroAchievements account. In Playnite Achievements, set the game's
+  provider to RetroAchievements and its game ID by hand (Silent Hill **11252**, The Minish
+  Cap **559**; also stored as `retroAchievementsId`). The extension adds no platform to
+  these games, so Playnite Achievements allows that override. Log in to RetroAchievements
+  inside the port so it can unlock them. Other recomps of games that have a
+  RetroAchievements set don't report to it, so playing them unlocks nothing there.
+- **No local file**: the ReXGlue ports checked so far leave no achievement file, and Dead
+  Rising 2 (Case Zero / Case West) sends them to a XenonLive account.
+
+## Changelog
+
+**0.2.0**
+- Experimental achievements export for Playnite Achievements (setting off by default):
+  Bloodborne's trophies as a CSV to import in that extension, from the game menu and
+  rewritten when the game closes.
+- `executables.json`: new `achievements` field (kind, unlock file, RetroAchievements game
+  ID) for the apps reviewed so far.
+
+**0.1.0** — first release.
+
 ## Repository layout
 
 ```
 QuiverLibrary.sln
 src/
-  QuiverLibrary.Core/         Quiver logic (paths, library files, install rules, command line); no Playnite dependency
+  QuiverLibrary.Core/         Quiver logic (paths, library files, install rules, command line, saves, achievements); no Playnite dependency
   QuiverLibrary.Core.Tests/   xUnit tests for Core
   QuiverLibrary.Playnite/     The Playnite GameLibrary extension (extension.yaml, settings, controllers, localization)
 ```
