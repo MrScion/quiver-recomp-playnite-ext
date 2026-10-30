@@ -47,6 +47,12 @@ namespace QuiverLibrary.Playnite.Settings
         public bool LudusaviBackup { get; set; }
 
         /// <summary>
+        /// Experimental: exports the achievements of the apps whose files are understood as a CSV for the
+        /// Playnite Achievements extension (game menu entry, rewritten when the game stops). Off by default.
+        /// </summary>
+        public bool AchievementsExport { get; set; }
+
+        /// <summary>
         /// Play program chosen from the game's menu, by app folder name: relative to the app
         /// folder when inside it, absolute otherwise (<c>ExecutablePlanner.ChosenPath</c>).
         /// </summary>

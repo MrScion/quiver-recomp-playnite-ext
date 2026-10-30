@@ -40,6 +40,8 @@ namespace QuiverLibrary.Playnite.Settings
         private bool _makePortable;
         private bool _beforeLudusaviBackup;
         private bool _ludusaviBackup;
+        private bool _beforeAchievementsExport;
+        private bool _achievementsExport;
         private string _quiverFolder;
         private string _status;
         private bool _statusIsError;
@@ -85,6 +87,12 @@ namespace QuiverLibrary.Playnite.Settings
             set => SetValue(ref _ludusaviBackup, value);
         }
 
+        public bool AchievementsExport
+        {
+            get => _achievementsExport;
+            set => SetValue(ref _achievementsExport, value);
+        }
+
         public RelayCommand BrowseQuiverFolderCommand { get; }
 
         /// <summary>Port features Playnite imports from Quiver's tags; unticked ones are left out.</summary>
@@ -98,6 +106,7 @@ namespace QuiverLibrary.Playnite.Settings
             _syncLastPlayed = settings.SyncLastPlayed;
             _makePortable = settings.MakePortable;
             _ludusaviBackup = settings.LudusaviBackup;
+            _achievementsExport = settings.AchievementsExport;
             var disabled = new HashSet<string>(settings.DisabledFeatures ?? new List<string>(), StringComparer.OrdinalIgnoreCase);
             Features = QuiverTagMapping.Features.Select(f => new QuiverFeatureOption(f, !disabled.Contains(f.Key))).ToList();
 
@@ -152,6 +161,7 @@ namespace QuiverLibrary.Playnite.Settings
             _beforeSyncLastPlayed = SyncLastPlayed;
             _beforeMakePortable = MakePortable;
             _beforeLudusaviBackup = LudusaviBackup;
+            _beforeAchievementsExport = AchievementsExport;
             _beforeFeatures = Features.Select(f => f.IsEnabled).ToList();
         }
 
@@ -161,6 +171,7 @@ namespace QuiverLibrary.Playnite.Settings
             SyncLastPlayed = _beforeSyncLastPlayed;
             MakePortable = _beforeMakePortable;
             LudusaviBackup = _beforeLudusaviBackup;
+            AchievementsExport = _beforeAchievementsExport;
             for (var i = 0; i < Features.Count && _beforeFeatures != null && i < _beforeFeatures.Count; i++)
             {
                 Features[i].IsEnabled = _beforeFeatures[i];
@@ -178,6 +189,7 @@ namespace QuiverLibrary.Playnite.Settings
             settings.MakePortable = MakePortable;
             var ludusaviTurnedOn = LudusaviBackup && !settings.LudusaviBackup;
             settings.LudusaviBackup = LudusaviBackup;
+            settings.AchievementsExport = AchievementsExport;
             _plugin.SavePluginSettings(settings);
             if (_plugin.FindInstallation() != null)
             {

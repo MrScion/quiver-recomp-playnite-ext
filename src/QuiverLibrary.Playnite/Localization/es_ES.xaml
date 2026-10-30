@@ -15,6 +15,8 @@
     <sys:String x:Key="LOCQuiverSettingsSyncLastPlayedHint">Gana la fecha más reciente: los juegos que arrancas desde Playnite actualizan el orden "Last played" de Quiver, y los que arrancas desde Quiver actualizan Playnite en la siguiente actualización de la biblioteca. No se tocan el tiempo de juego ni el número de partidas (Quiver no los guarda).</sys:String>
     <sys:String x:Key="LOCQuiverSettingsMakePortable">Hacer portables las apps instaladas</sys:String>
     <sys:String x:Key="LOCQuiverSettingsLudusaviBackup">Hacer copias de las partidas con Ludusavi</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsAchievementsExport">Exportar logros para Playnite Achievements (EXPERIMENTAL)</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsAchievementsExportHint">Experimental y sin terminar: de momento solo entiende los trofeos de Bloodborne; se irán añadiendo otros recomps con logros. Añade "Exportar logros para Playnite Achievements" al menú del juego (Recomps (Quiver Launcher)), que escribe un CSV con los logros del juego y los desbloqueados, y vuelve a escribir ese CSV cada vez que se cierra el juego. Playnite Achievements no permite que otras extensiones añadan logros, así que el CSV lo importas tú en su editor de logros de ese juego (otra vez cuando desbloquees más; las filas se emparejan, no se duplican). Puede cambiar cuando Playnite Achievements ofrezca una forma propia.</sys:String>
     <sys:String x:Key="LOCQuiverSettingsLudusaviBackupHint">Para la extensión de Ludusavi para Playnite, que no conoce estos juegos. En cada actualización de la biblioteca escribe un manifiesto de Ludusavi con cada juego por su nombre en Playnite y sus carpetas de partidas (la portable y la de AppData, así se encuentran en los dos casos), y lo añade una vez al config.yaml de Ludusavi (se guarda una copia como config.yaml.bak). Después la extensión de Ludusavi hace la copia al cerrar cada juego, en la carpeta de sus ajustes. Solo entran los juegos cuyas carpetas de partidas se conocen (ver extensions.log). Al desmarcarla no se cambia nada en Ludusavi.</sys:String>
     <sys:String x:Key="LOCQuiverSettingsMakePortableHint">En cada actualización de la biblioteca e instalación, crea el archivo que hace que cada app guarde sus partidas y ajustes en su propia carpeta en lugar de AppData (casi siempre un portable.txt vacío junto a su programa). Las apps que ya tienen datos en su carpeta habitual no se tocan, y se avisa una vez. Al desmarcarla no se borra nada.</sys:String>
     <sys:String x:Key="LOCQuiverSettingsFeaturesHeader">Características que se importan</sys:String>
@@ -33,6 +35,7 @@
     <sys:String x:Key="LOCQuiverMenuOpenSaves">Abrir carpeta de partidas</sys:String>
     <sys:String x:Key="LOCQuiverMenuChooseExecutable">Elegir ejecutable del juego...</sys:String>
     <sys:String x:Key="LOCQuiverMenuResetExecutable">Usar el ejecutable por defecto</sys:String>
+    <sys:String x:Key="LOCQuiverMenuExportAchievements">Exportar logros para Playnite Achievements (experimental)...</sys:String>
 
     <!-- Acciones de juego -->
     <sys:String x:Key="LOCQuiverInstallActionName">Instalar con Quiver</sys:String>
@@ -55,6 +58,8 @@
     <sys:String x:Key="LOCQuiverPlayNotSetUp">No se ha encontrado el juego de {0}. Ejecuta su acción "Setup" para generarlo o instalarlo; si lo pusiste fuera de la carpeta de la app, elige su programa con "Elegir ejecutable del juego..." en el menú del juego (Recomps (Quiver Launcher)).</sys:String>
     <sys:String x:Key="LOCQuiverChosenExecutable" xml:space="preserve">Playnite arrancará {0} con:&#x0a;{1}</sys:String>
     <sys:String x:Key="LOCQuiverSavesNotYet" xml:space="preserve">{0} todavía no ha guardado nada. Sus partidas estarán en:&#x0a;{1}</sys:String>
+    <sys:String x:Key="LOCQuiverAchievementsNotYet">{0} todavía no ha guardado ningún logro.</sys:String>
+    <sys:String x:Key="LOCQuiverAchievementsExported" xml:space="preserve">Experimental: se han exportado {1} logros de {0} ({2} desbloqueados) a:&#x0a;{3}&#x0a;&#x0a;Para verlos en Playnite Achievements, abre allí el editor de logros de este juego e importa ese CSV como sus logros personalizados. El CSV se vuelve a escribir cada vez que se cierra el juego: impórtalo otra vez cuando desbloquees más (las filas se emparejan por ID, no se duplica nada).</sys:String>
     <sys:String x:Key="LOCQuiverInstallNoFiles">Quiver ha terminado pero no se encuentran los archivos de la app.</sys:String>
     <sys:String x:Key="LOCQuiverInstallFailed">Quiver no ha podido instalar {0}: {1}</sys:String>
     <sys:String x:Key="LOCQuiverInstallNeedsQuiver">Quiver no puede descargar {0} desde su línea de comandos. Pulsa aquí para abrir Quiver Launcher e instalarlo allí; después actualiza la biblioteca de juegos.</sys:String>

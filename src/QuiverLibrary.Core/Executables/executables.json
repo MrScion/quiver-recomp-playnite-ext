@@ -31,8 +31,9 @@
         { "name": "Setup", "file": "simpsons-launcher.exe" }
       ],
       "reviewed": true,
-      "source": "README: simpsons-launcher.exe --play starts the game without the launcher window, with the same settings as its Play button. User data: README: saves and the shader cache are stored in %LOCALAPPDATA%\\simpsons. ReXGlue's user_data_root setting could move them (not verified).",
-      "userData": { "portable": "none", "appData": "%LOCALAPPDATA%\\simpsons" }
+      "source": "README: simpsons-launcher.exe --play starts the game without the launcher window, with the same settings as its Play button. User data: README: saves and the shader cache are stored in %LOCALAPPDATA%\\simpsons. ReXGlue's user_data_root setting could move them (not verified). Achievements: strings in its binaries (2026-10-29), ReXGlue runtime with achievement toasts and overlay; where it keeps the unlocks not verified. Not seen in played installs (2026-10-30): no .gpd or other achievement file in the app folder or AppData.",
+      "userData": { "portable": "none", "appData": "%LOCALAPPDATA%\\simpsons" },
+      "achievements": { "kind": "rexglue" }
     },
     {
       "name": "Silent Hill: Downpour",
@@ -42,8 +43,9 @@
         { "name": "Setup", "file": "PlayDownpour.exe" }
       ],
       "reviewed": true,
-      "source": "README: PlayDownpour.exe is the launcher (settings tabs, updates, Play button); it starts downpour.exe, which reads its settings from downpour.toml. User data: README and src/downpour_app.h: portable layout, saves, config and shader cache live in the game folder. Seen in a played install (2026-10-28): the saves are in user\\.",
-      "userData": { "portable": "builtin", "local": "", "saves": "user" }
+      "source": "README: PlayDownpour.exe is the launcher (settings tabs, updates, Play button); it starts downpour.exe, which reads its settings from downpour.toml. User data: README and src/downpour_app.h: portable layout, saves, config and shader cache live in the game folder. Seen in a played install (2026-10-28): the saves are in user\\. Achievements: strings in its binaries (2026-10-29), ReXGlue runtime with achievement toasts and overlay; where it keeps the unlocks not verified. Not seen in played installs (2026-10-30): no .gpd or other achievement file in the app folder or AppData.",
+      "userData": { "portable": "builtin", "local": "", "saves": "user" },
+      "achievements": { "kind": "rexglue" }
     },
     {
       "name": "Silent Hill",
@@ -53,8 +55,9 @@
         { "name": "Setup", "file": "SilentHillPC_Launcher.exe" }
       ],
       "reviewed": true,
-      "source": "README: run SilentHillPC_Launcher to configure, or SilentHillPC to play. User data: Seen in an installed release: gamedata\\save.",
-      "userData": { "portable": "builtin", "local": "gamedata", "saves": "save" }
+      "source": "README: run SilentHillPC_Launcher to configure, or SilentHillPC to play. User data: Seen in an installed release: gamedata\\save. Achievements: strings in its binaries (2026-10-29), rcheevos client in SilentHillPC.exe and its launcher; RetroAchievements game 11252, Silent Hill (PlayStation), found 2026-10-30; SilentHillPC.exe embeds three MD5 disc hashes and a raHashOverride setting, so it most likely reports to that set (not verified).",
+      "userData": { "portable": "builtin", "local": "gamedata", "saves": "save" },
+      "achievements": { "kind": "retroachievements", "retroAchievementsId": 11252 }
     },
     {
       "name": "Fable II",
@@ -64,8 +67,9 @@
         { "name": "Setup", "file": "Fable2Launcher.exe" }
       ],
       "reviewed": true,
-      "source": "README: the optional WPF launcher extracts the ISO and writes fable_2.toml; fable_2.exe is the game. User data: src/core/fable_2_app.h: saves and caches always in saves\\ next to the exe.",
-      "userData": { "portable": "builtin", "local": "", "saves": "saves" }
+      "source": "README: the optional WPF launcher extracts the ISO and writes fable_2.toml; fable_2.exe is the game. User data: src/core/fable_2_app.h: saves and caches always in saves\\ next to the exe. Achievements: strings in its binaries (2026-10-29), ReXGlue runtime with achievement toasts and overlay; where it keeps the unlocks not verified.",
+      "userData": { "portable": "builtin", "local": "", "saves": "saves" },
+      "achievements": { "kind": "rexglue" }
     },
     {
       "name": "Blue Dragon",
@@ -76,8 +80,9 @@
         { "name": "Repair", "file": "reblue.exe", "arguments": "--repair" }
       ],
       "reviewed": true,
-      "source": "README: reblue.exe is DirectX 12 and reblue_vk.exe Vulkan; --repair reopens the setup wizard on the existing install. User data: src/installer/install_registry.h: user data in user\\ of the install folder chosen in its setup wizard, which may be elsewhere. Seen in a played install (2026-10-28): profiles\\default holds reblue.toml and saves\\.",
-      "userData": { "portable": "builtin", "local": "profiles" }
+      "source": "README: reblue.exe is DirectX 12 and reblue_vk.exe Vulkan; --repair reopens the setup wizard on the existing install. User data: src/installer/install_registry.h: user data in user\\ of the install folder chosen in its setup wizard, which may be elsewhere. Seen in a played install (2026-10-28): profiles\\default holds reblue.toml and saves\\. Achievements: strings in its binaries (2026-10-29), ReXGlue runtime with achievement toasts and overlay; where it keeps the unlocks not verified. Not seen in played installs (2026-10-30): no .gpd or other achievement file in the app folder or AppData.",
+      "userData": { "portable": "builtin", "local": "profiles" },
+      "achievements": { "kind": "rexglue" }
     },
     {
       "name": "The Legend of Zelda: The Wind Waker HD",
@@ -139,8 +144,9 @@
       "repository": "ExpansionPak/ModernGekko",
       "play": { "file": "KirbyWiiRecomp.exe" },
       "reviewed": true,
-      "source": "README.md in the release: double-click KirbyWiiRecomp.exe; its launcher extracts the disc and starts the game. KirbyRecomp.exe is not documented. User data: KirbyWiiRecomp.exe passes Dolphin a user folder under %LOCALAPPDATA%\\kirby-wii-recomp; no documented portable mode.",
-      "userData": { "portable": "none", "appData": "%LOCALAPPDATA%\\kirby-wii-recomp" }
+      "source": "README.md in the release: double-click KirbyWiiRecomp.exe; its launcher extracts the disc and starts the game. KirbyRecomp.exe is not documented. User data: KirbyWiiRecomp.exe passes Dolphin a user folder under %LOCALAPPDATA%\\kirby-wii-recomp; no documented portable mode. Achievements: none in the recomp. Checked 2026-10-30: its binaries only carry Dolphin's RetroAchievements folder and .ini names, no RetroAchievements server or client, so nothing unlocks while playing it (the original is RetroAchievements game 104, which only counts what is earned in emulators).",
+      "userData": { "portable": "none", "appData": "%LOCALAPPDATA%\\kirby-wii-recomp" },
+      "achievements": { "kind": "none" }
     },
     {
       "name": "Metroid Prime Hunters",
@@ -155,16 +161,18 @@
       "repository": "Zorkats/G-Diffuser",
       "play": { "file": "G-Diffuser.exe" },
       "reviewed": true,
-      "source": "README: gdx-extract builds the game data on first boot. User data: README: saves are stored in saves\\ beside the executable.",
-      "userData": { "portable": "builtin", "local": "", "saves": "saves" }
+      "source": "README: gdx-extract builds the game data on first boot. User data: README: saves are stored in saves\\ beside the executable. Achievements: strings in its binaries (2026-10-29), an achievement list in G-Diffuser.exe. Seen in a played install (2026-10-30): saves\\achievements.txt, key=value lines (version=1, playtime_seconds); how an unlock is written not seen (nothing unlocked yet).",
+      "userData": { "portable": "builtin", "local": "", "saves": "saves" },
+      "achievements": { "kind": "custom", "file": "saves\\achievements.txt" }
     },
     {
       "name": "Bloodborne",
       "repository": "Mrsuss60/bloodborne_pc_windows_port",
       "play": { "file": "launch_gui.bat" },
       "reviewed": true,
-      "source": "README: the graphical launcher is the recommended way; run.bat needs the game folder as an argument. User data: gpu/shadps4/common/path_util.cpp: on Windows the user folder is created in the working directory; seen in an installed release: user\\.",
-      "userData": { "portable": "builtin", "local": "user" }
+      "source": "README: the graphical launcher is the recommended way; run.bat needs the game folder as an argument. User data: gpu/shadps4/common/path_util.cpp: on Windows the user folder is created in the working directory; seen in an installed release: user\\. Achievements: strings in its binaries (2026-10-29), sceNpTrophy and a trophy folder in bbport.exe; where it keeps the unlocks not verified.",
+      "userData": { "portable": "builtin", "local": "user" },
+      "achievements": { "kind": "ps4trophy" }
     },
     {
       "name": "Crash Bandicoot 2: Cortex Strikes Back",
@@ -189,8 +197,9 @@
         { "name": "Setup", "file": "Bloodborne.exe" }
       ],
       "reviewed": true,
-      "source": "README: Bloodborne.exe is the launcher (settings, PLAY button); 'Play Bloodborne.exe' starts the game straight away with the saved settings. User data: CUSA00207\\savedata, seen in a played install (2026-10-28).",
-      "userData": { "portable": "builtin", "local": "", "saves": "CUSA00207\\savedata" }
+      "source": "README: Bloodborne.exe is the launcher (settings, PLAY button); 'Play Bloodborne.exe' starts the game straight away with the saved settings. User data: CUSA00207\\savedata, seen in a played install (2026-10-28). Achievements: seen in a played install (2026-10-30): CUSA00207\\trophies.txt has one line per unlocked trophy, '<id> <unix time>'; CUSA00207\\trophy_cache\\metadata.json lists every trophy (id, name, description, grade P/G/S/B, hidden) and trophy_cache\\icons\\TROPnnn.PNG holds their icons.",
+      "userData": { "portable": "builtin", "local": "", "saves": "CUSA00207\\savedata" },
+      "achievements": { "kind": "ps4trophy", "file": "CUSA00207\\trophies.txt" }
     },
     {
       "name": "Buffy the Vampire Slayer: Chaos Bleeds",
@@ -467,8 +476,9 @@
       "name": "Sonic Unleashed",
       "repository": "hedge-dev/UnleashedRecomp",
       "reviewed": true,
-      "source": "User data: README and UnleashedRecomp/user/paths.cpp: an empty portable.txt in the installation folder keeps saves (save\\) and config there.",
-      "userData": { "portable": "portable.txt", "appData": "%APPDATA%\\UnleashedRecomp", "local": "", "saves": "save" }
+      "source": "User data: README and UnleashedRecomp/user/paths.cpp: an empty portable.txt in the installation folder keeps saves (save\\) and config there. Achievements: strings in its binaries (2026-10-29), its own achievement system and notifications. Seen in a played portable install (2026-10-30): save\\ACH-DATA (in %APPDATA%\\UnleashedRecomp\\save without portable.txt), binary: 'ACH ' signature, version 1, then 16-byte records with a 16-bit achievement id and a 64-bit unix time; names and descriptions not in that file.",
+      "userData": { "portable": "portable.txt", "appData": "%APPDATA%\\UnleashedRecomp", "local": "", "saves": "save" },
+      "achievements": { "kind": "custom", "file": "save\\ACH-DATA;%APPDATA%\\UnleashedRecomp\\save\\ACH-DATA" }
     },
     {
       "name": "The Legend of Zelda: Ocarina of Time",
@@ -502,15 +512,17 @@
       "name": "Super Mario 64",
       "repository": "harbourmasters/ghostship",
       "reviewed": true,
-      "source": "User data: libultraship Context::GetAppDirectoryPath: on Windows the data folder is the working directory. Seen in a played install (2026-10-28): saves\\save_0.json.",
-      "userData": { "portable": "builtin", "local": "", "saves": "saves" }
+      "source": "User data: libultraship Context::GetAppDirectoryPath: on Windows the data folder is the working directory. Seen in a played install (2026-10-28): saves\\save_0.json. Achievements: strings in its binaries (2026-10-29), its own achievement system (achievement_* functions). Seen in a played install (2026-10-30): inside saves\\save_0.json, shipSaveData.achievementSaveData.entries holds one { id, progress } per achievement with readable ids (UnlockVanishCap, Get1Star...); no unlock dates, and how an unlock is marked not seen (nothing unlocked yet).",
+      "userData": { "portable": "builtin", "local": "", "saves": "saves" },
+      "achievements": { "kind": "custom", "file": "saves\\save_0.json" }
     },
     {
       "name": "The Legend of Zelda: The Minish Cap",
       "repository": "999sian/tmc",
       "reviewed": true,
-      "source": "User data: port/port_main.c: every file (config.json, tmc.sav, quicksaves) is relative to the working directory on Windows.",
-      "userData": { "portable": "builtin", "local": "", "saves": "tmc.sav" }
+      "source": "User data: port/port_main.c: every file (config.json, tmc.sav, quicksaves) is relative to the working directory on Windows. Achievements: strings in its binaries (2026-10-29), rcheevos client in tmc_pc.exe; RetroAchievements game 559 (Game Boy Advance), found 2026-10-30; that it reports to this set not verified.",
+      "userData": { "portable": "builtin", "local": "", "saves": "tmc.sav" },
+      "achievements": { "kind": "retroachievements", "retroAchievementsId": 559 }
     },
     {
       "name": "F-Zero",
@@ -572,22 +584,25 @@
       "name": "Dead Rising 2: Case West",
       "repository": "wivi514/Dead_Rising_2_Case_West_Xenon_Recomp",
       "reviewed": true,
-      "source": "User data: runtime/host/host_paths.h: always the Saved Games known folder.",
-      "userData": { "portable": "none", "appData": "%USERPROFILE%\\Saved Games\\Dead Rising 2 Case West" }
+      "source": "User data: runtime/host/host_paths.h: always the Saved Games known folder. Achievements: strings in its binaries (2026-10-29), achievements UI in its XenonRecomp runtime (cw_runtime.exe); where it keeps the unlocks not verified. Seen in a played install (2026-10-30): unlocks go to the player's XenonLive account; started without the XenonLive launcher it uses an offline default profile and they are lost on exit ('achievements will not survive this session'); no local file.",
+      "userData": { "portable": "none", "appData": "%USERPROFILE%\\Saved Games\\Dead Rising 2 Case West" },
+      "achievements": { "kind": "custom" }
     },
     {
       "name": "Dead Rising 2: Case Zero",
       "repository": "wivi514/Dead_Rising_2_Case_Zero_Xenon_Recomp",
       "reviewed": true,
-      "source": "User data: runtime/host/host_paths.h: always the Saved Games known folder.",
-      "userData": { "portable": "none", "appData": "%USERPROFILE%\\Saved Games\\Dead Rising 2 Case Zero" }
+      "source": "User data: runtime/host/host_paths.h: always the Saved Games known folder. Achievements: strings in its binaries (2026-10-29), achievements UI in its XenonRecomp runtime (cz_runtime.exe); where it keeps the unlocks not verified. Seen in a played install (2026-10-30): unlocks go to the player's XenonLive account; started without the XenonLive launcher it uses an offline default profile and they are lost on exit ('achievements will not survive this session'); no local file.",
+      "userData": { "portable": "none", "appData": "%USERPROFILE%\\Saved Games\\Dead Rising 2 Case Zero" },
+      "achievements": { "kind": "custom" }
     },
     {
       "name": "The Legend of Zelda: Twilight Princess",
       "repository": "TwilitRealm/dusklight",
       "reviewed": true,
-      "source": "User data: Seen on a machine that played it; no portable mode found (not verified).",
-      "userData": { "portable": "none", "appData": "%APPDATA%\\TwilitRealm\\Dusklight" }
+      "source": "User data: Seen on a machine that played it; no portable mode found (not verified). Achievements: data\\achievements.json seen in an install (2026-10-29): one object per achievement id with progress and unlocked; names, descriptions and unlock dates not in that file.",
+      "userData": { "portable": "none", "appData": "%APPDATA%\\TwilitRealm\\Dusklight" },
+      "achievements": { "kind": "custom", "file": "data\\achievements.json" }
     },
     {
       "name": "Dante's Inferno",
@@ -665,6 +680,48 @@
       "reviewed": true,
       "source": "START HERE.txt: Import ROM.cmd imports the ROM, Configure Controls.exe maps the controller, Play.exe plays and Play With Coordinates.exe starts with the coordinates HUD. User data: saves\\, seen in a played install (2026-10-28).",
       "userData": { "portable": "builtin", "local": "saves" }
+    },
+    {
+      "name": "Banjo-Kazooie: Nuts & Bolts",
+      "repository": "masterspike52/reNut",
+      "reviewed": true,
+      "source": "Achievements: strings in its binaries (2026-10-29), ReXGlue runtime with achievement toasts and overlay; where it keeps the unlocks not verified.",
+      "achievements": { "kind": "rexglue" }
+    },
+    {
+      "name": "Condemned 2: Bloodshot",
+      "repository": "psxrestore/Condemned2Recomp",
+      "reviewed": true,
+      "source": "Achievements: strings in its binaries (2026-10-29), ReXGlue runtime with achievement toasts and overlay; where it keeps the unlocks not verified.",
+      "achievements": { "kind": "rexglue" }
+    },
+    {
+      "name": "Viva Pinata: Trouble in Paradise",
+      "repository": "SolarCookies/TiP-Recomp",
+      "reviewed": true,
+      "source": "Achievements: strings in its binaries (2026-10-29), ReXGlue runtime with achievement toasts and overlay; where it keeps the unlocks not verified.",
+      "achievements": { "kind": "rexglue" }
+    },
+    {
+      "name": "GoldenEye 007 (XBLA)",
+      "repository": "SunJaycy/GoldenEye-Recomp",
+      "reviewed": true,
+      "source": "Achievements: strings in its binaries (2026-10-29), ReXGlue runtime with achievement toasts and overlay; where it keeps the unlocks not verified. Not seen in played installs (2026-10-30): no .gpd or other achievement file in the app folder or AppData.",
+      "achievements": { "kind": "rexglue" }
+    },
+    {
+      "name": "Kameo: Elements of Power",
+      "repository": "birabittoh/KameoRePowered",
+      "reviewed": true,
+      "source": "Achievements: strings in its binaries (2026-10-29), only in the ReXGlue runtime DLLs, not in the game exe; not verified that the game uses them.",
+      "achievements": { "kind": "rexglue" }
+    },
+    {
+      "name": "Sonic and the Secret Rings",
+      "repository": "kumapauz/project-reignition",
+      "reviewed": true,
+      "source": "Achievements: strings in its binaries (2026-10-29), AchievementManager in Sonic Remake Project.dll; where it keeps the unlocks not verified.",
+      "achievements": { "kind": "custom" }
     }
   ]
 }

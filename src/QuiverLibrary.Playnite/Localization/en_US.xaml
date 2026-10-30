@@ -15,6 +15,8 @@
     <sys:String x:Key="LOCQuiverSettingsSyncLastPlayedHint">The most recent time wins: games started from Playnite update Quiver's "Last played" order, and games started from Quiver update Playnite on the next library update. Play time and play count are not touched (Quiver doesn't keep them).</sys:String>
     <sys:String x:Key="LOCQuiverSettingsMakePortable">Make the installed apps portable</sys:String>
     <sys:String x:Key="LOCQuiverSettingsLudusaviBackup">Back up the saves with Ludusavi</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsAchievementsExport">Export achievements for Playnite Achievements (EXPERIMENTAL)</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsAchievementsExportHint">Experimental and not fully implemented: today it only understands Bloodborne's trophies; other recomps with achievements will follow. Adds "Export achievements for Playnite Achievements" to the game's menu (Recomps (Quiver Launcher)), which writes a CSV with the game's achievements and unlocks, and rewrites that CSV every time the game closes. Playnite Achievements has no way for other extensions to add achievements, so you import the CSV yourself in its achievement editor for that game (again after unlocking more; rows are matched, not duplicated). This may change when Playnite Achievements offers a proper way.</sys:String>
     <sys:String x:Key="LOCQuiverSettingsLudusaviBackupHint">For the Ludusavi extension for Playnite, which doesn't know these games. On every library update, writes a Ludusavi manifest listing each game by its Playnite name with its save folders (portable and AppData, so saves are found either way), and adds it once to Ludusavi's config.yaml (a copy is kept as config.yaml.bak). The Ludusavi extension then backs them up when you close each game, to the folder set in its settings. Only games whose save folders are known are included (see extensions.log). Unticking it changes nothing in Ludusavi.</sys:String>
     <sys:String x:Key="LOCQuiverSettingsMakePortableHint">On every library update and install, creates the file that makes each app keep its saves and settings in its own folder instead of AppData (usually an empty portable.txt next to its program). Apps that already have data in their usual folder are left alone, and you are told once. Unticking it removes nothing.</sys:String>
     <sys:String x:Key="LOCQuiverSettingsFeaturesHeader">Features to import</sys:String>
@@ -33,6 +35,7 @@
     <sys:String x:Key="LOCQuiverMenuOpenSaves">Open saves folder</sys:String>
     <sys:String x:Key="LOCQuiverMenuChooseExecutable">Choose game executable...</sys:String>
     <sys:String x:Key="LOCQuiverMenuResetExecutable">Use the default game executable</sys:String>
+    <sys:String x:Key="LOCQuiverMenuExportAchievements">Export achievements for Playnite Achievements (experimental)...</sys:String>
 
     <!-- Game actions -->
     <sys:String x:Key="LOCQuiverInstallActionName">Install with Quiver</sys:String>
@@ -55,6 +58,8 @@
     <sys:String x:Key="LOCQuiverPlayNotSetUp">The game of {0} was not found. Run its "Setup" action to build or install it; if you put it outside the app's folder, choose its program with "Choose game executable..." in the game's menu (Recomps (Quiver Launcher)).</sys:String>
     <sys:String x:Key="LOCQuiverChosenExecutable" xml:space="preserve">Playnite will start {0} with:&#x0a;{1}</sys:String>
     <sys:String x:Key="LOCQuiverSavesNotYet" xml:space="preserve">{0} has not saved anything yet. Its saves will be in:&#x0a;{1}</sys:String>
+    <sys:String x:Key="LOCQuiverAchievementsNotYet">{0} has not recorded any achievement yet.</sys:String>
+    <sys:String x:Key="LOCQuiverAchievementsExported" xml:space="preserve">Experimental: exported {1} achievements of {0} ({2} unlocked) to:&#x0a;{3}&#x0a;&#x0a;To see them in Playnite Achievements, open this game's achievement editor there and import that CSV as its custom achievements. The CSV is rewritten every time the game closes: import it again after unlocking more (rows are matched by ID, nothing is duplicated).</sys:String>
     <sys:String x:Key="LOCQuiverInstallNoFiles">Quiver finished but the app files were not found.</sys:String>
     <sys:String x:Key="LOCQuiverInstallFailed">Quiver could not install {0}: {1}</sys:String>
     <sys:String x:Key="LOCQuiverInstallNeedsQuiver">Quiver can't download {0} from its command line. Click here to open Quiver Launcher and install it there, then update the game library.</sys:String>

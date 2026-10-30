@@ -33,7 +33,7 @@ namespace QuiverLibrary.Core.Tests
             Assert.All(entries, e =>
             {
                 Assert.False(string.IsNullOrWhiteSpace(e.Repository) && string.IsNullOrWhiteSpace(e.FolderName));
-                Assert.True(e.HasLaunchInfo || e.UserData != null);
+                Assert.True(e.HasLaunchInfo || e.UserData != null || e.Achievements != null);
                 if (e.HasLaunchInfo)
                 {
                     Assert.False(string.IsNullOrWhiteSpace(e.Play?.File));
@@ -48,6 +48,11 @@ namespace QuiverLibrary.Core.Tests
                     // A portable app needs both folders: where its data was, to warn, and where it goes.
                     Assert.True(e.UserData.Marker == null || (e.UserData.AppData != null && e.UserData.Local != null));
                     Assert.True(!e.UserData.IsBuiltin || e.UserData.Local != null);
+                }
+
+                if (e.Achievements != null)
+                {
+                    Assert.Contains(e.Achievements.Kind, new[] { AchievementsInfo.ReXGlue, AchievementsInfo.RetroAchievements, AchievementsInfo.Ps4Trophy, AchievementsInfo.Custom, AchievementsInfo.None });
                 }
             });
             Assert.Equal(entries.Count, entries.Select(e => e.FolderName ?? e.Repository.ToLowerInvariant()).Distinct().Count());
@@ -390,6 +395,28 @@ namespace QuiverLibrary.Core.Tests
                 Assert.Equal(UserDataInfo.DefaultMarker, db.FindUserData(new QuiverApp { Repository = "sonicdcer/Starfox64Recomp" }).Marker);
                 Assert.Null(db.FindUserData(new QuiverApp { Repository = "someone/unknown" }));
             }
+        }
+
+        [Fact]
+        public void FindAchievements_ReadsTheBundledEntries_AndAnAchievementsOnlyEntryHasNoPrograms()
+        {
+            var db = ExecutableDatabase.Load(null);
+
+            var dusklight = db.FindAchievements(new QuiverApp { Repository = "TwilitRealm/dusklight" });
+            Assert.Equal(AchievementsInfo.Custom, dusklight.Kind);
+            Assert.Equal(@"data\achievements.json", dusklight.File);
+            var bloodborne = db.FindAchievements(new QuiverApp { Repository = "Supermedo/bloodborne_pc" });
+            Assert.Equal(AchievementsInfo.Ps4Trophy, bloodborne.Kind);
+            Assert.Equal(@"CUSA00207\trophies.txt", bloodborne.File);
+            Assert.Equal(0, bloodborne.RetroAchievementsId);
+            var minishCap = db.FindAchievements(new QuiverApp { Repository = "999sian/tmc" });
+            Assert.Equal(AchievementsInfo.RetroAchievements, minishCap.Kind);
+            Assert.Equal(559, minishCap.RetroAchievementsId);
+            var renut = new QuiverApp { Repository = "masterspike52/reNut" };
+            Assert.Equal(AchievementsInfo.ReXGlue, db.FindAchievements(renut).Kind);
+            Assert.Null(db.Find(renut));
+            Assert.Null(db.FindUserData(renut));
+            Assert.Null(db.FindAchievements(new QuiverApp { Repository = "someone/unknown" }));
         }
 
         [Fact]

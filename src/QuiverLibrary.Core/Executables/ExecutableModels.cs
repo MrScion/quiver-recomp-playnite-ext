@@ -54,6 +54,10 @@ namespace QuiverLibrary.Core.Executables
         [DataMember(Name = "userData", Order = 8, EmitDefaultValue = false)]
         public UserDataInfo UserData { get; set; }
 
+        /// <summary>Whether the app has achievements or trophies, and where it keeps them.</summary>
+        [DataMember(Name = "achievements", Order = 9, EmitDefaultValue = false)]
+        public AchievementsInfo Achievements { get; set; }
+
         /// <summary>False for an entry that only describes <see cref="UserData"/>: its programs are chosen automatically.</summary>
         public bool HasLaunchInfo => Play != null || (Others != null && Others.Count > 0);
     }
@@ -108,6 +112,44 @@ namespace QuiverLibrary.Core.Executables
 
         /// <summary>The marker file name, or null for <see cref="Builtin"/> and <see cref="None"/>.</summary>
         public string Marker => IsBuiltin || IsUnsupported ? null : (string.IsNullOrWhiteSpace(Portable) ? DefaultMarker : Portable);
+    }
+
+    [DataContract]
+    public class AchievementsInfo
+    {
+        /// <summary>The ReXGlue runtime's own achievements (Xbox 360 recompilations).</summary>
+        public const string ReXGlue = "rexglue";
+
+        /// <summary>Unlocked on the player's RetroAchievements account (rcheevos built in).</summary>
+        public const string RetroAchievements = "retroachievements";
+
+        /// <summary>PS4 trophies (<c>sceNpTrophy</c>).</summary>
+        public const string Ps4Trophy = "ps4trophy";
+
+        /// <summary>The app's own achievement system.</summary>
+        public const string Custom = "custom";
+
+        /// <summary>Checked: the app has no achievements.</summary>
+        public const string None = "none";
+
+        /// <summary><see cref="ReXGlue"/>, <see cref="RetroAchievements"/>, <see cref="Ps4Trophy"/>, <see cref="Custom"/> or <see cref="None"/>.</summary>
+        [DataMember(Name = "kind", Order = 1)]
+        public string Kind { get; set; }
+
+        /// <summary>
+        /// File with the unlocked achievements, relative to the app folder; may contain environment
+        /// variables (<c>%APPDATA%</c>). Several places are separated by <c>;</c>, the one in use
+        /// first (portable before AppData). Empty while unknown.
+        /// </summary>
+        [DataMember(Name = "file", Order = 2, EmitDefaultValue = false)]
+        public string File { get; set; }
+
+        /// <summary>
+        /// The game's id on retroachievements.org (<c>/game/&lt;id&gt;</c>) for <see cref="RetroAchievements"/>;
+        /// 0 while unknown.
+        /// </summary>
+        [DataMember(Name = "retroAchievementsId", Order = 3, EmitDefaultValue = false)]
+        public int RetroAchievementsId { get; set; }
     }
 
     [DataContract]

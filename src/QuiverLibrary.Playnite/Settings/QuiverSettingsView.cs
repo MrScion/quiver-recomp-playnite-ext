@@ -86,6 +86,15 @@ namespace QuiverLibrary.Playnite.Settings
             root.Children.Add(ludusaviBackup);
             root.Children.Add(Hint(ResourceProvider.GetString("LOCQuiverSettingsLudusaviBackupHint")));
 
+            var achievementsExport = new CheckBox
+            {
+                Content = ResourceProvider.GetString("LOCQuiverSettingsAchievementsExport"),
+                Margin = new Thickness(0, 16, 0, 4),
+            };
+            achievementsExport.SetBinding(ToggleButton.IsCheckedProperty, new Binding(nameof(QuiverSettingsViewModel.AchievementsExport)) { Mode = BindingMode.TwoWay });
+            root.Children.Add(achievementsExport);
+            root.Children.Add(Hint(ResourceProvider.GetString("LOCQuiverSettingsAchievementsExportHint")));
+
             root.Children.Add(new TextBlock
             {
                 Text = ResourceProvider.GetString("LOCQuiverSettingsFeaturesHeader"),

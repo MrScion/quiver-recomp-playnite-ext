@@ -12,6 +12,7 @@ using Playnite.SDK.Events;
 using Playnite.SDK.Models;
 using Playnite.SDK.Plugins;
 using QuiverLibrary.Core;
+using QuiverLibrary.Core.Achievements;
 using QuiverLibrary.Core.Cli;
 using QuiverLibrary.Core.Executables;
 using QuiverLibrary.Core.Ludusavi;
@@ -376,6 +377,30 @@ namespace QuiverLibrary.Playnite
             catch (Exception e)
             {
                 Logger.Error(e, $"Cannot update Quiver's last played time of {game.Name}.");
+            }
+        }
+
+        /// <summary>Keeps the achievements CSV (experimental) up to date with what was unlocked in the session.</summary>
+        public override void OnGameStopped(OnGameStoppedEventArgs args)
+        {
+            var game = args.Game;
+            if (game == null || game.PluginId != Id || !LoadSettings().AchievementsExport)
+            {
+                return;
+            }
+
+            try
+            {
+                var state = GetAppState(game.GameId);
+                var achievements = state == null ? null : LoadExecutables().FindAchievements(state.App);
+                if (state != null && state.IsInstalled && RecompAchievements.CanRead(achievements))
+                {
+                    WriteAchievementsCsv(game, state.InstallDirectory, achievements, out _);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, $"Cannot update the achievements CSV of {game.Name}.");
             }
         }
 
@@ -1006,6 +1031,17 @@ namespace QuiverLibrary.Playnite
                         Action = a => SetChosenExecutable(game, null),
                     });
                 }
+
+                var achievements = executables.FindAchievements(state.App);
+                if (settings.AchievementsExport && state.IsInstalled && RecompAchievements.CanRead(achievements))
+                {
+                    items.Add(new GameMenuItem
+                    {
+                        MenuSection = GameMenuSection,
+                        Description = Loc("LOCQuiverMenuExportAchievements"),
+                        Action = a => ExportAchievements(game, state.InstallDirectory, achievements),
+                    });
+                }
             }
             catch (Exception e)
             {
@@ -1025,6 +1061,56 @@ namespace QuiverLibrary.Playnite
             {
                 PlayniteApi.Dialogs.ShowMessage(string.Format(Loc("LOCQuiverSavesNotYet"), game.Name, folder.Path), game.Name);
             }
+        }
+
+        /// <summary>
+        /// Experimental, until Playnite Achievements offers a way for other extensions: writes the app's
+        /// achievements as a CSV that the player imports in that extension's editor (also rewritten when
+        /// the game stops, see <see cref="OnGameStopped"/>).
+        /// </summary>
+        private void ExportAchievements(Game game, string appDir, AchievementsInfo info)
+        {
+            try
+            {
+                var path = WriteAchievementsCsv(game, appDir, info, out var achievements);
+                if (path == null)
+                {
+                    PlayniteApi.Dialogs.ShowMessage(string.Format(Loc("LOCQuiverAchievementsNotYet"), game.Name), game.Name);
+                    return;
+                }
+
+                PlayniteApi.Dialogs.ShowMessage(
+                    string.Format(Loc("LOCQuiverAchievementsExported"), game.Name, achievements.Count, achievements.Count(a => a.Unlocked), path),
+                    game.Name);
+                Process.Start("explorer.exe", "/select,\"" + path + "\"");
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, $"Cannot export the achievements of {game.Name}.");
+                PlayniteApi.Dialogs.ShowErrorMessage(e.Message, game.Name);
+            }
+        }
+
+        /// <summary>
+        /// Writes <c>achievements\&lt;game&gt;.csv</c> in the extension's data folder; returns its path, or null
+        /// when the app has no achievements to read yet.
+        /// </summary>
+        private string WriteAchievementsCsv(Game game, string appDir, AchievementsInfo info, out List<RecompAchievement> achievements)
+        {
+            achievements = RecompAchievements.Read(appDir, info);
+            if (achievements == null || achievements.Count == 0)
+            {
+                return null;
+            }
+
+            var invalid = Path.GetInvalidFileNameChars();
+            var fileName = new string(game.Name.Select(c => invalid.Contains(c) ? '_' : c).ToArray()) + ".csv";
+            var folder = Path.Combine(GetPluginUserDataPath(), "achievements");
+            Directory.CreateDirectory(folder);
+            var path = Path.Combine(folder, fileName);
+            File.WriteAllText(path, PlayniteAchievementsCsv.Build(achievements), new UTF8Encoding(true));
+            Logger.Info($"Wrote {achievements.Count} achievements of {game.Name} ({achievements.Count(a => a.Unlocked)} unlocked) to {path}.");
+            return path;
         }
 
         /// <summary>For games whose installer puts them where the player chooses, or to override the database.</summary>
