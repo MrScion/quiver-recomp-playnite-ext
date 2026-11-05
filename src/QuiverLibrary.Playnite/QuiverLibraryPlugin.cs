@@ -18,6 +18,7 @@ using QuiverLibrary.Core.Executables;
 using QuiverLibrary.Core.Ludusavi;
 using QuiverLibrary.Playnite.Controllers;
 using QuiverLibrary.Playnite.Settings;
+using QuiverLibrary.Playnite.Setup;
 
 namespace QuiverLibrary.Playnite
 {
@@ -324,6 +325,7 @@ namespace QuiverLibrary.Playnite
             }
 
             MakePortable(plans, executables);
+            CheckSetupUpdates(allStates);
             if (settings.LudusaviBackup)
             {
                 // The Ludusavi extension asks for the game by its name in Playnite, which the user may have changed.
@@ -648,6 +650,48 @@ namespace QuiverLibrary.Playnite
         public override void OnGameUninstalled(OnGameUninstalledEventArgs args)
         {
             RefreshOtherActions(args.Game);
+            WarnGameLeftOutside(args.Game);
+        }
+
+        /// <summary>
+        /// Quiver removes only the app folder: an installer's game put somewhere else stays. Says where, so the player
+        /// can delete it (or run its own uninstaller there).
+        /// </summary>
+        private void WarnGameLeftOutside(Game game)
+        {
+            if (game == null || game.PluginId != Id)
+            {
+                return;
+            }
+
+            try
+            {
+                var state = GetAppState(game.GameId);
+                if (state == null || state.IsInstalled)
+                {
+                    return;
+                }
+
+                var setup = LoadExecutables(new[] { state }).FindSetup(state.App);
+                string chosen = null;
+                LoadSettings().ChosenExecutables?.TryGetValue(state.App.FolderName, out chosen);
+                var dirs = SetupCommands.OutsideInstallDirs(state.InstallDirectory, setup, chosen);
+                if (dirs.Count == 0)
+                {
+                    return;
+                }
+
+                Logger.Info($"{game.Name} was uninstalled, but its installer's game may still be in: {string.Join("; ", dirs)}.");
+                var first = dirs[0];
+                PlayniteApi.Notifications.Add(new NotificationMessage(
+                    $"quiver-left-outside-{state.App.FolderName}",
+                    string.Format(Loc("LOCQuiverSetupLeftOutside"), game.Name, string.Join("\n", dirs)),
+                    NotificationType.Info, () => OpenFolder(first)));
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, $"Cannot check whether {game.Name} left a game outside its app folder.");
+            }
         }
 
         #endregion
@@ -755,6 +799,384 @@ namespace QuiverLibrary.Playnite
             {
                 settings.PortableWarnedApps = warned.OrderBy(f => f, StringComparer.OrdinalIgnoreCase).ToList();
                 SavePluginSettings(settings);
+            }
+        }
+
+        #endregion
+
+        #region Setup updates
+
+        /// <summary>
+        /// Warns once when Quiver has replaced the download of an installed app that is set up by hand
+        /// (<see cref="SetupInfo"/>): an update only replaces the installer or launcher, so the game has
+        /// to be installed or built again. Apps seen for the first time are only remembered.
+        /// </summary>
+        private void CheckSetupUpdates(IEnumerable<QuiverAppState> states)
+        {
+            try
+            {
+                var settings = LoadSettings();
+                var done = new Dictionary<string, string>(settings.SetupVersions ?? new Dictionary<string, string>(), StringComparer.OrdinalIgnoreCase);
+                var notified = new Dictionary<string, string>(settings.SetupNotified ?? new Dictionary<string, string>(), StringComparer.OrdinalIgnoreCase);
+                var changed = false;
+                foreach (var row in SetupRows(states, settings, done))
+                {
+                    var name = row.Name;
+                    if (row.Check == SetupUpdateCheck.FirstSeen)
+                    {
+                        done[row.FolderName] = row.Current;
+                        changed = true;
+                        Logger.Info($"{name}: remembered its download ({row.Current}) to tell when an update needs the setup again.");
+                        continue;
+                    }
+
+                    if (row.Check != SetupUpdateCheck.Updated ||
+                        (notified.TryGetValue(row.FolderName, out var announced) && string.Equals(announced, row.Current, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        continue;
+                    }
+
+                    notified[row.FolderName] = row.Current;
+                    changed = true;
+                    Logger.Info($"{name} was updated by Quiver ({row.Done} -> {row.Current}); its setup has to run again: {row.Program?.Path ?? row.AppDir}.");
+                    var text = string.Format(Loc(row.Setup.IsInstaller ? "LOCQuiverSetupUpdatedInstaller" : "LOCQuiverSetupUpdatedBuilder"), name, row.DownloadedVersion ?? "?");
+                    var pendingRow = row;
+                    PlayniteApi.Notifications.Add(new NotificationMessage(
+                        SetupNotificationId(row.FolderName), text, NotificationType.Info, () => UpdateOrRunSetup(pendingRow)));
+                }
+
+                if (changed)
+                {
+                    settings.SetupVersions = done;
+                    settings.SetupNotified = notified;
+                    SavePluginSettings(settings);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Cannot check the Quiver apps that need their setup again.");
+            }
+        }
+
+        private static string SetupNotificationId(string folderName) => $"quiver-setup-{folderName}";
+
+        /// <summary>The installed apps set up by hand (<see cref="SetupInfo"/>), with their download and setup state.</summary>
+        private List<SetupAppRow> SetupRows(IEnumerable<QuiverAppState> states, QuiverSettings settings, IDictionary<string, string> done)
+        {
+            var installed = states.Where(s => s.IsInstalled).ToList();
+            var executables = LoadExecutables(installed);
+            var rows = new List<SetupAppRow>();
+            foreach (var state in installed)
+            {
+                var setup = executables.FindSetup(state.App);
+                if (setup == null || !(setup.IsInstaller || setup.IsBuilder))
+                {
+                    continue;
+                }
+
+                var current = QuiverSetupUpdates.Fingerprint(state.InstallDirectory, state.Version);
+                done.TryGetValue(state.App.FolderName, out var previous);
+                var plan = PlanFor(state, executables, settings);
+                var playPath = plan?.Play?.Path;
+                rows.Add(new SetupAppRow
+                {
+                    Name = state.App.Name ?? state.App.FolderName,
+                    FolderName = state.App.FolderName,
+                    AppDir = state.InstallDirectory,
+                    Setup = setup,
+                    Current = current,
+                    Done = previous,
+                    Check = QuiverSetupUpdates.Compare(previous, current),
+                    Program = SetupProgram(plan, setup, executables.Find(state.App) == null),
+                    PlayPath = playPath,
+                    Files = StoredSetupFiles(settings, state.App.FolderName),
+                });
+                var row = rows[rows.Count - 1];
+                row.Update = setup.Update == null ? null : SetupCommands.PrepareUpdate(state.InstallDirectory, setup, playPath, SetupCommands.Existing(row.Files));
+            }
+
+            return rows.OrderBy(r => r.Name, StringComparer.CurrentCultureIgnoreCase).ToList();
+        }
+
+        /// <summary>For the sidebar panel: every installed app set up by hand, read now (slow on a network drive: not on the UI thread).</summary>
+        internal List<SetupAppRow> LoadSetupRows()
+        {
+            var settings = LoadSettings();
+            var done = new Dictionary<string, string>(settings.SetupVersions ?? new Dictionary<string, string>(), StringComparer.OrdinalIgnoreCase);
+            return SetupRows(GetData().GetStates(), settings, done);
+        }
+
+        /// <summary>The player says the game is set up from Quiver's current download (after running its setup).</summary>
+        internal void MarkSetupDone(SetupAppRow row)
+        {
+            var settings = LoadSettings();
+            var done = new Dictionary<string, string>(settings.SetupVersions ?? new Dictionary<string, string>(), StringComparer.OrdinalIgnoreCase);
+            done[row.FolderName] = row.Current;
+            settings.SetupVersions = done;
+            SavePluginSettings(settings);
+            PlayniteApi.Notifications.Remove(SetupNotificationId(row.FolderName));
+            Logger.Info($"{row.Name}: setup marked as done for {row.Current}.");
+        }
+
+        internal void RunSetup(SetupAppRow row) => RunSetup(row.Program, row.AppDir);
+
+        private SetupRunner setupRunner;
+
+        /// <summary>The queue that runs the setup commands (see <see cref="SetupRunner"/>).</summary>
+        internal SetupRunner Runner
+        {
+            get
+            {
+                if (setupRunner == null)
+                {
+                    setupRunner = new SetupRunner(Path.Combine(GetPluginUserDataPath(), "setup-logs"));
+                    setupRunner.Changed += UpdateSidebarProgress;
+                    setupRunner.Started += job => SetGameInstalling(job.Row.FolderName, true);
+                    setupRunner.Finished += OnSetupFinished;
+                }
+
+                return setupRunner;
+            }
+        }
+
+        /// <summary>From the notification: the update command when there is one that can run, else the installer's window.</summary>
+        private void UpdateOrRunSetup(SetupAppRow row)
+        {
+            if (row.Update != null && (row.Update.CanRun || row.Update.CanAsk))
+            {
+                RequestUpdate(row);
+            }
+            else
+            {
+                RunSetup(row);
+            }
+        }
+
+        private static Dictionary<string, string> StoredSetupFiles(QuiverSettings settings, string folderName)
+        {
+            return settings.SetupFiles != null && settings.SetupFiles.TryGetValue(folderName, out var files) && files != null
+                ? new Dictionary<string, string>(files, StringComparer.OrdinalIgnoreCase)
+                : new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        }
+
+        /// <summary>Asks for each file the update still needs (and remembers it); false when the player cancels (UI thread).</summary>
+        private bool AskSetupFiles(SetupAppRow row)
+        {
+            while (row.Update != null && row.Update.CanAsk)
+            {
+                var name = row.Update.Missing[0];
+                var label = ResourceProvider.GetString("LOCQuiverSetupInput" + name);
+                if (string.IsNullOrEmpty(label) || label.StartsWith("<!", StringComparison.Ordinal))
+                {
+                    label = name;
+                }
+
+                var go = PlayniteApi.Dialogs.ShowMessage(string.Format(Loc("LOCQuiverSetupAskFile"), row.Name, label), row.Name,
+                    System.Windows.MessageBoxButton.OKCancel, System.Windows.MessageBoxImage.Information);
+                if (go != System.Windows.MessageBoxResult.OK)
+                {
+                    return false;
+                }
+
+                var path = PlayniteApi.Dialogs.SelectFile(string.Equals(name, "Image", StringComparison.OrdinalIgnoreCase)
+                    ? Loc("LOCQuiverSetupImageFilter")
+                    : Loc("LOCQuiverSetupAnyFileFilter"));
+                if (string.IsNullOrEmpty(path))
+                {
+                    return false;
+                }
+
+                var settings = LoadSettings();
+                var all = new Dictionary<string, Dictionary<string, string>>(settings.SetupFiles ?? new Dictionary<string, Dictionary<string, string>>(), StringComparer.OrdinalIgnoreCase);
+                var files = StoredSetupFiles(settings, row.FolderName);
+                files[name] = path;
+                all[row.FolderName] = files;
+                settings.SetupFiles = all;
+                SavePluginSettings(settings);
+                Logger.Info($"{row.Name}: {name} for its setup = {path}.");
+
+                row.Files = files;
+                row.Update = SetupCommands.PrepareUpdate(row.AppDir, row.Setup, row.PlayPath, SetupCommands.Existing(files));
+            }
+
+            return row.Update != null && row.Update.CanRun;
+        }
+
+        /// <summary>Forgets the files chosen for an app's setup commands; they are asked again next time.</summary>
+        internal void ForgetSetupFiles(SetupAppRow row)
+        {
+            var settings = LoadSettings();
+            if (settings.SetupFiles != null && settings.SetupFiles.Remove(row.FolderName))
+            {
+                SavePluginSettings(settings);
+                Logger.Info($"{row.Name}: forgot the files chosen for its setup.");
+            }
+        }
+
+        /// <summary>Asks before queueing the update command of <paramref name="row"/> (UI thread).</summary>
+        internal void RequestUpdate(SetupAppRow row)
+        {
+            if (row.Update != null && row.Update.CanAsk && !AskSetupFiles(row))
+            {
+                return;
+            }
+
+            var command = row.Update;
+            if (command == null || !command.CanRun)
+            {
+                return;
+            }
+
+            var answer = PlayniteApi.Dialogs.ShowMessage(
+                string.Format(Loc("LOCQuiverSetupConfirmUpdate"), row.Name, command.Display, command.WorkingDirectory),
+                row.Name, System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question);
+            if (answer != System.Windows.MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            if (!Runner.Enqueue(row, command))
+            {
+                PlayniteApi.Dialogs.ShowMessage(string.Format(Loc("LOCQuiverSetupAlreadyQueued"), row.Name), row.Name);
+            }
+        }
+
+        private void OnSetupFinished(SetupJob job)
+        {
+            SetGameInstalling(job.Row.FolderName, false);
+            var row = job.Row;
+            var playMissing = row.PlayPath != null && !File.Exists(row.PlayPath);
+            if (job.State == SetupJobState.Succeeded && !playMissing)
+            {
+                MarkSetupDone(row);
+                PlayniteApi.Notifications.Add(new NotificationMessage(
+                    SetupNotificationId(row.FolderName), string.Format(Loc("LOCQuiverSetupUpdateDone"), row.Name), NotificationType.Info));
+            }
+            else if (job.State != SetupJobState.Canceled)
+            {
+                var reason = playMissing ? string.Format(Loc("LOCQuiverSetupPlayMissing"), row.PlayPath) : string.Format(Loc("LOCQuiverSetupExitCode"), job.ExitCode?.ToString() ?? "?");
+                var logPath = job.LogPath;
+                PlayniteApi.Notifications.Add(new NotificationMessage(
+                    SetupNotificationId(row.FolderName), string.Format(Loc("LOCQuiverSetupUpdateFailed"), row.Name, reason),
+                    NotificationType.Error, () => OpenFile(logPath)));
+            }
+        }
+
+        /// <summary>The game shows as installing while its setup runs, so it isn't started half updated.</summary>
+        private void SetGameInstalling(string folderName, bool installing)
+        {
+            try
+            {
+                PlayniteApi.MainView.UIDispatcher.Invoke(() =>
+                {
+                    var game = PlayniteApi.Database.Games.FirstOrDefault(g => g.PluginId == Id && string.Equals(g.GameId, folderName, StringComparison.OrdinalIgnoreCase));
+                    if (game != null && game.IsInstalling != installing)
+                    {
+                        game.IsInstalling = installing;
+                        PlayniteApi.Database.Games.Update(game);
+                    }
+                });
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, $"Cannot mark {folderName} as installing={installing}.");
+            }
+        }
+
+        /// <summary>The sidebar icon's bar: how much of the current batch of setups has finished.</summary>
+        private void UpdateSidebarProgress()
+        {
+            if (setupSidebar == null || setupRunner == null)
+            {
+                return;
+            }
+
+            setupRunner.Progress(out var active, out var batch);
+            PlayniteApi.MainView.UIDispatcher.BeginInvoke((Action)(() =>
+            {
+                // A running job counts as half done, so the bar shows something from the start.
+                setupSidebar.ProgressMaximum = active == 0 ? 0 : batch;
+                setupSidebar.ProgressValue = active == 0 ? 0 : batch - active + 0.5;
+            }));
+        }
+
+        internal static void OpenFile(string path)
+        {
+            try
+            {
+                if (File.Exists(path))
+                {
+                    Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, $"Cannot open {path}.");
+            }
+        }
+
+        internal void OpenAppFolder(SetupAppRow row) => OpenFolder(row.AppDir);
+
+        private SidebarItem setupSidebar;
+
+        /// <summary>Desktop mode only (Fullscreen has no sidebar): the panel of the apps set up by hand.</summary>
+        public override IEnumerable<SidebarItem> GetSidebarItems()
+        {
+            if (setupSidebar == null)
+            {
+                setupSidebar = new SidebarItem
+                {
+                    Title = Loc("LOCQuiverSetupPanelTitle"),
+                    Type = SiderbarItemType.View,
+                    Icon = LibraryIcon,
+                    Opened = () => new SetupPanelView(this),
+                };
+            }
+
+            yield return setupSidebar;
+        }
+
+        /// <summary>
+        /// The program to run again after an update: the "Setup" action of an installer, the play program
+        /// of a launcher that builds the game, or (no programs in its entry) what Quiver itself would start,
+        /// which is the installer when it is the only program at the top of the app folder. Null: none known.
+        /// </summary>
+        private static LaunchTarget SetupProgram(ExecutablePlan plan, SetupInfo setup, bool automatic)
+        {
+            if (plan == null)
+            {
+                return null;
+            }
+
+            var named = plan.Others.FirstOrDefault(o => string.Equals(o.Name, "Setup", StringComparison.OrdinalIgnoreCase));
+            if (named != null)
+            {
+                return named;
+            }
+
+            return setup.IsBuilder || automatic ? plan.Play : null;
+        }
+
+        private static void RunSetup(LaunchTarget program, string appDir)
+        {
+            if (program == null || !File.Exists(program.Path))
+            {
+                OpenFolder(appDir);
+                return;
+            }
+
+            try
+            {
+                Process.Start(new ProcessStartInfo(program.Path, program.Arguments ?? string.Empty)
+                {
+                    UseShellExecute = true,
+                    WorkingDirectory = Path.GetDirectoryName(program.Path),
+                });
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, $"Cannot start {program.Path}.");
+                OpenFolder(appDir);
             }
         }
 
@@ -939,6 +1361,12 @@ namespace QuiverLibrary.Playnite
             if (exe == null)
             {
                 yield return new QuiverErrorPlayController(game, problem);
+                yield break;
+            }
+
+            if (exe.Environment.Count > 0)
+            {
+                yield return new QuiverProcessPlayController(game, exe);
                 yield break;
             }
 
@@ -1420,6 +1848,7 @@ namespace QuiverLibrary.Playnite
             var appsFolder = data.AppsFolder;
             var apps = data.LoadApps().ToDictionary(a => a.FolderName, StringComparer.OrdinalIgnoreCase);
             var changed = 0;
+            var states = new List<QuiverAppState>();
 
             using (PlayniteApi.Database.BufferedUpdate())
             {
@@ -1436,6 +1865,7 @@ namespace QuiverLibrary.Playnite
                     }
 
                     var state = data.GetState(app, appsFolder);
+                    states.Add(state);
                     var dir = state.IsInstalled ? state.InstallDirectory : null;
                     var versionChanged = state.IsInstalled && state.Version != null && game.Version != state.Version;
                     if (game.IsInstalled == state.IsInstalled &&
@@ -1457,6 +1887,7 @@ namespace QuiverLibrary.Playnite
                 }
             }
 
+            CheckSetupUpdates(states);
             return changed;
         }
 

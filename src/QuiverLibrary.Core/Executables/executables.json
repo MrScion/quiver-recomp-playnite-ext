@@ -556,7 +556,8 @@
       ],
       "reviewed": true,
       "source": "README: 'Tekken 6 Builder.exe' builds the game from the player's ISO into a folder of their choice. tools/portable_launcher.cpp: tekken6.exe there (D3D12) asks for the internal resolution and starts bin\\tekken6.exe (the ReXGlue host) with the game, user and cache folders; tekken6_vulkan(_fbo).exe pick Vulkan. User data: always user\\ next to the launcher.",
-      "userData": { "portable": "builtin", "local": "user" }
+      "userData": { "portable": "builtin", "local": "user" },
+      "setup": {"kind": "installer", "install": {"file": "builder\\python\\python.exe", "arguments": "-X utf8 -I \"{AppDir}\\builder\\build_from_iso.py\" --iso \"{Image}\" --output \"{InstallDir}\" --builder-root \"{AppDir}\\builder\" --project \"{AppDir}\\builder\\project.zip\""}, "update": {"file": "builder\\python\\python.exe", "arguments": "-X utf8 -I \"{AppDir}\\builder\\build_from_iso.py\" --iso \"{Image}\" --output \"{GameDir}\" --builder-root \"{AppDir}\\builder\" --project \"{AppDir}\\builder\\project.zip\""}, "notes": "'Tekken 6 Builder.exe' (no command line of its own found) runs builder\\python\\python.exe -X utf8 -I builder\\build_from_iso.py with --iso, --output, --builder-root and --project (all required, argparse in build_from_iso.py) and optional --d3d12-rov, --vulkan-fsi, --vulkan-fbo; the install line above is that call, not tried by hand. An update builds again from the image; no update-only command. The update line builds again into the installed folder (where tekken6.exe is): not verified that build_from_iso.py accepts a folder that already has a build."}
     },
     {
       "name": "Tekken Tag Tournament 2",
@@ -567,7 +568,8 @@
       ],
       "reviewed": true,
       "source": "README: ttt2_setup.exe builds the game from the player's disc image and installs it (Windows 'Installed apps' uninstalls it); saves, profiles and settings in %LOCALAPPDATA%\\TTT2Recomp.",
-      "userData": { "portable": "none", "appData": "%LOCALAPPDATA%\\TTT2Recomp" }
+      "userData": { "portable": "none", "appData": "%LOCALAPPDATA%\\TTT2Recomp" },
+      "setup": {"kind": "installer", "install": {"file": "ttt2_setup.exe", "arguments": "/silent \"{Image}\" \"{TitleUpdate}\" \"{InstallDir}\""}, "update": {"file": "ttt2_setup.exe", "arguments": "/silent \"{Image}\" \"{TitleUpdate}\" \"{GameDir}\""}, "notes": "ttt2_setup.exe usage string (2026-11-05): '/silent <disc.iso> <title update file or folder> <install folder>'; {TitleUpdate} is Title Update 3 (TU_174Q22P_0000008000000.00000000000O2) or the folder holding it. An update runs it again with the image and the title update; no update-only command found. It registers an uninstaller in Windows; saves, profiles and settings stay in %LOCALAPPDATA%\\TTT2Recomp. The update line is the install line over the installed folder (the play program's): not verified that it replaces an existing install."}
     },
     {
       "name": "Burnout Revenge",
@@ -578,7 +580,8 @@
       ],
       "reviewed": true,
       "source": "README: the installer builds the game into a folder of the player's choice. rexglue/installer/launcher.cpp: 'Burnout Revenge.exe' reads xerenge.conf and starts bin\\burnout.exe with its settings. User data: 'portable = true' in xerenge.conf (the installer's Portable box) keeps userdata\\ and cache\\ beside it; there is no marker file. Otherwise its data is where ReXGlue puts it by default (not in the repository).",
-      "userData": { "portable": "none", "local": "userdata" }
+      "userData": { "portable": "none", "local": "userdata" },
+      "setup": {"kind": "installer", "install": {"file": "Burnout_Revenge_Installer-*.exe", "arguments": "--iso \"{Image}\" --path \"{InstallDir}\" --no-shortcuts"}, "update": {"file": "Burnout_Revenge_Installer-*.exe", "arguments": "--iso \"{Image}\" --path \"{GameDir}\" --no-shortcuts"}, "notes": "rexglue/installer/main.cpp: with --path it installs at once without its window; other options --bloom, --blur, --xenia (Xenos backend), --no-shortcuts. An update installs again from the image into the same folder; no update-only command. The update line installs again into the installed folder (where 'Burnout Revenge.exe' is): not verified over an existing install; the window's Portable choice (xerenge.conf) may not be kept."}
     },
     {
       "name": "Dead Rising 2: Case West",
@@ -722,6 +725,362 @@
       "reviewed": true,
       "source": "Achievements: strings in its binaries (2026-10-29), AchievementManager in Sonic Remake Project.dll; where it keeps the unlocks not verified.",
       "achievements": { "kind": "custom" }
+    },
+    {
+      "name": "Crash of the Titans",
+      "repository": "OAleex/MojoRecomp",
+      "folderName": "CrashOfTheTitans-MojoRecomp",
+      "play": {
+        "file": "games\\.mojorecomp\\components\\runtime.cot\\versions\\*\\run\\cot-runtime.exe",
+        "arguments": "--cpu --config \"%LOCALAPPDATA%\\MojoRecomp\\titles\\cot\\settings.toml\" --game-root \"{AppDir}\\games\\cot\"",
+        "environment": [
+          { "name": "MOJORECOMP_VULKAN_PRESENT", "value": "1" },
+          { "name": "MOJORECOMP_SAVE_ROOT", "value": "%USERPROFILE%\\Saved Games\\MojoRecomp\\cot" },
+          { "name": "MOJORECOMP_CONTENT_ROOT", "value": "%LOCALAPPDATA%\\MojoRecomp\\titles\\cot\\content" },
+          { "name": "MOJORECOMP_CACHE_ROOT", "value": "%LOCALAPPDATA%\\MojoRecomp\\cache\\cot" },
+          { "name": "MOJORECOMP_UTILITY_ROOT", "value": "%LOCALAPPDATA%\\MojoRecomp\\titles\\cot\\utility" },
+          { "name": "MOJORECOMP_LOG_ROOT", "value": "%LOCALAPPDATA%\\MojoRecomp\\logs\\cot" },
+          { "name": "MOJORECOMP_DXC_LIB", "value": "{ExeDir}\\dxcompiler.dll" },
+          { "name": "DISABLE_VULKAN_OBS_CAPTURE", "value": "1" },
+          { "name": "PATH", "value": "{ExeDir};%PATH%" }
+        ]
+      },
+      "others": [
+        { "name": "Setup", "file": "MojoRecomp-Launcher-*-windows-x64.exe" }
+      ],
+      "reviewed": true,
+      "source": "launcher/src-tauri/src/main.rs (launch_game) and storage.rs, main branch 2026-10-06: the launcher extracts the player's ISO into its game library (here <app>\\games, chosen in the launcher) and runs the active runtime component's prepared copy (versions\\<version>\\run\\cot-runtime.exe) with these arguments and variables; without the variables the runtime keeps its saves elsewhere. The launcher has to be run once first (ISO import, runtime download). User data: settings, cache and logs in %LOCALAPPDATA%\\MojoRecomp, saves in Saved Games\\MojoRecomp\\cot; the old portable userdata\\ folder is migrated away.",
+      "userData": { "portable": "none", "appData": "%USERPROFILE%\\Saved Games\\MojoRecomp\\cot" }
+    },
+    {
+      "name": "Gravity Rush 2",
+      "repository": "HayatoG/gr2_pc",
+      "play": { "file": "Play Gravity Rush 2.exe" },
+      "others": [
+        { "name": "Setup", "file": "Gravity Rush 2.exe" },
+        { "name": "Setup (classic)", "file": "Gravity Rush 2 (classic).exe" }
+      ],
+      "reviewed": true,
+      "source": "port/packaging/windows/package.sh and play.c: 'Gravity Rush 2.exe' is the Qt launcher, '(classic)' the Tk one, and 'Play Gravity Rush 2.exe' runs 'Gravity Rush 2.exe --play' (the saved settings, no launcher window) and waits for it. User data: port/launcher/gr2_run.py: user\\ next to the executable (saves in user\\savedata, shader cache in user\\cache); the launcher's own settings (game folder) in %APPDATA%\\gr2-launcher.",
+      "userData": { "portable": "builtin", "local": "user", "saves": "savedata" }
+    },
+    {
+      "name": "Gravity Rush Remastered",
+      "repository": "LucaPazienza/gravityrush_pc",
+      "play": { "file": "Gravity Rush.exe" },
+      "others": [
+        { "name": "Setup", "file": "Gravity Rush Launcher.exe" }
+      ],
+      "reviewed": true,
+      "source": "README and packaging/windows/package.sh: 'Gravity Rush Launcher.exe' is the launcher and 'Gravity Rush.exe' starts the game straight away with the saved settings. User data: run.py: user\\ in the port folder (GOW3_DATA_DIR), saves in user\\savedata as in the other ports of the God of War III family. Achievements: README: trophies are not saved yet.",
+      "userData": { "portable": "builtin", "local": "user", "saves": "savedata" },
+      "achievements": { "kind": "none" }
+    },
+    {
+      "name": "Knack",
+      "repository": "AbdelmoumenDeghbouche/knack_pc",
+      "play": { "file": "Play Knack.exe" },
+      "others": [
+        { "name": "Setup", "file": "Knack.exe" }
+      ],
+      "reviewed": true,
+      "source": "README and packaging/windows/package.sh: Knack.exe is the launcher; 'Play Knack.exe' (play.c of the God of War III port) runs 'Knack.exe --play' with the saved settings. User data: run.py: user\\ in the port folder (GOW3_DATA_DIR), saves in user\\savedata. Achievements: README: trophies kept in user\\trophies.txt, without names (encrypted with Sony's key).",
+      "userData": { "portable": "builtin", "local": "user", "saves": "savedata" },
+      "achievements": { "kind": "custom", "file": "user\\trophies.txt" }
+    },
+    {
+      "name": "Dino Crisis",
+      "repository": "Rotmill/Dino-Crisis-Modern-Edition",
+      "play": { "file": "DinoCrisisME.exe", "searchSubfolders": true },
+      "others": [
+        { "name": "Setup", "file": "DinoCrisisME_Setup.exe" }
+      ],
+      "reviewed": true,
+      "source": "README and installer/Setup.cs: DinoCrisisME_Setup.exe builds the game from the player's disc image into a folder of their choice (default %USERPROFILE%\\Games\\DinoCrisisME); DinoCrisisME.exe there is the game, Uninstall.exe removes it. User data: installer/dcme_install.py: memory cards card1.mcd/card2.mcd in data\\ next to the game, quicksaves in data\\quicksaves.",
+      "userData": { "portable": "builtin", "local": "data", "saves": "card1.mcd;card2.mcd;quicksaves" },
+      "setup": {"kind": "installer", "defaultInstallDir": "%USERPROFILE%\\Games\\DinoCrisisME", "notes": "installer/Setup.cs runs its embedded installer/dcme_install.py with -DiscPath, -InstallPath, -Lang en|ru and the switches -SkipPrereq, -NoShortcut, -RecompZip <zip> (parse_args: also -KeepBuildTree, -RemoveTools, -DryRun, -Toolchain); DinoCrisisME_Setup.exe itself takes no arguments (Main()), so there is no unattended install of the downloaded program. An update runs the setup again with the disc image."}
+    },
+    {
+      "name": "GoldenEye 007: Reloaded",
+      "repository": "nikolaygorb/GoldenEye007ReloadedRecomp",
+      "reviewed": true,
+      "source": "User data: src/goldeneye007reloadedrecomp_app.h keeps ReXGlue's default user_data_root (src/ui/rex_app.cpp: Documents\\<app name>); settings in settings\\, logs in logs\\ next to the exe. Saves under the default profile folder B13EBABEBABEBABE, as in the other ReXGlue folders of a played install's Documents (ge, wet, burnout); cache\\ beside it. The game files go in assets\\ (Default.xex, DATA, nxeart).",
+      "userData": { "portable": "none", "appData": "%USERPROFILE%\\Documents\\goldeneye007reloadedrecomp", "saves": "B13EBABEBABEBABE" }
+    },
+    {
+      "name": "Parasite Eve II",
+      "repository": "Snaity-CORE/pe2-pc-port",
+      "reviewed": true,
+      "source": "User data: README and crates/pe2-host/src/paths.rs: settings (pe2.toml), memory cards and screenshots in %APPDATA%\\PE2PC, or next to pe2.exe with a portable.txt there (also when pe2.toml is already there); crates/pe2-host/src/runtime/memcard.rs: memcards\\pe2_card1.mcd.",
+      "userData": { "portable": "portable.txt", "appData": "%APPDATA%\\PE2PC", "local": "", "saves": "memcards" }
+    },
+    {
+      "name": "Perfect Dark Zero Reinstated",
+      "repository": "2023PerfectDark/Perfect-Dark-Zero-Reinstated",
+      "play": { "file": "PDZReinstatedTU3.exe", "searchSubfolders": true },
+      "others": [
+        { "name": "Bonus DVD", "file": "PDZ Bonus DVD.exe", "searchSubfolders": true },
+        { "name": "Setup", "file": "PDZ Setup.exe" }
+      ],
+      "reviewed": true,
+      "source": "README.txt and reinstated-tu3/installer/Setup.cs, Core.cs: 'PDZ Setup.exe' installs the game from the player's ISO into a new folder of their choice (default %LOCALAPPDATA%\\Perfect Dark Zero Reinstated); the game is PDZReinstatedTU3.exe (perfectdarkzerorecomp.exe for the US Rev 1 disc, choose it from the game menu), plus 'PDZ Bonus DVD.exe' when installed. User data: ModdedTU3 perfectdarkzerorecomp_app.h: user\\ next to the game unless user_data_root is set in its settings (cache in user\\cache, not verified on an install).",
+      "userData": { "portable": "builtin", "local": "user" },
+      "setup": {"kind": "installer", "defaultInstallDir": "%LOCALAPPDATA%\\Perfect Dark Zero Reinstated", "notes": "No command line found ('PDZ Setup.exe' strings, 2026-11-05; its source was not searchable). An update runs it again with its window."}
+    },
+    {
+      "name": "SoulCalibur",
+      "repository": "enrique363/voldorium",
+      "play": { "file": "Voldorium.exe" },
+      "reviewed": true,
+      "source": "README: Voldorium.exe asks for the player's .gdi dump the first time (not .chd) and builds the game module sc_game.dll with builder\\first_run.bat; m1.exe is a byte-identical copy left by an older release. User data: README.txt: settings in voldorium.ini and the memory card in vmu_a1.bin, next to the executable.",
+      "userData": { "portable": "builtin", "local": "", "saves": "vmu_a1.bin;voldorium.ini" }
+    },
+    {
+      "name": "Turok: Evolution",
+      "repository": "MarkPremier/EvolutionRecomp",
+      "reviewed": true,
+      "source": "User data: README shipped with the release: turok_evolution.exe extracts the disc image beside it into game\\ (or uses the folder in turok_settings.ini, [paths] game_dir) and keeps the saves in that folder's udata; settings in turok_settings.ini next to the exe.",
+      "userData": { "portable": "builtin", "local": "game", "saves": "udata" }
+    },
+    {
+      "name": "Street Fighter Alpha 3",
+      "repository": "irnutsmurt/Street-Alpha-3-Dreamcast-Recomp",
+      "play": { "file": "sfa3.exe", "searchSubfolders": true },
+      "others": [
+        { "name": "Setup", "file": "SFA3-Setup.exe" }
+      ],
+      "reviewed": true,
+      "source": "Setup: README.txt: SFA3-Setup.exe converts the player's disc image into an install folder of their choice; its help: 'SFA3-Setup --update FOLDER [--full]' updates an install. Seen on an install into game\\ (2026-11-05): the final link fails with Windows' 'file name or extension is too long' (339 objects with absolute paths, about 39,500 characters, over the 32,767 limit) when the folder path is that long. Installed into a short folder and then moved to game\\, sfa3.exe plays (its data\\ next to it; data\\install.json and disc_path.txt keep the old absolute paths). User data: runtime strings (lib\\libsfa3rt.a): memory card <data>\\vmu_a1.bin, settings <data>\\..\\sfa3.cfg; seen in that install.",
+      "userData": { "portable": "builtin", "local": "", "saves": "data\\vmu_a1.bin;sfa3.cfg" },
+      "achievements": { "kind": "none" },
+      "setup": {"kind": "installer", "install": {"file": "SFA3-Setup.exe", "arguments": "--convert \"{Image}\" \"{InstallDir}\""}, "update": {"file": "SFA3-Setup.exe", "arguments": "--update \"{GameDir}\""}, "notes": "SFA3-Setup.exe help (strings of its PyInstaller payload, 2026-11-05): '--convert IMAGE FOLDER [PSP-IMAGE]' is the conversion without the window (optional PSP image of SFA3 MAX adds characters); '--update FOLDER [--full]' updates an install without the disc image, --full does everything again. The image is .gdi, .cue/.bin or .chd of the USA release. The final link fails ('file name or extension is too long') when the install folder path is long, as inside Quiver's Apps folder: install into a short folder (C:\\sfa3) and move it to game\\; the same applies to --update. Not verified: whether a folder junction with a short path avoids it.", "installMarker": "data\\install.json", "updateProblem": "Inside Quiver's Apps folder the path is too long for its final link step (Windows 'file name or extension is too long'): move game\\ to a short folder (C:\\sfa3), run SFA3-Setup.exe --update C:\\sfa3 there and move it back."}
+    },
+    {
+      "name": "WET",
+      "repository": "zonehammer/wet-recomp",
+      "play": { "file": "WetLauncher.exe", "searchSubfolders": true },
+      "others": [
+        { "name": "Setup", "file": "WetSetup.exe" }
+      ],
+      "reviewed": true,
+      "source": "Setup: seen in an install (2026-11-05): the download is WetSetup.exe only; it put the game in game\\wet-recomp\\ (its build\\runtime\\ and game\\hdd\\). Program name not checked yet.",
+      "setup": {"kind": "installer", "update": {"file": "WetSetup.exe"}, "notes": "WetSetup.exe (strings, 2026-11-05) clones the source into game\\wet-recomp (git checkout --force main, or of a release) and runs 'python -u tools\\build.py --iso <image>' there (the image only the first time; build.py also takes --toolchain auto|mingw|clang-cl, --jobs N, --debug); the result is game\\wet-recomp\\build\\runtime\\WetLauncher.exe. The first build takes 10-30 minutes; its log is setup.log. An update runs WetSetup.exe again (it fetches the newer code and builds without the image); no option of its own found."}
+    },
+    {
+      "name": "Xenoblade Chronicles X",
+      "repository": "jmars125/xcx-recomp",
+      "reviewed": true,
+      "source": "Setup: seen in a download (2026-11-05): XCX-Setup.exe with its own Python, LLVM and the recompiler; not run yet, so where it puts the game is not known.",
+      "setup": {"kind": "installer", "install": {"file": "python\\python.exe", "arguments": "-m installer --base \"{Image}\" --update \"{UpdateNsp}\" --keys \"{Keys}\" --lang en-US --dest \"{InstallDir}\""}, "update": {"file": "python\\python.exe", "arguments": "-m installer --dest \"{GameDir}\""}, "notes": "installer\\cli.py (shipped, 2026-11-05): 'python -m installer --base FILE --update FILE --keys FILE [--dlc FILE ...] --lang CODE --dest DIR [--root DIR] [--temp DIR] [--verify]'; {Image} is the base game XCI or NSP, {UpdateNsp} the 2.0.0 update, {Keys} prod.keys. On a folder with xcx-install.json only --dest is needed (resume, or update with a newer release). JSON events on stdout; exit 0 done, 1 failed, 2 bad command line, 3 cancelled. Not run yet: where the play program ends up is not known. Run from the app folder (the installer finds the release as the folder above installer\\).", "installMarker": "xcx-install.json"}
+    },
+    {
+      "name": "Crash of the Titans (Wiicompiled)",
+      "repository": "jaylikesbunda/CrashoftheTitans-Wiicomp",
+      "reviewed": true,
+      "source": "Setup: seen in a download (2026-11-05): CrashLauncher-<version>-windows-x64-setup.exe only, an installer of the launcher; where it installs is not known (nothing found in %LOCALAPPDATA%\\Programs of a PC where it was started).",
+      "setup": {"kind": "installer", "notes": "CrashLauncher-<version>-windows-x64-setup.exe is a Nullsoft (NSIS) installer of the launcher program: NSIS takes /S (silent) and /D=<folder> (last argument, unquoted), not verified for this one. Where the launcher keeps the game is not known."}
+    },
+    {
+      "name": "Crash of the Titans (CrashRecomp Definitive Edition)",
+      "repository": "VitoMiguelF/crashott-pc",
+      "reviewed": true,
+      "source": "Setup: seen in a download (2026-11-05): CrashSetup-v<version>.exe only; not run yet, so where it puts the game is not known.",
+      "setup": {"kind": "installer", "notes": "No command line found ('CrashSetup-v<version>.exe' strings, 2026-11-05). An update runs it again with its window."}
+    },
+    {
+      "name": "Street Fighter III: 3rd Strike Online Edition",
+      "repository": "updeshxp/SF3TSOEReborn",
+      "play": { "file": "sf3tsoereborn.exe" },
+      "reviewed": true,
+      "source": "README.md: ReXGlue port started with --game_data_root=assets. User data: sf3tsoereborn.toml next to the exe sets user_data_root = \"./data\"; Seen in an install on the other PC (2026-11-05): saves in data\\B13EBABEBABEBABE\\58410B16, settings data\\settings.toml. Achievements: Seen in an install on the other PC (2026-11-05): data\\achievements\\58410B16.toml, written by the ReXGlue runtime ('# Achievement unlock state'), one [unlocked.<id>] table with filetime = <Windows FILETIME> per unlocked achievement; no names in it.",
+      "userData": { "portable": "builtin", "local": "data", "saves": "B13EBABEBABEBABE;settings.toml" },
+      "achievements": { "kind": "rexglue", "file": "data\\achievements\\58410B16.toml" }
+    },
+    {
+      "name": "Jet Set Radio Future",
+      "repository": "JuMatt/JetSetRadioFuture-Unleashed",
+      "play": { "file": "JSRF Unleashed.exe" },
+      "reviewed": true,
+      "source": "README.txt: 'JSRF Unleashed.exe' asks for the disc image or game folder the first time; options --portable, --fullscreen, --windowed, --choose, --scale N, --version. User data: README.txt 'Where things are kept': saves in the game folder's UDATA (always, also when not portable); settings in %LOCALAPPDATA%\\JSRF Unleashed\\settings, cache in ...\\save, logs ...\\last-run.log; with portable.txt beside the exe all of that stays in the app folder. Seen in an install on the other PC (2026-11-05): game folder 'JSRF - Jet Set Radio Future (USA)' in the app folder.",
+      "userData": { "portable": "portable.txt", "appData": "%LOCALAPPDATA%\\JSRF Unleashed", "local": "", "saves": "JSRF - Jet Set Radio Future (USA)\\UDATA;settings" },
+      "achievements": { "kind": "none" }
+    },
+    {
+      "name": "Resident Evil Code: Veronica X",
+      "repository": "kastieloficial/RE-Code-Veronica-PS3-HD-Recomp-PC",
+      "play": { "file": "Code Veronica.exe" },
+      "reviewed": true,
+      "source": "README.txt: open 'Code Veronica.exe' (it picks the regional program in bin\\; those are not opened by hand); settings, saves, mods, exported textures, screenshots and caches are kept in bin\\ (cv_launcher.ini, log bin\\run-log.txt). User data: Seen in an install on the other PC (2026-11-05): saves in bin\\gamedata\\dev_hdd0\\home\\00000001\\savedata\\NPEB005530. Achievements: the release notes mention trophies, but no trophy file was found in that install; not verified.",
+      "userData": { "portable": "builtin", "local": "bin", "saves": "gamedata\\dev_hdd0\\home\\00000001\\savedata;cv_launcher.ini" }
+    },
+    {
+      "name": "Mario Kart: Double Dash!!",
+      "repository": "badcompany94-rcmp/project-tandem",
+      "play": { "file": "Launch-Tandem.cmd" },
+      "others": [
+        { "name": "Setup", "file": "Setup-Tandem.cmd" },
+        { "name": "Stop online", "file": "Stop-Online.cmd" }
+      ],
+      "reviewed": true,
+      "source": "README.md: portable installation; Setup-Tandem.cmd builds the game locally from the player's disc into local-data\\, Launch-Tandem.cmd plays (the launcher rebuilds when needed after an update; keep local-data when copying an update over the folder). User data: Seen in an install on the other PC (2026-11-05): local-data\\game\\saves (memcard_a.raw and the .cfg settings).",
+      "userData": { "portable": "builtin", "local": "local-data\\game\\saves", "saves": "memcard_*.raw;*.cfg" },
+      "achievements": { "kind": "none" },
+      "setup": { "kind": "builder", "notes": "README.md: an update is a ZIP copied over the folder keeping local-data; Launch-Tandem rebuilds the game when needed." }
+    },
+    {
+      "name": "Soulcalibur II",
+      "repository": "jackpoison-prog/RingOut",
+      "play": { "file": "RingOut.exe" },
+      "reviewed": true,
+      "source": "README.txt: setup builds the game module (bin\\g<ID>_recomp) from the player's disc on the machine (ModernGekko/Dolphin runtime, bin\\moderngekko-run.exe); a normal build targets this machine's processor, so a copy may not run on another PC. User data: README.txt: userdata\\ holds settings, save states and screenshots; Seen in an install on the other PC (2026-11-05): memory cards in userdata\\GC (EUR/USA/JAP, SRAM.raw). Achievements: only the RetroAchievements code that comes with Dolphin (empty RetroAchievements.ini), none of its own.",
+      "userData": { "portable": "builtin", "local": "userdata", "saves": "GC;StateSaves" },
+      "achievements": { "kind": "none" },
+      "setup": { "kind": "builder", "notes": "README.txt: setup.ps1 (Windows) / setup.sh builds the module from the disc; setup.sh --pgo builds a faster one, --deck one for a Steam Deck. An update may need the setup again." }
+    },
+    {
+      "name": "Shadow the Hedgehog",
+      "repository": "BigSnek9/ShadowRecomp",
+      "play": { "file": "ShadowRecomp.exe" },
+      "reviewed": true,
+      "source": "README.txt: ShadowRecomp.exe asks for the disc the first time and unpacks it into game\\Shadow, then starts game\\shadow.exe. User data: README.txt: game\\logs, game\\saves and game\\shadow_settings.ini, made while playing.",
+      "userData": { "portable": "builtin", "local": "game", "saves": "saves;shadow_settings.ini" },
+      "achievements": { "kind": "none" }
+    },
+    {
+      "name": "Stunt Race FX",
+      "repository": "Mabec-games/Stunt-Race-FX-DECOMP",
+      "play": { "file": "Stunt Race FX.exe" },
+      "reviewed": true,
+      "source": "README.txt: start 'Stunt Race FX.exe' (the launcher), which asks for the ROM; stuntracefx.exe is the game. User data: README.txt: portable, launcher.cfg, the saves and the session logs (save\\) in the app folder, nothing elsewhere; Seen in an install on the other PC (2026-11-05): save\\stuntracefx.srm.",
+      "userData": { "portable": "builtin", "local": "", "saves": "save\\*.srm;launcher.cfg" },
+      "achievements": { "kind": "none" }
+    },
+    {
+      "name": "Wario World",
+      "repository": "BigSnek9/wario-world-recomp",
+      "play": { "file": "WarioWorldRecomp.exe" },
+      "reviewed": true,
+      "source": "README.txt: WarioWorldRecomp.exe asks for the .iso the first time and copies its files into game\\. User data: README.txt 'Where things are': user\\ has the saves (memory card) and settings; data\\ logs.",
+      "userData": { "portable": "builtin", "local": "user" },
+      "achievements": { "kind": "none" }
+    },
+    {
+      "name": "Haunting Ground",
+      "repository": "ArnautDaniel/OpenHuey",
+      "play": { "file": "openhuey.exe" },
+      "reviewed": true,
+      "source": "README.txt: openhuey.exe imports the disc into library\\ the first time (also openhuey.exe --import <disc.iso>); --update gets the newest build. User data: README: user\\ has the saves, the system data (unlocks, best times) and settings, beside the exe; only when that folder can't be written they go to the user's application data folder (not seen).",
+      "userData": { "portable": "builtin", "local": "user" },
+      "achievements": { "kind": "none" }
+    },
+    {
+      "name": "Bomberman 64: The Second Attack!",
+      "repository": "bdragoncore/pommy-recomp",
+      "play": { "file": "BM64U2Recompiled.exe" },
+      "reviewed": true,
+      "source": "README.md 'Where is the savefile stored?': saves in a saves folder in the working directory and the settings as JSON files next to it (the game's folder for the Windows release). Quiver's apps.json adds portable.txt.",
+      "userData": { "portable": "builtin", "local": "", "saves": "saves;*.json" },
+      "achievements": { "kind": "none" }
+    },
+    {
+      "name": "Ratchet & Clank: A Crack in Time",
+      "repository": "HighDrexler/RACiT",
+      "play": { "file": "RaCACiT Launcher.exe" },
+      "reviewed": true,
+      "source": "README.txt: the launcher sets up the game from the player's .iso and EBOOT.elf, and every Play backs up the saves before starting builds\\<version>\\RaCACiT.exe (play through the launcher). User data: README.txt 'FOLDERS': data\\ holds settings.txt, dev_hdd0 (the PS3 hard drive with the saves), cache and logs; backups\\ the save backups.",
+      "userData": { "portable": "builtin", "local": "data", "saves": "dev_hdd0;settings.txt" },
+      "achievements": { "kind": "none" },
+      "setup": { "kind": "builder", "notes": "README.txt: the launcher updates itself from GitHub (backs up the saves, puts in the new build); after an update from Quiver it keeps the game, saves and settings." }
+    },
+    {
+      "name": "Resident Evil Outbreak",
+      "repository": "Ninjacornix/reo",
+      "play": { "file": "Outbreak.Launcher.exe" },
+      "reviewed": true,
+      "source": "README.md: Outbreak.Launcher.exe checks the ISO and builds the game locally (Build game, about 10 GB, data\\ beside the launcher or a chosen storage folder). User data: Seen in an install on the other PC (2026-11-05): data\\settings.json names the memory card folder data\\memory-cards\\default\\data (not made yet there).",
+      "userData": { "portable": "builtin", "local": "data", "saves": "memory-cards;settings.json" },
+      "achievements": { "kind": "none" },
+      "setup": { "kind": "builder", "notes": "README.md: later launches reuse the build; an update may need 'Build game' again (not verified)." }
+    },
+    {
+      "name": "Bayonetta 3",
+      "repository": "Zexyen/Witch-Time",
+      "play": { "file": "witch-time.exe" },
+      "reviewed": true,
+      "source": "README.md: witch-time.exe (launcher) asks for the Switch dump folder and builds the game (build\\wtbuild.exe setup --dump <folder>); the game runs as build\\witch-time-game.exe. Settings in config\\graphics.ini and config\\controllers.ini. User data: strings of the game program: WT_USERDATA, else ..\\userdata from the program's folder, that is userdata\\ in the app folder (not made yet in the install seen).",
+      "userData": { "portable": "builtin", "local": "userdata" },
+      "achievements": { "kind": "none" },
+      "setup": { "kind": "builder", "notes": "README.md: 'wtbuild setup --dump <dump>' (steps deps verify convert mods tables lift compile link book text check, resumable with --only/--from, --status); the launcher does the same with progress. An update may need the setup again." }
+    },
+    {
+      "name": "Bloodborne (Lantern Engine)",
+      "repository": "Awakenchan/BloodBorneButPc",
+      "play": { "file": "Bloodborne.exe" },
+      "others": [
+        { "name": "Lantern Engine", "file": "Lantern Engine.exe" }
+      ],
+      "reviewed": true,
+      "source": "Not portable: Seen in an install on the other PC (2026-11-05): its settings in %APPDATA%\\Lantern Engine\\settings.json (game_dir, user_dir); the saves are in the user_dir the player chooses (there: the CUSA00207 folder of the other Bloodborne port, Supermedo's, so both share the saves: savedata\\1\\CUSA00207\\SPRJ0005); save backups in %LOCALAPPDATA%\\Lantern Engine\\save-vault. Achievements: its log reads the trophies from the save ('trophy N earned in this save'); trophy icons in %APPDATA%\\Lantern Engine\\trophy-icons; no unlock file of its own found.",
+      "userData": { "portable": "none", "appData": "%LOCALAPPDATA%\\Lantern Engine", "saves": "save-vault" },
+      "achievements": { "kind": "ps4trophy" }
+    },
+    {
+      "name": "The Legend of Zelda: Ocarina of Time 3D",
+      "repository": "OTPR26/Ocarina-ReTuned",
+      "play": { "file": "OcarinaReTuned.exe" },
+      "reviewed": true,
+      "source": "START-HERE.txt: OcarinaReTuned.exe asks for the ROM and prepares the game locally (tools in setup\\). User data: Seen in an install on the other PC (2026-11-05): caches in %LOCALAPPDATA%\\Ocarina ReTuned\\cache, logs in logs\\; where it keeps the saves not found (no savedata folder there or in the app folder).",
+      "achievements": { "kind": "none" },
+      "setup": { "kind": "builder", "notes": "HOTFIX.txt / START-HERE.txt: after an update choose 'Update game preparation' in General settings (saves and settings are kept)." }
+    },
+    {
+      "name": "Resident Evil: The Umbrella Chronicles",
+      "repository": "solleo95/reuc-recomp",
+      "play": { "file": "uc_launcher.exe" },
+      "reviewed": true,
+      "source": "uc_launcher.exe starts uc.exe; uc_updater.exe updates it. User data: not found in the install seen (uc.exe mentions an AppData path)."
+    },
+    {
+      "name": "Kirby Air Ride",
+      "repository": "sonsegajp/Kirby-Air-Ride-Recompiled",
+      "play": { "file": "kirbyairride.exe" },
+      "others": [
+        { "name": "8 players", "file": "Kirby Air Ride (8 players).bat" }
+      ],
+      "reviewed": true,
+      "source": "README.txt: kirbyairride.exe asks for the disc the first time and builds the game (tools\\llvm); the chosen disc is remembered in disc.txt; 'Kirby Air Ride (8 players).bat' builds and plays the 8-rider build. setup.log and kirbyairride.log beside the program. User data: the program uses SDL_GetPrefPath (an AppData folder); not played yet, so not verified.",
+      "achievements": { "kind": "none" },
+      "setup": { "kind": "builder", "notes": "README.txt: delete disc.txt to choose another disc; an update may need the build again (not verified)." }
+    },
+    {
+      "name": "Mario Kart DS",
+      "repository": "AlonsoTlol/DS-Kart-Recompiled",
+      "play": { "file": "Launcher.exe" },
+      "reviewed": true,
+      "source": "README.txt: Launcher.exe prepares the game the first time (downloads Python and the compiler, translates the ROM, European AMCP) and updates itself ('Update' keeps the ROM, settings and save). User data: the launcher names the save partida.sav; not prepared yet in the install seen.",
+      "achievements": { "kind": "none" },
+      "setup": { "kind": "builder", "notes": "README.txt: the launcher says when there is a new version; its 'Update' keeps the ROM, settings and save." }
+    },
+    {
+      "name": "Virtua Fighter 2",
+      "repository": "mr-finster/vf2-recomp",
+      "reviewed": true,
+      "source": "User data: Seen in an install on the other PC (2026-11-05): %APPDATA%\\Virtua Fighter 2 Recomp (eeprom, backup1, settings.ini, roms\\vf2.zip, log.txt).",
+      "userData": { "portable": "none", "appData": "%APPDATA%\\Virtua Fighter 2 Recomp", "saves": "eeprom;backup1;settings.ini" }
+    },
+    {
+      "name": "Virtua Fighter 3",
+      "repository": "mr-finster/vf3-recomp",
+      "reviewed": true,
+      "source": "User data: Seen in an install on the other PC (2026-11-05): %APPDATA%\\Virtua Fighter 3 Recomp (eeprom, backup, settings.ini, roms\\vf3.zip, log.txt).",
+      "userData": { "portable": "none", "appData": "%APPDATA%\\Virtua Fighter 3 Recomp", "saves": "eeprom;backup;settings.ini" }
+    },
+    {
+      "name": "Luigi's Mansion",
+      "repository": "rob646464/luigis-mansion-recompiled",
+      "reviewed": true,
+      "source": "User data: Seen in an install on the other PC (2026-11-05): %APPDATA%\\Luigi's Mansion Recompiled, memory card in EUR\\Card A (the game module in game\\GLMP01, dawn_cache.db).",
+      "userData": { "portable": "none", "appData": "%APPDATA%\\Luigi's Mansion Recompiled", "saves": "EUR\\Card A;USA\\Card A;JPN\\Card A" }
     }
   ]
 }

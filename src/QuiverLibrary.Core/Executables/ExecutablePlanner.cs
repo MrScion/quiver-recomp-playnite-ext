@@ -81,7 +81,7 @@ namespace QuiverLibrary.Core.Executables
 
             if (entry != null && entry.HasLaunchInfo)
             {
-                plan.Play = entry.Play == null ? null : Target(null, FindFile(dir, entry.Play), entry.Play.Arguments);
+                plan.Play = entry.Play == null ? null : Target(dir, null, FindFile(dir, entry.Play), entry.Play);
                 if (plan.Play == null && entry.Play?.SearchSubfolders != true)
                 {
                     plan.Play = Target(null, QuiverLibraryData.ResolveExecutable(dir), null);
@@ -89,7 +89,7 @@ namespace QuiverLibrary.Core.Executables
 
                 foreach (var other in entry.Others ?? new List<ExecutableTarget>())
                 {
-                    var target = other == null || string.IsNullOrWhiteSpace(other.Name) ? null : Target(other.Name, FindFile(dir, other), other.Arguments);
+                    var target = other == null || string.IsNullOrWhiteSpace(other.Name) ? null : Target(dir, other.Name, FindFile(dir, other), other);
                     if (target != null && !plan.Others.Any(o => string.Equals(o.Name, target.Name, StringComparison.OrdinalIgnoreCase)))
                     {
                         plan.Others.Add(target);
@@ -142,7 +142,8 @@ namespace QuiverLibrary.Core.Executables
 
         /// <summary>
         /// The file a database path names, relative to <paramref name="dir"/>; wildcards are allowed
-        /// in the file name only, and the highest version wins. Null when nothing matches.
+        /// in the file name and the folder names, and the highest version wins (of a folder first,
+        /// skipping the ones without a match). Null when nothing matches.
         /// </summary>
         public static string FindFile(string dir, string relative)
         {
@@ -153,20 +154,42 @@ namespace QuiverLibrary.Core.Executables
                     return null;
                 }
 
-                var path = Path.Combine(dir, relative.Replace('/', Path.DirectorySeparatorChar));
-                var pattern = Path.GetFileName(path);
-                if (pattern.IndexOfAny(new[] { '*', '?' }) < 0)
-                {
-                    return File.Exists(path) ? path : null;
-                }
-
-                var folder = Path.GetDirectoryName(path);
-                return Directory.Exists(folder) ? HighestMatch(folder, pattern) : null;
+                var parts = relative.Replace('/', Path.DirectorySeparatorChar).Split(Path.DirectorySeparatorChar);
+                return FindFile(dir, parts, 0);
             }
             catch
             {
                 return null;
             }
+        }
+
+        private static string FindFile(string folder, string[] parts, int index)
+        {
+            var part = parts[index];
+            var wildcard = part.IndexOfAny(new[] { '*', '?' }) >= 0;
+            if (index == parts.Length - 1)
+            {
+                var path = Path.Combine(folder, part);
+                return !wildcard ? (File.Exists(path) ? path : null) : Directory.Exists(folder) ? HighestMatch(folder, part) : null;
+            }
+
+            if (!wildcard)
+            {
+                var next = Path.Combine(folder, part);
+                return Directory.Exists(next) ? FindFile(next, parts, index + 1) : null;
+            }
+
+            if (!Directory.Exists(folder))
+            {
+                return null;
+            }
+
+            var regex = WildcardRegex(part);
+            return Directory.GetDirectories(folder, part)
+                .Where(d => regex.IsMatch(Path.GetFileName(d)))
+                .OrderByDescending(d => Path.GetFileName(d), NaturalComparer.Instance)
+                .Select(d => FindFile(d, parts, index + 1))
+                .FirstOrDefault(f => f != null);
         }
 
         /// <summary>
@@ -226,12 +249,17 @@ namespace QuiverLibrary.Core.Executables
 
         private static string HighestMatch(string folder, string pattern)
         {
-            // Directory.GetFiles also matches 8.3 short names and longer extensions; check the long name exactly.
-            var regex = new Regex("^" + Regex.Escape(pattern).Replace(@"\*", ".*").Replace(@"\?", ".") + "$", RegexOptions.IgnoreCase);
+            var regex = WildcardRegex(pattern);
             return Directory.GetFiles(folder, pattern)
                 .Where(f => regex.IsMatch(Path.GetFileName(f)))
                 .OrderByDescending(f => Path.GetFileName(f), NaturalComparer.Instance)
                 .FirstOrDefault();
+        }
+
+        // Directory.GetFiles/GetDirectories also match 8.3 short names and longer extensions; check the long name exactly.
+        private static Regex WildcardRegex(string pattern)
+        {
+            return new Regex("^" + Regex.Escape(pattern).Replace(@"\*", ".*").Replace(@"\?", ".") + "$", RegexOptions.IgnoreCase);
         }
 
         /// <summary>Path relative to <paramref name="dir"/>, for the database and for Playnite's <c>{InstallDir}</c>.</summary>
@@ -246,6 +274,37 @@ namespace QuiverLibrary.Core.Executables
             return path == null
                 ? null
                 : new LaunchTarget { Name = name, Path = path, Arguments = string.IsNullOrWhiteSpace(arguments) ? null : arguments.Trim() };
+        }
+
+        private static LaunchTarget Target(string dir, string name, string path, ExecutableTarget source)
+        {
+            var target = Target(name, path, ExpandVariables(source.Arguments, dir, path));
+            foreach (var variable in source.Environment ?? new List<EnvironmentVariable>())
+            {
+                if (target != null && !string.IsNullOrWhiteSpace(variable?.Name))
+                {
+                    target.Environment[variable.Name.Trim()] = ExpandVariables(variable.Value, dir, path) ?? string.Empty;
+                }
+            }
+
+            return target;
+        }
+
+        /// <summary>
+        /// Replaces <c>{AppDir}</c> (the app folder) and <c>{ExeDir}</c> (the folder of
+        /// <paramref name="program"/>), then environment variables (<c>%LOCALAPPDATA%</c>, <c>%PATH%</c>).
+        /// </summary>
+        public static string ExpandVariables(string text, string dir, string program)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return text;
+            }
+
+            var exeDir = program == null ? null : Path.GetDirectoryName(program);
+            text = Regex.Replace(text, Regex.Escape("{AppDir}"), m => (dir ?? string.Empty).TrimEnd(Path.DirectorySeparatorChar), RegexOptions.IgnoreCase);
+            text = Regex.Replace(text, Regex.Escape("{ExeDir}"), m => (exeDir ?? string.Empty).TrimEnd(Path.DirectorySeparatorChar), RegexOptions.IgnoreCase);
+            return Environment.ExpandEnvironmentVariables(text);
         }
 
         /// <summary>Compares digit runs by value, so "0.1.60" sorts after "0.1.57" and "10" after "9".</summary>

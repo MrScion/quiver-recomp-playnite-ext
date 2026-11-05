@@ -58,6 +58,10 @@ namespace QuiverLibrary.Core.Executables
         [DataMember(Name = "achievements", Order = 9, EmitDefaultValue = false)]
         public AchievementsInfo Achievements { get; set; }
 
+        /// <summary>How the app gets its game: what an update from Quiver leaves to be done by hand.</summary>
+        [DataMember(Name = "setup", Order = 10, EmitDefaultValue = false)]
+        public SetupInfo Setup { get; set; }
+
         /// <summary>False for an entry that only describes <see cref="UserData"/>: its programs are chosen automatically.</summary>
         public bool HasLaunchInfo => Play != null || (Others != null && Others.Count > 0);
     }
@@ -115,6 +119,70 @@ namespace QuiverLibrary.Core.Executables
     }
 
     [DataContract]
+    public class SetupInfo
+    {
+        /// <summary>
+        /// Quiver's download is an installer that builds or installs the game into another folder
+        /// (one the player chooses, usually <c>game\</c> inside the app). An update from Quiver only
+        /// replaces the installer: the installed game stays as it was until the installer runs again.
+        /// </summary>
+        public const string Installer = "installer";
+
+        /// <summary>
+        /// Quiver's download is a launcher that builds the game in the app folder from the player's
+        /// disc. After an update from Quiver the launcher may have to build the game again.
+        /// </summary>
+        public const string Builder = "builder";
+
+        /// <summary><see cref="Installer"/> or <see cref="Builder"/>; apps without it are ready to play as downloaded.</summary>
+        [DataMember(Name = "kind", Order = 1)]
+        public string Kind { get; set; }
+
+        /// <summary>
+        /// Unattended install from the command line, when the installer has one. <see cref="ExecutableTarget.File"/>
+        /// is relative to the app folder; besides the usual variables the arguments name what the player has to
+        /// supply: <c>{Image}</c> (disc image), <c>{InstallDir}</c> (where the game goes) and others told in <see cref="Notes"/>.
+        /// </summary>
+        [DataMember(Name = "install", Order = 2, EmitDefaultValue = false)]
+        public ExecutableTarget Install { get; set; }
+
+        /// <summary>
+        /// Updating an installed game after Quiver downloads a new installer, from the command line.
+        /// <c>{GameDir}</c> is the folder of the installed game's play program. Null when the installer has no
+        /// such command (or it is not known): then it runs again with its window.
+        /// </summary>
+        [DataMember(Name = "update", Order = 3, EmitDefaultValue = false)]
+        public ExecutableTarget Update { get; set; }
+
+        /// <summary>What else to know to install or update it (what it asks for, known problems).</summary>
+        [DataMember(Name = "notes", Order = 4, EmitDefaultValue = false)]
+        public string Notes { get; set; }
+
+        /// <summary>
+        /// A file the installer leaves in the installed game's folder, as a path relative to that folder
+        /// (<c>xcx-install.json</c>, <c>data\install.json</c>): looked for in the app folder and its subfolders to
+        /// find <c>{GameDir}</c>. Without it, <c>{GameDir}</c> is the play program's folder.
+        /// </summary>
+        [DataMember(Name = "installMarker", Order = 5, EmitDefaultValue = false)]
+        public string InstallMarker { get; set; }
+
+        /// <summary>
+        /// Where the installer puts the game unless the player chooses another folder (environment variables allowed):
+        /// a game left there is outside the app folder, so uninstalling the app in Quiver doesn't remove it.
+        /// </summary>
+        [DataMember(Name = "defaultInstallDir", Order = 7, EmitDefaultValue = false)]
+        public string DefaultInstallDir { get; set; }
+
+        /// <summary>Why <see cref="Update"/> can't be run as it is (it stays documented): the player updates by hand.</summary>
+        [DataMember(Name = "updateProblem", Order = 6, EmitDefaultValue = false)]
+        public string UpdateProblem { get; set; }
+
+        public bool IsInstaller => string.Equals(Kind, Installer, System.StringComparison.OrdinalIgnoreCase);
+
+        public bool IsBuilder => string.Equals(Kind, Builder, System.StringComparison.OrdinalIgnoreCase);
+    }
+
+    [DataContract]
     public class AchievementsInfo
     {
         /// <summary>The ReXGlue runtime's own achievements (Xbox 360 recompilations).</summary>
@@ -160,12 +228,17 @@ namespace QuiverLibrary.Core.Executables
         public string Name { get; set; }
 
         /// <summary>
-        /// Path relative to the app folder. The file name may contain <c>*</c>/<c>?</c>; with
-        /// several matches the highest version wins ("App-0.1.60.exe" over "App-0.1.57.exe").
+        /// Path relative to the app folder. The file name and the folder names may contain
+        /// <c>*</c>/<c>?</c>; with several matches the highest version wins ("App-0.1.60.exe" over
+        /// "App-0.1.57.exe", <c>versions\0.3.0</c> over <c>versions\0.2.0</c>).
         /// </summary>
         [DataMember(Name = "file", Order = 2)]
         public string File { get; set; }
 
+        /// <summary>
+        /// May contain environment variables (<c>%LOCALAPPDATA%</c>) and <c>{AppDir}</c>/<c>{ExeDir}</c>
+        /// (see <see cref="ExecutablePlanner.ExpandVariables"/>).
+        /// </summary>
         [DataMember(Name = "arguments", Order = 3, EmitDefaultValue = false)]
         public string Arguments { get; set; }
 
@@ -177,6 +250,23 @@ namespace QuiverLibrary.Core.Executables
         /// </summary>
         [DataMember(Name = "searchSubfolders", Order = 4, EmitDefaultValue = false)]
         public bool SearchSubfolders { get; set; }
+
+        /// <summary>
+        /// Environment variables the program needs (what its own launcher sets), values expanded like
+        /// <see cref="Arguments"/>. Play program only: Playnite's other actions can't set them.
+        /// </summary>
+        [DataMember(Name = "environment", Order = 5, EmitDefaultValue = false)]
+        public List<EnvironmentVariable> Environment { get; set; }
+    }
+
+    [DataContract]
+    public class EnvironmentVariable
+    {
+        [DataMember(Name = "name", Order = 1)]
+        public string Name { get; set; }
+
+        [DataMember(Name = "value", Order = 2)]
+        public string Value { get; set; }
     }
 
     /// <summary>A resolved program of an installed app.</summary>
@@ -188,6 +278,9 @@ namespace QuiverLibrary.Core.Executables
         public string Path { get; set; }
 
         public string Arguments { get; set; }
+
+        /// <summary>Expanded environment variables to set; empty when the program needs none.</summary>
+        public Dictionary<string, string> Environment { get; set; } = new Dictionary<string, string>(System.StringComparer.OrdinalIgnoreCase);
     }
 
     public class ExecutablePlan

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using QuiverLibrary.Core.Executables;
@@ -33,7 +33,10 @@ namespace QuiverLibrary.Core.Tests
             Assert.All(entries, e =>
             {
                 Assert.False(string.IsNullOrWhiteSpace(e.Repository) && string.IsNullOrWhiteSpace(e.FolderName));
-                Assert.True(e.HasLaunchInfo || e.UserData != null || e.Achievements != null);
+                Assert.True(e.HasLaunchInfo || e.UserData != null || e.Achievements != null || e.Setup != null);
+                Assert.True(e.Setup == null || e.Setup.IsInstaller || e.Setup.IsBuilder);
+                Assert.True(e.Setup?.Install == null || !string.IsNullOrWhiteSpace(e.Setup.Install.File));
+                Assert.True(e.Setup?.Update == null || !string.IsNullOrWhiteSpace(e.Setup.Update.File));
                 if (e.HasLaunchInfo)
                 {
                     Assert.False(string.IsNullOrWhiteSpace(e.Play?.File));
@@ -271,6 +274,71 @@ namespace QuiverLibrary.Core.Tests
         }
 
         [Fact]
+        public void FindFile_WildcardFolder_HighestVersionWithTheFileWins()
+        {
+            using (var temp = new TempDirectory())
+            {
+                temp.WriteFile(@"Game\versions\0.9.0\run\game.exe");
+                var found = temp.WriteFile(@"Game\versions\0.10.0\run\game.exe");
+                temp.WriteFile(@"Game\versions\0.11.0\payload\game.exe");
+
+                Assert.Equal(found, ExecutablePlanner.FindFile(temp.Combine("Game"), @"versions\*\run\game.exe"));
+                Assert.Equal(found, ExecutablePlanner.FindFile(temp.Combine("Game"), "versions/0.*/run/GAME.exe"), ignoreCase: true);
+                Assert.Null(ExecutablePlanner.FindFile(temp.Combine("Game"), @"versions\*\bin\game.exe"));
+            }
+        }
+
+        [Fact]
+        public void Plan_BundledCrashOfTheTitansEntry_RunsTheRuntimeWithItsLauncherEnvironment()
+        {
+            using (var temp = new TempDirectory())
+            {
+                var dir = temp.Combine("Game");
+                var launcher = temp.WriteFile(@"Game\MojoRecomp-Launcher-1.1.0-windows-x64.exe");
+                temp.WriteFile(@"Game\games\.mojorecomp\components\runtime.cot\versions\0.2.0-alpha\payload\cot-runtime.exe");
+                var runtime = temp.WriteFile(@"Game\games\.mojorecomp\components\runtime.cot\versions\0.2.0-alpha\run\cot-runtime.exe");
+                var runDir = Path.GetDirectoryName(runtime);
+                var app = new QuiverApp { Name = "Crash of the Titans", FolderName = "CrashOfTheTitans-MojoRecomp", Repository = "OAleex/MojoRecomp" };
+                var localAppData = System.Environment.GetEnvironmentVariable("LOCALAPPDATA");
+
+                var plan = ExecutablePlanner.Plan(dir, ExecutableDatabase.Load(null).Find(app));
+
+                Assert.Equal(runtime, plan.Play.Path);
+                Assert.Equal($"--cpu --config \"{localAppData}\\MojoRecomp\\titles\\cot\\settings.toml\" --game-root \"{dir}\\games\\cot\"", plan.Play.Arguments);
+                Assert.Equal(System.Environment.GetEnvironmentVariable("USERPROFILE") + @"\Saved Games\MojoRecomp\cot", plan.Play.Environment["MOJORECOMP_SAVE_ROOT"]);
+                Assert.Equal(runDir + @"\dxcompiler.dll", plan.Play.Environment["MOJORECOMP_DXC_LIB"]);
+                Assert.StartsWith(runDir + ";", plan.Play.Environment["PATH"]);
+                Assert.DoesNotContain("%", plan.Play.Environment["PATH"]);
+                var setup = Assert.Single(plan.Others);
+                Assert.Equal(launcher, setup.Path);
+                Assert.Empty(setup.Environment);
+            }
+        }
+
+        [Fact]
+        public void Plan_CrashOfTheTitansNotSetUpInItsLauncher_PlaysTheLauncher()
+        {
+            using (var temp = new TempDirectory())
+            {
+                var launcher = temp.WriteFile(@"Game\MojoRecomp-Launcher-1.1.0-windows-x64.exe");
+                var app = new QuiverApp { Name = "Crash of the Titans", FolderName = "CrashOfTheTitans-MojoRecomp", Repository = "OAleex/MojoRecomp" };
+
+                var plan = ExecutablePlanner.Plan(temp.Combine("Game"), ExecutableDatabase.Load(null).Find(app));
+
+                Assert.Equal(launcher, plan.Play.Path);
+                Assert.Empty(plan.Play.Environment);
+            }
+        }
+
+        [Fact]
+        public void ExpandVariables_ReplacesFoldersAndEnvironmentVariables()
+        {
+            Assert.Equal(@"C:\A\games x C:\A\bin$1", ExecutablePlanner.ExpandVariables(@"{AppDir}\games x {exedir}$1", @"C:\A\", @"C:\A\bin\x.exe"));
+            Assert.Equal(System.Environment.GetEnvironmentVariable("WINDIR") + @"\x", ExecutablePlanner.ExpandVariables(@"%WINDIR%\x", @"C:\A", null));
+            Assert.Null(ExecutablePlanner.ExpandVariables(null, @"C:\A", null));
+        }
+
+        [Fact]
         public void RecordDetected_WritesUnreviewedEntry_ThatRoundTrips()
         {
             using (var temp = new TempDirectory())
@@ -417,6 +485,32 @@ namespace QuiverLibrary.Core.Tests
             Assert.Null(db.Find(renut));
             Assert.Null(db.FindUserData(renut));
             Assert.Null(db.FindAchievements(new QuiverApp { Repository = "someone/unknown" }));
+        }
+
+        [Fact]
+        public void FindSetup_MarksTheInstallers_AndASetupOnlyEntryHasNoProgramsOrData()
+        {
+            var db = ExecutableDatabase.Load(null);
+
+            Assert.True(db.FindSetup(new QuiverApp { Repository = "mahmoud-mess/tekken6-recomp" }).IsInstaller);
+            Assert.True(db.FindSetup(new QuiverApp { Repository = "2023PerfectDark/Perfect-Dark-Zero-Reinstated" }).IsInstaller);
+            var sfa3 = new QuiverApp { Repository = "irnutsmurt/Street-Alpha-3-Dreamcast-Recomp" };
+            Assert.True(db.FindSetup(sfa3).IsInstaller);
+            Assert.False(db.FindSetup(sfa3).IsBuilder);
+            var xcx = new QuiverApp { Repository = "jmars125/xcx-recomp" };
+            Assert.True(db.FindSetup(xcx).IsInstaller);
+            Assert.Null(db.Find(xcx));
+            Assert.Null(db.FindUserData(xcx));
+            Assert.Null(db.FindAchievements(xcx));
+            Assert.Equal("--update \"{GameDir}\"", db.FindSetup(sfa3).Update.Arguments);
+            Assert.Equal("SFA3-Setup.exe", db.FindSetup(sfa3).Install.File);
+            Assert.False(string.IsNullOrWhiteSpace(db.FindSetup(sfa3).Notes));
+            var ttt2 = db.FindSetup(new QuiverApp { Repository = "shihabal3amri/tekken-tag-tournament-2-pc" });
+            Assert.EndsWith("\"{GameDir}\"", ttt2.Update.Arguments);
+            Assert.Null(db.FindSetup(new QuiverApp { Repository = "Rotmill/Dino-Crisis-Modern-Edition" }).Update);
+            Assert.StartsWith("/silent ", ttt2.Install.Arguments);
+            Assert.Null(db.FindSetup(new QuiverApp { Repository = "masterspike52/reNut" }));
+            Assert.Null(db.FindSetup(new QuiverApp { Repository = "someone/unknown" }));
         }
 
         [Fact]

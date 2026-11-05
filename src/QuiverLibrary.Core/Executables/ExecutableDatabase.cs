@@ -72,6 +72,12 @@ namespace QuiverLibrary.Core.Executables
             return Match(local.Where(e => e.Reviewed && e.Achievements != null), app)?.Achievements ?? Match(bundled.Where(e => e.Achievements != null), app)?.Achievements;
         }
 
+        /// <summary>How the app gets its game, from a reviewed local entry, else from a shipped one; null when ready to play or unknown.</summary>
+        public SetupInfo FindSetup(QuiverApp app)
+        {
+            return Match(local.Where(e => e.Reviewed && e.Setup != null), app)?.Setup ?? Match(bundled.Where(e => e.Setup != null), app)?.Setup;
+        }
+
         /// <summary>
         /// Writes, refreshes or drops the automatic local entry of an app. Returns true when the
         /// local entries changed (save them with <see cref="SaveLocal"/>).

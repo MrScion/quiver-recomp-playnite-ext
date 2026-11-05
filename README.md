@@ -106,10 +106,14 @@ window) and which ones are offered as other actions. Every entry names its sourc
 usually the project's README. The executable picked in Quiver doesn't override an entry;
 one chosen from the game menu does.
 
-- `file` is relative to the app's folder; its file name may contain `*`/`?` (the highest
-  version wins). With `"searchSubfolders": true` it is a file name looked for in every
+- `file` is relative to the app's folder; its file name and folder names may contain `*`/`?`
+  (the highest version wins). With `"searchSubfolders": true` it is a file name looked for in every
   subfolder, the shallowest one winning: for games whose installer lets you choose where
   they go.
+- `arguments` may use environment variables (`%LOCALAPPDATA%`), `{AppDir}` (the app's folder)
+  and `{ExeDir}` (the program's folder). The play program may also take `environment`, a list of
+  `name`/`value` variables expanded the same way, for runtimes that need what their own launcher
+  sets (Crash of the Titans' MojoRecomp runtime); the extension then starts that process itself.
 - `userData` says where the app keeps its saves: `portable` (the marker file's name,
   `builtin` when it always uses its own folder, or `none`), `appData` (environment
   variables allowed), `local` (relative to the app's folder) and `saves` (inside both;
@@ -162,6 +166,41 @@ Achievements extension knows none of these games. What the extension does today
   Rising 2 (Case Zero / Case West) sends them to a XenonLive account.
 
 ## Changelog
+
+**0.3.0**
+- Play programs that need environment variables: the extension starts them itself (Crash of
+  the Titans runs its MojoRecomp runtime directly, without the launcher window).
+- `executables.json`: `environment` for the play program, `{AppDir}`/`{ExeDir}` and
+  environment variables in arguments, wildcards in folder names.
+- New entries: Crash of the Titans, Dino Crisis, GoldenEye 007: Reloaded, Gravity Rush 2,
+  Gravity Rush Remastered, Knack, Parasite Eve II, Perfect Dark Zero Reinstated, SoulCalibur
+  (Voldorium) and Turok: Evolution.
+- Apps whose download is an installer (the game is installed or built into another folder):
+  when Quiver updates one, a notification says the installed game is still the old one and
+  opens its installer. `executables.json`: `setup` (`installer` / `builder`); marked: Tekken 6,
+  Tekken Tag Tournament 2, Burnout Revenge, Dino Crisis, Perfect Dark Zero Reinstated, Street
+  Fighter Alpha 3, WET, Xenoblade Chronicles X and both Crash of the Titans installers;
+  `builder` (launchers that build the game from the disc): Mario Kart: Double Dash!! (Project
+  Tandem), Soulcalibur II (RingOut), Ratchet & Clank: A Crack in Time, Resident Evil Outbreak,
+  Bayonetta 3, Ocarina of Time 3D (ReTuned), Kirby Air Ride and Mario Kart DS. `setup` also
+  records each installer's command line (`install`, `update`) and `notes`.
+- Sidebar panel "Recomps: installers" (Desktop mode): every installed app with an installer or a
+  launcher that builds the game, whether Quiver's download is newer than the installed game, its
+  commands and notes; open the installer or the folder, and mark the setup as done. Apps whose
+  update command needs nothing else (WET; Xenoblade Chronicles X once installed) are updated
+  from there: after a confirmation the command runs in the background, one at a time, with its
+  output in a log, the game shown as installing meanwhile and the progress on the sidebar icon.
+  Installers that need the disc again (Tekken Tag Tournament 2, Tekken 6, Burnout Revenge) ask
+  for it once and remember it while the file exists ("Forget files" clears it).
+- Uninstalling an installer's app: Quiver removes only the app folder, so a notification says
+  where its game still is when it was installed elsewhere (a play program chosen outside the app
+  folder, or the installer's default folder: Dino Crisis, Perfect Dark Zero Reinstated).
+- Street Fighter Alpha 3 plays the game installed in `game\` (its installer is the Setup action).
+- New entries (play program, saves, portable, achievements): Street Fighter III: 3rd Strike
+  Online Edition (ReXGlue achievements file), Jet Set Radio Future, Resident Evil Code:
+  Veronica X, Shadow the Hedgehog, Stunt Race FX, Wario World, Haunting Ground, Bomberman 64:
+  The Second Attack!, Bloodborne (Lantern Engine), Resident Evil: The Umbrella Chronicles, and
+  the saves of Virtua Fighter 2, Virtua Fighter 3 and Luigi's Mansion.
 
 **0.2.0**
 - Experimental achievements export for Playnite Achievements (setting off by default):

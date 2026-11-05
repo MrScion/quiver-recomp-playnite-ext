@@ -59,6 +59,22 @@ namespace QuiverLibrary.Playnite.Settings
         public Dictionary<string, string> ChosenExecutables { get; set; } = new Dictionary<string, string>();
 
         /// <summary>
+        /// Download (<c>QuiverSetupUpdates.Fingerprint</c>) the installed game was set up from, for each app that is
+        /// set up by hand after downloading (installers, launchers that build the game), by app folder name: the one
+        /// seen first, then the one the player marks as done. While Quiver's download differs, the setup is pending.
+        /// </summary>
+        public Dictionary<string, string> SetupVersions { get; set; } = new Dictionary<string, string>();
+
+        /// <summary>
+        /// Files the player chose for the setup commands (<c>Image</c>, <c>TitleUpdate</c>, ...), by app folder name then
+        /// placeholder name: asked once, used again on every update while they exist.
+        /// </summary>
+        public Dictionary<string, Dictionary<string, string>> SetupFiles { get; set; } = new Dictionary<string, Dictionary<string, string>>();
+
+        /// <summary>Download already announced with a notification, by app folder name, so each one is announced once.</summary>
+        public Dictionary<string, string> SetupNotified { get; set; } = new Dictionary<string, string>();
+
+        /// <summary>
         /// One-time removal of the not-installed games imported by builds that still
         /// imported Quiver's whole library. Done once so a game the user installs and
         /// later uninstalls is never removed by it.
