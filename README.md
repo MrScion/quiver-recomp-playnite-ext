@@ -113,7 +113,18 @@ one chosen from the game menu does.
 - `arguments` may use environment variables (`%LOCALAPPDATA%`), `{AppDir}` (the app's folder)
   and `{ExeDir}` (the program's folder). The play program may also take `environment`, a list of
   `name`/`value` variables expanded the same way, for runtimes that need what their own launcher
-  sets (Crash of the Titans' MojoRecomp runtime); the extension then starts that process itself.
+  sets (Crash of the Titans' MojoRecomp runtime), and `"hideConsole": true` for console programs
+  that open the game window themselves; the extension then starts that process itself.
+- The play program may also take `launch`, a program relative to `file`'s folder that is started
+  instead (the engine behind a launcher, with the launcher's arguments; `file` still marks where
+  the game is, and is started as is while `launch` isn't there), `"borderless": true` to turn the
+  game window into a borderless one covering its monitor (when the game's own full screen option
+  doesn't work), and `{XboxLanguage}` in arguments and `environment`: Playnite's language as an
+  Xbox 360 language number (ReXGlue's `REX_USER_LANGUAGE`).
+- `{GamesDir}` is the shared games folder, `games` next to Quiver's `Apps` folder
+  (`<Quiver>\games`): for games whose compiler or installer refuses a folder inside the app's
+  own. It may start the play program's `file`, and be used in arguments, `environment`,
+  `userData.local`, `achievements.file`, `setup.built` and `setup.defaultInstallDir`.
 - `userData` says where the app keeps its saves: `portable` (the marker file's name,
   `builtin` when it always uses its own folder, or `none`), `appData` (environment
   variables allowed), `local` (relative to the app's folder) and `saves` (inside both;
@@ -167,6 +178,69 @@ Achievements extension knows none of these games. What the extension does today
 
 ## Changelog
 
+**0.3.10**
+- Cadence of Hyrule: Play is `cadence.exe` where its installer put it in the shared games folder (`{GamesDir}`,
+  any folder name), no longer a leftover build program inside the app folder; saves next to it.
+
+**0.3.9**
+- 12 new entries: Luigi's Mansion 3 (Hotel Luigi, `--play`), The Legend of Zelda: A Link to the Past
+  (`zelda3.exe` without its launcher), Killer Instinct Gold, Dead or Alive 3 (doa3-re), Illusion of Gaia, Bloody
+  Roar Extreme (European program; the USA and Japan ones as other actions), Blinx: The Time Sweeper, BLiNX 2,
+  Alone in the Dark: The New Nightmare, Hyrule Warriors: Age of Calamity (EXCUUUUSE ME PRINCESS), Mario & Luigi:
+  Brothership and The Darkness. Play program, saves folder, setup kind and, where the game has one, display
+  settings (full screen and internal resolution) for each.
+
+**0.3.8**
+- Bayonetta 3 (Witch Time): the saves folder is `build\userdata\save` (where the game really writes them), for the
+  saves menu and Ludusavi.
+
+**0.3.7**
+- Perfect Dark Zero Reinstated: Play is `PDZReinstatedTU3.exe` straight from where its installer put it in the
+  shared games folder (`{GamesDir}`, any folder name); saves folder next to it; full screen and internal
+  resolution from the Display tab. The Bonus DVD action is gone (it is outside the app folder).
+- Saves of a game in the shared games folder are looked for next to its play program.
+
+**0.3.6**
+- Settings in tabs: General, Saves and achievements, Display, Import.
+- Common display settings (Display tab): full screen and internal resolution (the game's own, 1080p,
+  1440p or 2160p), applied when a game starts through the new `display` field of `executables.json`
+  (command-line options and/or lines of the game's settings file). For now NeverDead, Tekken 6 and
+  Bayonetta 3 (Witch Time). Per-game settings are prepared but not editable yet.
+- NeverDead: saves and achievements folders; the resolution now comes from the Display tab.
+
+**0.3.5**
+- NeverDead (Neverdeth) plays in Playnite's language (Spanish, French, German or Italian when
+  Playnite uses one of them) at twice the internal resolution (1440p).
+
+**0.3.4**
+- Notes in `executables.json`: Ocarina ReTuned hangs after Start Game with the game language in
+  Spanish (USA ROM), and Astro Bot's US dump 01.007.000 crashes when a game loads (port issue #54;
+  tested version 01.019.000).
+
+**0.3.3**
+- Bayonetta 3 (Witch Time) plays with `--play`, skipping the launcher's screens (they still open
+  when the game isn't built or a newer release is out).
+
+**0.3.2**
+- Tekken 6 plays without its launcher: the engine starts directly in a borderless full screen
+  window, in Playnite's language (the launcher, still under other actions as "Launcher", asks
+  for the resolution every time and loops with another language). `executables.json`: `launch`,
+  `borderless` and `{XboxLanguage}` for the play program.
+
+**0.3.1**
+- "Setup pending" tag on the games installed in Quiver that still have to be built or installed
+  by their launcher or installer (never on apps uninstalled from Quiver), so they can be
+  filtered; added and removed on every library update. `executables.json`: `setup.built`, a file
+  or folder that only exists once the game is ready.
+- Shared games folder `{GamesDir}` (`<Quiver>\games`) for games that can't be built inside their
+  app's folder, and `hideConsole` for the play program.
+- New or reviewed entries: Star Fox (SpaceAnimalsRecomp, played without its launcher), WipEout
+  Omega Collection (`Play WipEout.exe`), Hyrule Warriors: Age of Imprisonment (fullscreen,
+  without its launcher; Quiver lists it as Age of Calamity), Burnout 2, Dead or Alive 2
+  Ultimate, Kameo, Astro Bot, Cadence of Hyrule, Hyrule Warriors: Definitive Edition, inFamous,
+  Silent Hill: Book of Memories, Ratchet & Clank (OpenRAC), Tekken Tag Tournament 2 (Ultimate
+  Edition), Wario Land: Shake It! and Bayonetta 3 (B3-Express).
+
 **0.3.0**
 - Play programs that need environment variables: the extension starts them itself (Crash of
   the Titans runs its MojoRecomp runtime directly, without the launcher window).
@@ -195,6 +269,16 @@ Achievements extension knows none of these games. What the extension does today
 - Uninstalling an installer's app: Quiver removes only the app folder, so a notification says
   where its game still is when it was installed elsewhere (a play program chosen outside the app
   folder, or the installer's default folder: Dino Crisis, Perfect Dark Zero Reinstated).
+- Experimental achievements export: also the ReXGlue ports' unlocks (`achievements\<title id>.toml`):
+  Street Fighter III: 3rd Strike Online Edition (with the icons its ArcadeInfo.xml lists),
+  Spider-Man: Edge of Time and GoldenEye 007 (XBLA). Names, descriptions, gamerscore and icons
+  come from the game's own data (the XDBF in its `default.xex`, in Playnite's language when the
+  game has it) when its program is not LZX-compressed (Spider-Man); otherwise they are exported
+  as "Achievement N".
+- "Update all Quiver apps": Quiver's `--update` stops after the first app it updates, so the
+  extension watches its output, ends each run once that app is updated and starts it again
+  until every update is done; the progress window says which app is updating, can be
+  cancelled, and the notification lists the apps updated.
 - Street Fighter Alpha 3 plays the game installed in `game\` (its installer is the Setup action).
 - New entries (play program, saves, portable, achievements): Street Fighter III: 3rd Strike
   Online Edition (ReXGlue achievements file), Jet Set Radio Future, Resident Evil Code:

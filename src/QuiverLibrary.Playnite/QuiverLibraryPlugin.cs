@@ -44,6 +44,13 @@ namespace QuiverLibrary.Playnite
         /// <summary>Source given to every imported game.</summary>
         internal const string SourceName = "Quiver Launcher";
 
+        /// <summary>
+        /// Tag of the games installed in Quiver whose game program isn't there yet (still to be built or
+        /// installed by their launcher or installer), so they can be filtered. Added and removed on every
+        /// library update; found by name, so renaming it in Playnite makes a new one appear.
+        /// </summary>
+        internal const string SetupPendingTag = "Setup pending";
+
         /// <summary>Source used by earlier builds; migrated to <see cref="SourceName"/>.</summary>
         private const string LegacySourceName = "Quiver";
 
@@ -291,6 +298,11 @@ namespace QuiverLibrary.Playnite
                     // Playnite never changes the actions of a game it already has on re-import, nor its
                     // last activity unless the library also reports play time (GameDatabase.ImportGames).
                     var changed = otherActions != null && SyncOtherActions(game, otherActions);
+                    if (SyncSetupPendingTag(game, IsSetupPending(state, plan, executables, settings)))
+                    {
+                        changed = true;
+                    }
+
                     if (syncLastPlayed && state.IsInstalled && SyncLastPlayedTime(game, state.InstallDirectory, quiverLastPlayed))
                     {
                         changed = true;
@@ -309,6 +321,11 @@ namespace QuiverLibrary.Playnite
                     }
 
                     metadata.LastActivity = quiverLastPlayed;
+                    if (IsSetupPending(state, plan, executables, settings))
+                    {
+                        metadata.Tags = metadata.Tags ?? new HashSet<MetadataProperty>();
+                        metadata.Tags.Add(new MetadataNameProperty(SetupPendingTag));
+                    }
                 }
 
                 games.Add(metadata);
@@ -321,7 +338,7 @@ namespace QuiverLibrary.Playnite
                     updated.ForEach(g => PlayniteApi.Database.Games.Update(g));
                 }
 
-                Logger.Info($"Updated the other actions or last played time of {updated.Count} Quiver game(s).");
+                Logger.Info($"Updated the other actions, last played time or \"{SetupPendingTag}\" tag of {updated.Count} Quiver game(s).");
             }
 
             MakePortable(plans, executables);
@@ -599,6 +616,45 @@ namespace QuiverLibrary.Playnite
             return true;
         }
 
+        /// <summary>Installed in Quiver, but the game still has to be built or installed (never for apps uninstalled from Quiver).</summary>
+        private static bool IsSetupPending(QuiverAppState state, ExecutablePlan plan, ExecutableDatabase executables, QuiverSettings settings)
+        {
+            return state.IsInstalled && ExecutablePlanner.IsSetupPending(
+                state.InstallDirectory, plan, executables.FindSetup(state.App), ChosenExecutable(settings, state.App.FolderName));
+        }
+
+        /// <summary>
+        /// Adds or removes the <see cref="SetupPendingTag"/> tag (created the first time it is needed).
+        /// Returns true when the game changed and needs saving.
+        /// </summary>
+        private bool SyncSetupPendingTag(Game game, bool pending)
+        {
+            var tag = PlayniteApi.Database.Tags.FirstOrDefault(t => string.Equals(t.Name, SetupPendingTag, StringComparison.OrdinalIgnoreCase));
+            var has = tag != null && game.TagIds != null && game.TagIds.Contains(tag.Id);
+            if (has == pending)
+            {
+                return false;
+            }
+
+            if (pending)
+            {
+                if (tag == null)
+                {
+                    tag = new Tag(SetupPendingTag);
+                    PlayniteApi.Database.Tags.Add(tag);
+                }
+
+                game.TagIds = game.TagIds ?? new List<Guid>();
+                game.TagIds.Add(tag.Id);
+            }
+            else
+            {
+                game.TagIds.Remove(tag.Id);
+            }
+
+            return true;
+        }
+
         private static bool IsManagedAction(GameAction action)
         {
             return action != null && !action.IsPlayAction && action.Type == GameActionType.File &&
@@ -629,15 +685,24 @@ namespace QuiverLibrary.Playnite
                     return;
                 }
 
-                var wanted = OtherActionsFor(state, PlanFor(state, LoadExecutables(new[] { state }), LoadSettings()));
-                if (wanted != null && SyncOtherActions(game, wanted))
+                var executables = LoadExecutables(new[] { state });
+                var settings = LoadSettings();
+                var plan = PlanFor(state, executables, settings);
+                var wanted = OtherActionsFor(state, plan);
+                var changed = wanted != null && SyncOtherActions(game, wanted);
+                if (SyncSetupPendingTag(game, IsSetupPending(state, plan, executables, settings)))
+                {
+                    changed = true;
+                }
+
+                if (changed)
                 {
                     PlayniteApi.Database.Games.Update(game);
                 }
             }
             catch (Exception e)
             {
-                Logger.Error(e, $"Cannot update the other actions of {game.Name}.");
+                Logger.Error(e, $"Cannot update the other actions or tags of {game.Name}.");
             }
         }
 
@@ -1224,7 +1289,7 @@ namespace QuiverLibrary.Playnite
                     var state = app.Key;
                     var name = nameOf(state);
                     var folders = QuiverSaves.ForBackup(state.InstallDirectory, app.Value?.Play?.Path, executables.FindUserData(state.App),
-                        executables.Find(state.App)?.Play?.SearchSubfolders == true);
+                        executables.Find(state.App)?.Play?.IsInstalledGame == true);
                     if (folders.Count == 0)
                     {
                         unknown.Add(name);
@@ -1329,9 +1394,12 @@ namespace QuiverLibrary.Playnite
             var game = args.Game;
             LaunchTarget exe = null;
             string problem = null;
+            QuiverAppState state = null;
+            ExecutableEntry entry = null;
+            QuiverSettings settings = null;
             try
             {
-                var state = GetAppState(game.GameId);
+                state = GetAppState(game.GameId);
                 if (state == null)
                 {
                     problem = string.Format(Loc("LOCQuiverPlayNotInLibrary"), game.Name);
@@ -1343,8 +1411,9 @@ namespace QuiverLibrary.Playnite
                 else
                 {
                     var executables = LoadExecutables();
-                    var entry = executables.Find(state.App);
-                    exe = PlanFor(state, executables, LoadSettings())?.Play;
+                    entry = executables.Find(state.App);
+                    settings = LoadSettings();
+                    exe = PlanFor(state, executables, settings)?.Play;
                     if (exe == null)
                     {
                         // An installer that puts the game where the player chooses: not run yet, or somewhere else.
@@ -1364,7 +1433,9 @@ namespace QuiverLibrary.Playnite
                 yield break;
             }
 
-            if (exe.Environment.Count > 0)
+            ExpandLanguage(exe);
+            ApplyDisplay(game, exe, entry, state, settings);
+            if (QuiverProcessPlayController.IsNeeded(exe))
             {
                 yield return new QuiverProcessPlayController(game, exe);
                 yield break;
@@ -1420,7 +1491,7 @@ namespace QuiverLibrary.Playnite
                 var settings = LoadSettings();
                 var plan = PlanFor(state, executables, settings);
                 var saves = QuiverSaves.Find(state.InstallDirectory, plan?.Play?.Path, executables.FindUserData(state.App),
-                    executables.Find(state.App)?.Play?.SearchSubfolders == true);
+                    executables.Find(state.App)?.Play?.IsInstalledGame == true);
                 if (saves.Count == 1)
                 {
                     items.Add(new GameMenuItem
@@ -1507,9 +1578,15 @@ namespace QuiverLibrary.Playnite
                     return;
                 }
 
-                PlayniteApi.Dialogs.ShowMessage(
-                    string.Format(Loc("LOCQuiverAchievementsExported"), game.Name, achievements.Count, achievements.Count(a => a.Unlocked), path),
-                    game.Name);
+                var message = string.Format(Loc("LOCQuiverAchievementsExported"), game.Name, achievements.Count, achievements.Count(a => a.Unlocked), path);
+                if (info.Kind == AchievementsInfo.ReXGlue && achievements.Any(a => a.Points == null))
+                {
+                    // Their names are only inside the game's .xex: the CSV has placeholders, which a later import would
+                    // write again over names typed in Playnite Achievements.
+                    message += Environment.NewLine + Environment.NewLine + Loc("LOCQuiverAchievementsNoNames");
+                }
+
+                PlayniteApi.Dialogs.ShowMessage(message, game.Name);
                 Process.Start("explorer.exe", "/select,\"" + path + "\"");
             }
             catch (Exception e)
@@ -1520,12 +1597,96 @@ namespace QuiverLibrary.Playnite
         }
 
         /// <summary>
+        /// The display settings (common, or the game's own) for a game whose entry has <c>display</c>: options added to the
+        /// play program's arguments and lines written to its settings file. A failure is logged and the game still starts.
+        /// </summary>
+        private void ApplyDisplay(Game game, LaunchTarget exe, ExecutableEntry entry, QuiverAppState state, QuiverSettings settings)
+        {
+            if (entry?.Display == null || settings == null || state == null)
+            {
+                return;
+            }
+
+            try
+            {
+                var prefs = DisplayPlanner.Choose(settings.Display, settings.GameDisplay, state.App.FolderName);
+                var plan = DisplayPlanner.Plan(entry.Display, prefs, exe.Arguments, state.InstallDirectory, exe.Path);
+                exe.Arguments = plan.Arguments;
+                if (plan.Config != null)
+                {
+                    var missing = DisplayPlanner.Apply(plan.Config, out var changed);
+                    if (missing.Count > 0)
+                    {
+                        Logger.Warn($"{game.Name}: display settings not found in {plan.Config.Path}: {string.Join(", ", missing)}.");
+                    }
+                    else if (changed)
+                    {
+                        Logger.Info($"{game.Name}: display settings written to {plan.Config.Path}.");
+                    }
+                }
+
+                if (!prefs.ChangesNothing)
+                {
+                    Logger.Info($"{game.Name}: display full screen={prefs.Fullscreen}, height={prefs.ResolutionHeight}, " +
+                                $"scale={(plan.Scale.HasValue ? DisplayPlanner.FormatScale(plan.Scale.Value) : "unchanged")}.");
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, $"Cannot apply the display settings of {game.Name}.");
+            }
+        }
+
+        /// <summary>Replaces <see cref="ExecutablePlanner.XboxLanguageVariable"/> in the arguments and environment of the play program.</summary>
+        private void ExpandLanguage(LaunchTarget exe)
+        {
+            var language = XboxLanguage(PlayniteApi.ApplicationSettings.Language).ToString(System.Globalization.CultureInfo.InvariantCulture);
+            exe.Arguments = ExecutablePlanner.ReplaceVariable(exe.Arguments, ExecutablePlanner.XboxLanguageVariable, language);
+            foreach (var name in exe.Environment.Keys.ToList())
+            {
+                exe.Environment[name] = ExecutablePlanner.ReplaceVariable(exe.Environment[name], ExecutablePlanner.XboxLanguageVariable, language);
+            }
+        }
+
+        /// <summary>Playnite's language ("es_ES") as an Xbox 360 language number (Xenia's <c>XLanguage</c>); English when it has none.</summary>
+        private static int XboxLanguage(string playniteLanguage)
+        {
+            var code = (playniteLanguage ?? string.Empty).Replace('-', '_').ToLowerInvariant();
+            switch (code)
+            {
+                case "zh_tw":
+                    return 8;
+                case "zh_cn":
+                    return 10;
+            }
+
+            switch (code.Split('_')[0])
+            {
+                case "ja": return 2;
+                case "de": return 3;
+                case "fr": return 4;
+                case "es": return 5;
+                case "it": return 6;
+                case "ko": return 7;
+                case "pt": return 9;
+                case "pl": return 11;
+                case "ru": return 12;
+                default: return Xdbf.LanguageEnglish;
+            }
+        }
+
+        /// <summary>
         /// Writes <c>achievements\&lt;game&gt;.csv</c> in the extension's data folder; returns its path, or null
         /// when the app has no achievements to read yet.
         /// </summary>
         private string WriteAchievementsCsv(Game game, string appDir, AchievementsInfo info, out List<RecompAchievement> achievements)
         {
-            achievements = RecompAchievements.Read(appDir, info);
+            achievements = RecompAchievements.Read(appDir, info, new AchievementReadOptions
+            {
+                PlaceholderName = Loc("LOCQuiverAchievementPlaceholder"),
+                Language = XboxLanguage(PlayniteApi.ApplicationSettings.Language),
+                CacheDir = Path.Combine(GetPluginUserDataPath(), "achievements", "xbox360"),
+            });
             if (achievements == null || achievements.Count == 0)
             {
                 return null;
@@ -1639,19 +1800,34 @@ namespace QuiverLibrary.Playnite
                 return;
             }
 
-            QuiverCliResult result = null;
+            QuiverUpdateAllResult result = null;
             Exception error = null;
             PlayniteApi.Dialogs.ActivateGlobalProgress(progress =>
             {
                 try
                 {
-                    result = QuiverCli.Run(install.CliExe, new[] { "--update" }, CancellationToken.None);
+                    var data = GetData();
+                    var updated = 0;
+                    result = QuiverUpdateAll.Run(data,
+                        // Quiver's --update stops for good after the first app it updates (QuiverUpdateWatch): each run is
+                        // ended once its app is updated and settled, and started again for the next one.
+                        watch => QuiverCli.Run(install.CliExe, new[] { "--update" }, progress.CancelToken,
+                            finishedWhen: watch.AppUpdatedAndSettled,
+                            stableFor: TimeSpan.FromSeconds(5),
+                            timeout: UpdateRoundTimeout,
+                            onLine: watch.OnLine),
+                        progress.CancelToken,
+                        name =>
+                        {
+                            Logger.Info($"Quiver --update is updating {name}.");
+                            progress.Text = string.Format(Loc("LOCQuiverProgressUpdatingApp"), name, updated++);
+                        });
                 }
                 catch (Exception e)
                 {
                     error = e;
                 }
-            }, new GlobalProgressOptions(Loc("LOCQuiverProgressUpdating"), false));
+            }, new GlobalProgressOptions(Loc("LOCQuiverProgressUpdating"), true));
 
             if (error != null)
             {
@@ -1660,17 +1836,38 @@ namespace QuiverLibrary.Playnite
                 return;
             }
 
+            Logger.Info($"Quiver --update: {result.Rounds} run(s), updated: {string.Join(", ", result.Updated)}; " +
+                        $"last exit code {result.Last?.ExitCode}, cancelled {result.Cancelled}, timed out {result.TimedOut}, stuck {result.Stuck}." +
+                        Environment.NewLine + result.Last?.Output);
             TryRefreshInstallStatus();
+            var updatedText = result.Updated.Count == 0 ? Loc("LOCQuiverUpdateNone") : string.Join(", ", result.Updated);
             if (result.Success)
             {
-                Notify("update", Loc("LOCQuiverUpdateDone"), NotificationType.Info);
+                Notify("update", string.Format(Loc("LOCQuiverUpdateDone"), updatedText), NotificationType.Info);
+            }
+            else if (result.Cancelled)
+            {
+                Notify("update", string.Format(Loc("LOCQuiverUpdateCancelled"), updatedText), NotificationType.Info);
+            }
+            else if (result.TimedOut)
+            {
+                Notify("update", string.Format(Loc("LOCQuiverUpdateTimedOut"), updatedText, (int)UpdateRoundTimeout.TotalMinutes), NotificationType.Error);
+            }
+            else if (result.Stuck)
+            {
+                Notify("update", string.Format(Loc("LOCQuiverUpdateStuck"), updatedText), NotificationType.Error);
             }
             else
             {
-                Logger.Warn($"Quiver --update exited with {result.ExitCode}:{Environment.NewLine}{result.Output}");
-                Notify("update", string.Format(Loc("LOCQuiverUpdatePartial"), result.Summary()), NotificationType.Error);
+                Notify("update", string.Format(Loc("LOCQuiverUpdatePartial"), result.Last?.Summary(), updatedText), NotificationType.Error);
             }
         }
+
+        /// <summary>
+        /// Longest a single run of Quiver's <c>--update</c> may take (one app's download and unpacking; Quiver itself
+        /// gives a download 10 minutes).
+        /// </summary>
+        private static readonly TimeSpan UpdateRoundTimeout = TimeSpan.FromMinutes(30);
 
         private sealed class QuiverAppOption : GenericItemOption
         {

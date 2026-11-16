@@ -26,7 +26,7 @@ namespace QuiverLibrary.Core.Achievements
                     a.Id,
                     a.Name,
                     a.Description,
-                    null,
+                    a.Points?.ToString(CultureInfo.InvariantCulture),
                     a.TrophyType,
                     a.Hidden ? "true" : "false",
                     null,

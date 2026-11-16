@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Playnite.SDK;
 using QuiverLibrary.Core;
+using QuiverLibrary.Core.Executables;
 
 namespace QuiverLibrary.Playnite.Settings
 {
@@ -28,6 +29,19 @@ namespace QuiverLibrary.Playnite.Settings
         }
     }
 
+    /// <summary>One entry of the internal resolution list: a height, 0 = the game's own.</summary>
+    public sealed class QuiverResolutionOption
+    {
+        public int Height { get; }
+        public string Name { get; }
+
+        public QuiverResolutionOption(int height, string name)
+        {
+            Height = height;
+            Name = name;
+        }
+    }
+
     public class QuiverSettingsViewModel : ObservableObject, ISettings
     {
         private readonly QuiverLibraryPlugin _plugin;
@@ -42,6 +56,10 @@ namespace QuiverLibrary.Playnite.Settings
         private bool _ludusaviBackup;
         private bool _beforeAchievementsExport;
         private bool _achievementsExport;
+        private bool _beforeDisplayFullscreen;
+        private bool _displayFullscreen;
+        private int _beforeDisplayHeight;
+        private int _displayHeight;
         private string _quiverFolder;
         private string _status;
         private bool _statusIsError;
@@ -93,6 +111,22 @@ namespace QuiverLibrary.Playnite.Settings
             set => SetValue(ref _achievementsExport, value);
         }
 
+        /// <summary>Common display setting: start the games in full screen.</summary>
+        public bool DisplayFullscreen
+        {
+            get => _displayFullscreen;
+            set => SetValue(ref _displayFullscreen, value);
+        }
+
+        /// <summary>Common display setting: internal render height, 0 = the game's own.</summary>
+        public int DisplayHeight
+        {
+            get => _displayHeight;
+            set => SetValue(ref _displayHeight, value);
+        }
+
+        public List<QuiverResolutionOption> Resolutions { get; }
+
         public RelayCommand BrowseQuiverFolderCommand { get; }
 
         /// <summary>Port features Playnite imports from Quiver's tags; unticked ones are left out.</summary>
@@ -107,6 +141,14 @@ namespace QuiverLibrary.Playnite.Settings
             _makePortable = settings.MakePortable;
             _ludusaviBackup = settings.LudusaviBackup;
             _achievementsExport = settings.AchievementsExport;
+            _displayFullscreen = settings.Display?.Fullscreen ?? false;
+            _displayHeight = settings.Display?.ResolutionHeight ?? 0;
+            Resolutions = new List<QuiverResolutionOption> { new QuiverResolutionOption(0, ResourceProvider.GetString("LOCQuiverSettingsResolutionDefault")) };
+            Resolutions.AddRange(DisplayPlanner.Heights.Select(h => new QuiverResolutionOption(h, ResourceProvider.GetString("LOCQuiverSettingsResolution" + h))));
+            if (Resolutions.All(r => r.Height != _displayHeight))
+            {
+                Resolutions.Add(new QuiverResolutionOption(_displayHeight, _displayHeight + "p"));
+            }
             var disabled = new HashSet<string>(settings.DisabledFeatures ?? new List<string>(), StringComparer.OrdinalIgnoreCase);
             Features = QuiverTagMapping.Features.Select(f => new QuiverFeatureOption(f, !disabled.Contains(f.Key))).ToList();
 
@@ -162,6 +204,8 @@ namespace QuiverLibrary.Playnite.Settings
             _beforeMakePortable = MakePortable;
             _beforeLudusaviBackup = LudusaviBackup;
             _beforeAchievementsExport = AchievementsExport;
+            _beforeDisplayFullscreen = DisplayFullscreen;
+            _beforeDisplayHeight = DisplayHeight;
             _beforeFeatures = Features.Select(f => f.IsEnabled).ToList();
         }
 
@@ -172,6 +216,8 @@ namespace QuiverLibrary.Playnite.Settings
             MakePortable = _beforeMakePortable;
             LudusaviBackup = _beforeLudusaviBackup;
             AchievementsExport = _beforeAchievementsExport;
+            DisplayFullscreen = _beforeDisplayFullscreen;
+            DisplayHeight = _beforeDisplayHeight;
             for (var i = 0; i < Features.Count && _beforeFeatures != null && i < _beforeFeatures.Count; i++)
             {
                 Features[i].IsEnabled = _beforeFeatures[i];
@@ -190,6 +236,7 @@ namespace QuiverLibrary.Playnite.Settings
             var ludusaviTurnedOn = LudusaviBackup && !settings.LudusaviBackup;
             settings.LudusaviBackup = LudusaviBackup;
             settings.AchievementsExport = AchievementsExport;
+            settings.Display = new DisplayPreferences { Fullscreen = DisplayFullscreen, ResolutionHeight = DisplayHeight };
             _plugin.SavePluginSettings(settings);
             if (_plugin.FindInstallation() != null)
             {

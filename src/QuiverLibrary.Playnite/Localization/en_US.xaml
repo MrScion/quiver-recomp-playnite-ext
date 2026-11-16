@@ -23,6 +23,20 @@
     <sys:String x:Key="LOCQuiverSettingsFeaturesHint">What each port offers, taken from Quiver's tags and added to the game's Features in Playnite. Untick the ones you don't want. Applies to newly imported games, and to existing ones when you run "Download metadata" for them. Quiver's mod sites are added as links and the kind of project (Recompilation, Decompilation...) as tags.</sys:String>
     <sys:String x:Key="LOCQuiverSettingsHowItWorksHeader">How it works</sys:String>
     <sys:String x:Key="LOCQuiverSettingsHowItWorks">Only apps installed in Quiver are imported: install new games from Quiver Launcher, then update the game library. A game uninstalled later stays in Playnite (with its stats) as not installed, and can be reinstalled from Playnite. Quiver stays in charge of the game files. Install and Uninstall run Quiver in the background; Play starts the game's executable directly (games are not updated before launching). Use "Quiver → Update all Quiver apps" in the main menu to update them.</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsTabGeneral">General</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsTabSaves">Saves and achievements</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsTabDisplay">Display</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsTabImport">Import</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsDisplayHeader">Display (all recomps)</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsDisplayHint">Applied when you press Play, on the games the extension knows how to set (for now NeverDead, Tekken 6 and Witch Time's Bayonetta 3); the others are left alone. Some games keep it in their own settings file: what you change in the game's menu is overwritten the next time you start it from Playnite.</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsDisplayFullscreen">Full screen</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsDisplayFullscreenHint">Unticked, each game starts as it is set up (windowed mode is not forced).</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsDisplayResolution">Internal resolution</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsDisplayResolutionHint">The height the game draws its picture at: sharper the higher it is (and harder on the graphics card). It becomes each game's scale from its original resolution; games that only take whole scales use the nearest one (for example 1080p in a 720p game ends up as 1440p).</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsResolutionDefault">The game's own (unchanged)</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsResolution1080">1080p (Full HD)</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsResolution1440">1440p (2K)</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsResolution2160">2160p (4K)</sys:String>
 
     <!-- Main menu -->
     <sys:String x:Key="LOCQuiverMenuInstallFromLibrary">Install from Quiver library...</sys:String>
@@ -60,6 +74,8 @@
     <sys:String x:Key="LOCQuiverSavesNotYet" xml:space="preserve">{0} has not saved anything yet. Its saves will be in:&#x0a;{1}</sys:String>
     <sys:String x:Key="LOCQuiverAchievementsNotYet">{0} has not recorded any achievement yet.</sys:String>
     <sys:String x:Key="LOCQuiverAchievementsExported" xml:space="preserve">Experimental: exported {1} achievements of {0} ({2} unlocked) to:&#x0a;{3}&#x0a;&#x0a;To see them in Playnite Achievements, open this game's achievement editor there and import that CSV as its custom achievements. The CSV is rewritten every time the game closes: import it again after unlocking more (rows are matched by ID, nothing is duplicated).</sys:String>
+    <sys:String x:Key="LOCQuiverAchievementPlaceholder">Achievement {0}</sys:String>
+    <sys:String x:Key="LOCQuiverAchievementsNoNames">This game's achievement names are not known yet (they are inside the game's program), so they are exported as "Achievement 1", "Achievement 2"... Importing the CSV again writes those names again over any you typed in Playnite Achievements.</sys:String>
     <sys:String x:Key="LOCQuiverInstallNoFiles">Quiver finished but the app files were not found.</sys:String>
     <sys:String x:Key="LOCQuiverInstallFailed">Quiver could not install {0}: {1}</sys:String>
     <sys:String x:Key="LOCQuiverInstallNeedsQuiver">Quiver can't download {0} from its command line. Click here to open Quiver Launcher and install it there, then update the game library.</sys:String>
@@ -70,9 +86,14 @@
     <sys:String x:Key="LOCQuiverInstallDoneNotAdded">{0} was installed by Quiver, but could not be added to Playnite ({1}). Update the game library to import it.</sys:String>
     <sys:String x:Key="LOCQuiverUninstallFilesRemain">the app files are still there.</sys:String>
     <sys:String x:Key="LOCQuiverUninstallFailed">Quiver could not uninstall {0}: {1}</sys:String>
-    <sys:String x:Key="LOCQuiverUpdateDone">Quiver finished updating all installed apps.</sys:String>
-    <sys:String x:Key="LOCQuiverUpdatePartial">Quiver could not update every app: {0}</sys:String>
+    <sys:String x:Key="LOCQuiverUpdateDone">Quiver finished updating the installed apps. Updated: {0}.</sys:String>
+    <sys:String x:Key="LOCQuiverUpdatePartial">Quiver could not update every app: {0}. Updated: {1}.</sys:String>
     <sys:String x:Key="LOCQuiverUpdateFailed">Quiver update failed: {0}</sys:String>
+    <sys:String x:Key="LOCQuiverUpdateStuck">Quiver kept updating the same app again and was stopped. Updated: {0}. Check it in Quiver's window.</sys:String>
+    <sys:String x:Key="LOCQuiverUpdateTimedOut">Quiver spent more than {1} minutes on one app and was stopped. Updated before that: {0}. Try it from Quiver's window.</sys:String>
+    <sys:String x:Key="LOCQuiverUpdateCancelled">Updating the Quiver apps was cancelled. Updated before that: {0}.</sys:String>
+    <sys:String x:Key="LOCQuiverUpdateNone">none (all were up to date)</sys:String>
+    <sys:String x:Key="LOCQuiverProgressUpdatingApp">Quiver is updating {0}... ({1} app(s) updated so far)</sys:String>
     <sys:String x:Key="LOCQuiverRefreshDone">Quiver install status refreshed ({0} game(s) changed).</sys:String>
     <sys:String x:Key="LOCQuiverRefreshFailed">Could not read Quiver's library: {0}</sys:String>
     <sys:String x:Key="LOCQuiverCleanupDone">Quiver Library now imports only installed apps: removed {0} not-installed game(s) without play history.</sys:String>

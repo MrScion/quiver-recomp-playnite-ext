@@ -62,8 +62,65 @@ namespace QuiverLibrary.Core.Executables
         [DataMember(Name = "setup", Order = 10, EmitDefaultValue = false)]
         public SetupInfo Setup { get; set; }
 
+        /// <summary>How the game's full screen and internal resolution are set (the common display settings).</summary>
+        [DataMember(Name = "display", Order = 11, EmitDefaultValue = false)]
+        public DisplayInfo Display { get; set; }
+
         /// <summary>False for an entry that only describes <see cref="UserData"/>: its programs are chosen automatically.</summary>
         public bool HasLaunchInfo => Play != null || (Others != null && Others.Count > 0);
+    }
+
+    /// <summary>
+    /// How the display settings reach a game (<see cref="DisplayPlanner"/>): command-line options added to the play
+    /// program's arguments and/or <c>key = value</c> lines written to one of its settings files before it starts.
+    /// <c>{Scale}</c> in them is the internal resolution scale: the chosen height divided by <see cref="NativeHeight"/>.
+    /// </summary>
+    [DataContract]
+    public class DisplayInfo
+    {
+        /// <summary>The game's own render height (720 for most Xbox 360 games); needed for the resolution.</summary>
+        [DataMember(Name = "nativeHeight", Order = 1, EmitDefaultValue = false)]
+        public int NativeHeight { get; set; }
+
+        /// <summary>The scale is a whole number (ReXGlue's <c>draw_resolution_scale</c>): rounded, halves up.</summary>
+        [DataMember(Name = "integerScale", Order = 2, EmitDefaultValue = false)]
+        public bool IntegerScale { get; set; }
+
+        /// <summary>Largest scale the game accepts; 0 = no limit.</summary>
+        [DataMember(Name = "maxScale", Order = 3, EmitDefaultValue = false)]
+        public double MaxScale { get; set; }
+
+        /// <summary>Command-line options for full screen. An option already in the arguments (<c>--name=</c>) is replaced.</summary>
+        [DataMember(Name = "fullscreenArguments", Order = 4, EmitDefaultValue = false)]
+        public string FullscreenArguments { get; set; }
+
+        /// <summary>Command-line options for the resolution, with <c>{Scale}</c>.</summary>
+        [DataMember(Name = "scaleArguments", Order = 5, EmitDefaultValue = false)]
+        public string ScaleArguments { get; set; }
+
+        /// <summary>
+        /// Settings file the lines below are written to: relative to the play program's folder, or with
+        /// <c>{AppDir}</c>/<c>{ExeDir}</c>/environment variables. Only existing <c>key =</c> lines are replaced.
+        /// </summary>
+        [DataMember(Name = "configFile", Order = 6, EmitDefaultValue = false)]
+        public string ConfigFile { get; set; }
+
+        /// <summary><c>key = value</c> lines for full screen, separated by <c>;</c>.</summary>
+        [DataMember(Name = "fullscreenConfig", Order = 7, EmitDefaultValue = false)]
+        public string FullscreenConfig { get; set; }
+
+        /// <summary><c>key = value</c> lines for the resolution, with <c>{Scale}</c>, separated by <c>;</c>.</summary>
+        [DataMember(Name = "scaleConfig", Order = 8, EmitDefaultValue = false)]
+        public string ScaleConfig { get; set; }
+
+        /// <summary>How the game already behaves or why something is missing (documentation only).</summary>
+        [DataMember(Name = "notes", Order = 9, EmitDefaultValue = false)]
+        public string Notes { get; set; }
+
+        public bool SupportsFullscreen => !string.IsNullOrWhiteSpace(FullscreenArguments) || !string.IsNullOrWhiteSpace(FullscreenConfig);
+
+        public bool SupportsResolution => NativeHeight > 0 &&
+                                          (!string.IsNullOrWhiteSpace(ScaleArguments) || !string.IsNullOrWhiteSpace(ScaleConfig));
     }
 
     [DataContract]
@@ -177,6 +234,15 @@ namespace QuiverLibrary.Core.Executables
         [DataMember(Name = "updateProblem", Order = 6, EmitDefaultValue = false)]
         public string UpdateProblem { get; set; }
 
+        /// <summary>
+        /// A file or folder, relative to the app folder (wildcards allowed as in <see cref="ExecutableTarget.File"/>),
+        /// that only exists once the game is built or set up: for apps whose play program is there from the
+        /// download (a launcher that falls back to its window, a prebuilt exe that needs the unpacked disc).
+        /// Kind is optional: an app set up once and not again after updates leaves it out.
+        /// </summary>
+        [DataMember(Name = "built", Order = 8, EmitDefaultValue = false)]
+        public string Built { get; set; }
+
         public bool IsInstaller => string.Equals(Kind, Installer, System.StringComparison.OrdinalIgnoreCase);
 
         public bool IsBuilder => string.Equals(Kind, Builder, System.StringComparison.OrdinalIgnoreCase);
@@ -252,11 +318,50 @@ namespace QuiverLibrary.Core.Executables
         public bool SearchSubfolders { get; set; }
 
         /// <summary>
+        /// The game sits where its installer put it, not in the app folder as Quiver unpacked it:
+        /// <see cref="SearchSubfolders"/>, or <see cref="File"/> in the shared games folder
+        /// (<see cref="ExecutablePlanner.GamesDirVariable"/>): the "local" user data folder is relative
+        /// to the play program's folder.
+        /// </summary>
+        public bool IsInstalledGame
+        {
+            get
+            {
+                return SearchSubfolders || (File != null &&
+                    File.TrimStart().StartsWith(ExecutablePlanner.GamesDirVariable, System.StringComparison.OrdinalIgnoreCase));
+            }
+        }
+
+        /// <summary>
         /// Environment variables the program needs (what its own launcher sets), values expanded like
         /// <see cref="Arguments"/>. Play program only: Playnite's other actions can't set them.
         /// </summary>
         [DataMember(Name = "environment", Order = 5, EmitDefaultValue = false)]
         public List<EnvironmentVariable> Environment { get; set; }
+
+        /// <summary>
+        /// A console program that opens the game window itself: started without a console window, as its
+        /// own launcher does (only for the play program, which this extension starts).
+        /// </summary>
+        [DataMember(Name = "hideConsole", Order = 6, EmitDefaultValue = false)]
+        public bool HideConsole { get; set; }
+
+        /// <summary>
+        /// Play program only: the program actually started, relative to the folder of <see cref="File"/>
+        /// (wildcards allowed), for games whose launcher can be skipped by starting the engine directly
+        /// with the launcher's arguments. <see cref="File"/> still marks where the game is (<c>{ExeDir}</c>,
+        /// working folder, saves, setup); when this program isn't there, <see cref="File"/> is started
+        /// as is, without <see cref="Arguments"/>, <see cref="Environment"/> or <see cref="Borderless"/>.
+        /// </summary>
+        [DataMember(Name = "launch", Order = 7, EmitDefaultValue = false)]
+        public string Launch { get; set; }
+
+        /// <summary>
+        /// Play program only: once the game window appears, it loses its borders and covers its whole
+        /// monitor, for games whose own full screen option doesn't work.
+        /// </summary>
+        [DataMember(Name = "borderless", Order = 8, EmitDefaultValue = false)]
+        public bool Borderless { get; set; }
     }
 
     [DataContract]
@@ -281,6 +386,21 @@ namespace QuiverLibrary.Core.Executables
 
         /// <summary>Expanded environment variables to set; empty when the program needs none.</summary>
         public Dictionary<string, string> Environment { get; set; } = new Dictionary<string, string>(System.StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>See <see cref="ExecutableTarget.HideConsole"/>.</summary>
+        public bool HideConsole { get; set; }
+
+        /// <summary>
+        /// The program to start when it isn't <see cref="Path"/> (<see cref="ExecutableTarget.Launch"/>);
+        /// null otherwise. <see cref="Path"/> stays the game's program for everything else.
+        /// </summary>
+        public string Program { get; set; }
+
+        /// <summary>See <see cref="ExecutableTarget.Borderless"/>.</summary>
+        public bool Borderless { get; set; }
+
+        /// <summary>The file to start: <see cref="Program"/> or <see cref="Path"/>.</summary>
+        public string StartPath => Program ?? Path;
     }
 
     public class ExecutablePlan
@@ -289,5 +409,11 @@ namespace QuiverLibrary.Core.Executables
         public LaunchTarget Play { get; set; }
 
         public List<LaunchTarget> Others { get; set; } = new List<LaunchTarget>();
+
+        /// <summary>
+        /// The database entry names a play program that isn't there yet: the game still has to be
+        /// built or installed by its launcher or installer. False when the player chose a program.
+        /// </summary>
+        public bool PlayMissing { get; set; }
     }
 }

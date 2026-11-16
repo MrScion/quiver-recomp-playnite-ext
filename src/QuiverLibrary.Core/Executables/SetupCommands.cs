@@ -180,7 +180,7 @@ namespace QuiverLibrary.Core.Executables
 
             if (!string.IsNullOrWhiteSpace(setup.DefaultInstallDir))
             {
-                Add(Environment.ExpandEnvironmentVariables(setup.DefaultInstallDir));
+                Add(Environment.ExpandEnvironmentVariables(ExecutablePlanner.ExpandFolders(setup.DefaultInstallDir, appDir)));
             }
 
             return dirs;

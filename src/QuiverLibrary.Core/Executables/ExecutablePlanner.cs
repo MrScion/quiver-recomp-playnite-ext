@@ -37,10 +37,99 @@ namespace QuiverLibrary.Core.Executables
             if (chosen != null && File.Exists(chosen))
             {
                 plan.Play = Target(null, chosen, null);
+                plan.PlayMissing = false;
                 plan.Others.RemoveAll(o => string.Equals(o.Path, chosen, StringComparison.OrdinalIgnoreCase));
             }
 
             return plan;
+        }
+
+        /// <summary>
+        /// The game still has to be built or installed: the database's play program isn't there yet
+        /// (<see cref="ExecutablePlan.PlayMissing"/>), or <see cref="SetupInfo.Built"/> is missing. A program
+        /// the player chose counts as built.
+        /// </summary>
+        public static bool IsSetupPending(string dir, ExecutablePlan plan, SetupInfo setup, string chosenPlay = null)
+        {
+            if (plan == null || string.IsNullOrWhiteSpace(dir))
+            {
+                return false;
+            }
+
+            if (plan.PlayMissing)
+            {
+                return true;
+            }
+
+            var chosen = ChosenPath(dir, chosenPlay);
+            if (string.IsNullOrWhiteSpace(setup?.Built) || (chosen != null && File.Exists(chosen)))
+            {
+                return false;
+            }
+
+            return FindFile(dir, setup.Built) == null && !DirectoryExists(dir, setup.Built);
+        }
+
+        private static bool DirectoryExists(string dir, string relative)
+        {
+            try
+            {
+                if (StartsWithGamesDir(relative))
+                {
+                    var games = GamesDir(dir);
+                    return games != null && Directory.Exists(Path.Combine(games, relative.Substring(GamesDirVariable.Length).TrimStart('\\', '/')));
+                }
+
+                return !Path.IsPathRooted(relative) && Directory.Exists(Path.Combine(dir, relative));
+            }
+            catch (ArgumentException)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Stands for <see cref="GamesDir"/> in the database's paths, arguments and values: games that can't be
+        /// built or installed inside their app folder (the compiler refuses it) go to a folder of their own there.
+        /// </summary>
+        public const string GamesDirVariable = "{GamesDir}";
+
+        /// <summary>Name of the shared games folder, next to Quiver's Apps folder.</summary>
+        public const string GamesFolderName = "games";
+
+        /// <summary>
+        /// The shared games folder of the app in <paramref name="appDir"/>: <c>games</c> next to the folder that
+        /// holds the apps (Quiver's <c>Apps</c>), e.g. <c>&lt;Quiver&gt;\games</c>. Null when it can't be told.
+        /// </summary>
+        public static string GamesDir(string appDir)
+        {
+            try
+            {
+                var apps = string.IsNullOrWhiteSpace(appDir) ? null : Path.GetDirectoryName(appDir.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+                var root = string.IsNullOrEmpty(apps) ? null : Path.GetDirectoryName(apps);
+                return string.IsNullOrEmpty(root) ? null : Path.Combine(root, GamesFolderName);
+            }
+            catch (ArgumentException)
+            {
+                return null;
+            }
+        }
+
+        /// <summary>Replaces <see cref="GamesDirVariable"/> (left as it is when the folder can't be told).</summary>
+        public static string ExpandFolders(string text, string appDir)
+        {
+            if (string.IsNullOrEmpty(text) || text.IndexOf(GamesDirVariable, StringComparison.OrdinalIgnoreCase) < 0)
+            {
+                return text;
+            }
+
+            var games = GamesDir(appDir);
+            return games == null ? text : Regex.Replace(text, Regex.Escape(GamesDirVariable), m => games, RegexOptions.IgnoreCase);
+        }
+
+        private static bool StartsWithGamesDir(string path)
+        {
+            return path != null && path.StartsWith(GamesDirVariable, StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -82,6 +171,7 @@ namespace QuiverLibrary.Core.Executables
             if (entry != null && entry.HasLaunchInfo)
             {
                 plan.Play = entry.Play == null ? null : Target(dir, null, FindFile(dir, entry.Play), entry.Play);
+                plan.PlayMissing = entry.Play != null && plan.Play == null;
                 if (plan.Play == null && entry.Play?.SearchSubfolders != true)
                 {
                     plan.Play = Target(null, QuiverLibraryData.ResolveExecutable(dir), null);
@@ -149,7 +239,13 @@ namespace QuiverLibrary.Core.Executables
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(relative) || Path.IsPathRooted(relative))
+                if (StartsWithGamesDir(relative))
+                {
+                    dir = GamesDir(dir);
+                    relative = relative.Substring(GamesDirVariable.Length).TrimStart('\\', '/');
+                }
+
+                if (string.IsNullOrWhiteSpace(dir) || string.IsNullOrWhiteSpace(relative) || Path.IsPathRooted(relative))
                 {
                     return null;
                 }
@@ -278,7 +374,25 @@ namespace QuiverLibrary.Core.Executables
 
         private static LaunchTarget Target(string dir, string name, string path, ExecutableTarget source)
         {
+            string program = null;
+            if (path != null && !string.IsNullOrWhiteSpace(source.Launch))
+            {
+                program = FindFile(Path.GetDirectoryName(path), source.Launch.Trim());
+                if (program == null)
+                {
+                    // Not built that far (or another layout): the launcher itself, as it is.
+                    return Target(name, path, null);
+                }
+            }
+
             var target = Target(name, path, ExpandVariables(source.Arguments, dir, path));
+            if (target != null)
+            {
+                target.HideConsole = source.HideConsole;
+                target.Program = program;
+                target.Borderless = source.Borderless;
+            }
+
             foreach (var variable in source.Environment ?? new List<EnvironmentVariable>())
             {
                 if (target != null && !string.IsNullOrWhiteSpace(variable?.Name))
@@ -291,8 +405,23 @@ namespace QuiverLibrary.Core.Executables
         }
 
         /// <summary>
-        /// Replaces <c>{AppDir}</c> (the app folder) and <c>{ExeDir}</c> (the folder of
-        /// <paramref name="program"/>), then environment variables (<c>%LOCALAPPDATA%</c>, <c>%PATH%</c>).
+        /// Playnite's language as an Xbox 360 language number (1 English, 5 Spanish…), for the play program's
+        /// arguments and environment (ReXGlue's <c>REX_USER_LANGUAGE</c>). The Playnite extension replaces
+        /// it when the game starts, since only it knows Playnite's language.
+        /// </summary>
+        public const string XboxLanguageVariable = "{XboxLanguage}";
+
+        /// <summary>Replaces <paramref name="variable"/> (any letter case) with <paramref name="value"/>.</summary>
+        public static string ReplaceVariable(string text, string variable, string value)
+        {
+            return string.IsNullOrEmpty(text)
+                ? text
+                : Regex.Replace(text, Regex.Escape(variable), m => value ?? string.Empty, RegexOptions.IgnoreCase);
+        }
+
+        /// <summary>
+        /// Replaces <c>{AppDir}</c> (the app folder), <c>{ExeDir}</c> (the folder of <paramref name="program"/>)
+        /// and <see cref="GamesDirVariable"/>, then environment variables (<c>%LOCALAPPDATA%</c>, <c>%PATH%</c>).
         /// </summary>
         public static string ExpandVariables(string text, string dir, string program)
         {
@@ -300,6 +429,8 @@ namespace QuiverLibrary.Core.Executables
             {
                 return text;
             }
+
+            text = ExpandFolders(text, dir);
 
             var exeDir = program == null ? null : Path.GetDirectoryName(program);
             text = Regex.Replace(text, Regex.Escape("{AppDir}"), m => (dir ?? string.Empty).TrimEnd(Path.DirectorySeparatorChar), RegexOptions.IgnoreCase);

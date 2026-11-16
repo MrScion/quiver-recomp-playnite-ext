@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using QuiverLibrary.Core.Executables;
 
 namespace QuiverLibrary.Playnite.Settings
 {
@@ -73,6 +74,18 @@ namespace QuiverLibrary.Playnite.Settings
 
         /// <summary>Download already announced with a notification, by app folder name, so each one is announced once.</summary>
         public Dictionary<string, string> SetupNotified { get; set; } = new Dictionary<string, string>();
+
+        /// <summary>
+        /// Display settings for every game whose <c>executables.json</c> entry says how to set them (<c>display</c>):
+        /// full screen and internal resolution, applied when the game starts. The default changes nothing.
+        /// </summary>
+        public DisplayPreferences Display { get; set; } = new DisplayPreferences();
+
+        /// <summary>
+        /// A game's own display settings, by app folder name, used instead of <see cref="Display"/>. Not editable in the
+        /// settings yet (<c>DisplayPlanner.Choose</c> already reads it).
+        /// </summary>
+        public Dictionary<string, DisplayPreferences> GameDisplay { get; set; } = new Dictionary<string, DisplayPreferences>();
 
         /// <summary>
         /// One-time removal of the not-installed games imported by builds that still

@@ -548,14 +548,24 @@
     {
       "name": "Tekken 6",
       "repository": "mahmoud-mess/tekken6-recomp",
-      "play": { "file": "tekken6.exe", "searchSubfolders": true },
+      "play": {
+        "file": "tekken6.exe", "searchSubfolders": true, "launch": "bin\\tekken6.exe",
+        "arguments": "--game_data_root=\"{ExeDir}\\game\" --user_data_root=\"{ExeDir}\\user\" --cache_root=\"{ExeDir}\\cache\" --fullscreen=false --resolution_scale=3 --log_file=NUL --log_level=off --gpu_backend=d3d12 --async_shader_compilation=true --render_target_path_d3d12=rov --anisotropic_override=0",
+        "environment": [ { "name": "REX_USER_LANGUAGE", "value": "{XboxLanguage}" } ],
+        "borderless": true
+      },
+      "display": {
+        "nativeHeight": 720, "integerScale": true, "scaleArguments": "--resolution_scale={Scale}",
+        "notes": "Play is always a borderless full screen window (--fullscreen=true has no effect). The setting replaces --resolution_scale=3 of the arguments, which stays when the resolution is the game's own."
+      },
       "others": [
+        { "name": "Launcher", "file": "tekken6.exe", "searchSubfolders": true },
         { "name": "Vulkan", "file": "tekken6_vulkan.exe", "searchSubfolders": true },
         { "name": "Vulkan (framebuffer)", "file": "tekken6_vulkan_fbo.exe", "searchSubfolders": true },
         { "name": "Setup", "file": "Tekken 6 Builder.exe" }
       ],
       "reviewed": true,
-      "source": "README: 'Tekken 6 Builder.exe' builds the game from the player's ISO into a folder of their choice. tools/portable_launcher.cpp: tekken6.exe there (D3D12) asks for the internal resolution and starts bin\\tekken6.exe (the ReXGlue host) with the game, user and cache folders; tekken6_vulkan(_fbo).exe pick Vulkan. User data: always user\\ next to the launcher.",
+      "source": "README: 'Tekken 6 Builder.exe' builds the game from the player's ISO into a folder of their choice. tools/portable_launcher.cpp: tekken6.exe there (D3D12) asks for the internal resolution and starts bin\\tekken6.exe (the ReXGlue host) with the game, user and cache folders; tekken6_vulkan(_fbo).exe pick Vulkan. Build 0.9.4 (2026-11-15, seen in a played install) ships only the D3D12 ROV launcher. Play skips the launcher (it asks for the resolution every time, and with REX_USER_LANGUAGE set it loops on 'profile changed'): it starts bin\\tekken6.exe with the launcher's arguments, the game's language from Playnite and a borderless window ('--fullscreen=true' has no effect), as the player's own Tekken 6 (ES).bat did; 'Launcher' keeps the original. User data: always user\\ next to the launcher.",
       "userData": { "portable": "builtin", "local": "user" },
       "setup": {"kind": "installer", "install": {"file": "builder\\python\\python.exe", "arguments": "-X utf8 -I \"{AppDir}\\builder\\build_from_iso.py\" --iso \"{Image}\" --output \"{InstallDir}\" --builder-root \"{AppDir}\\builder\" --project \"{AppDir}\\builder\\project.zip\""}, "update": {"file": "builder\\python\\python.exe", "arguments": "-X utf8 -I \"{AppDir}\\builder\\build_from_iso.py\" --iso \"{Image}\" --output \"{GameDir}\" --builder-root \"{AppDir}\\builder\" --project \"{AppDir}\\builder\\project.zip\""}, "notes": "'Tekken 6 Builder.exe' (no command line of its own found) runs builder\\python\\python.exe -X utf8 -I builder\\build_from_iso.py with --iso, --output, --builder-root and --project (all required, argparse in build_from_iso.py) and optional --d3d12-rov, --vulkan-fsi, --vulkan-fbo; the install line above is that call, not tried by hand. An update builds again from the image; no update-only command. The update line builds again into the installed folder (where tekken6.exe is): not verified that build_from_iso.py accepts a folder that already has a build."}
     },
@@ -624,8 +634,12 @@
     {
       "name": "WipEout Omega Collection",
       "repository": "AbdelmoumenDeghbouche/wipeout_pc",
+      "play": { "file": "Play WipEout.exe" },
+      "others": [
+        { "name": "Setup", "file": "WipEout.exe" }
+      ],
       "reviewed": true,
-      "source": "User data: gpu/shadps4/common/path_util: always user\\ in the working directory on Windows; saves in user\\savedata, seen in a played install (2026-10-28).",
+      "source": "README-Windows.txt: WipEout.exe is the launcher (game folder, settings, updates); 'Play WipEout.exe' starts the game straight away with the saved settings. User data: gpu/shadps4/common/path_util: always user\\ in the working directory on Windows; saves in user\\savedata, seen in a played install (2026-10-28).",
       "userData": { "portable": "builtin", "local": "user", "saves": "savedata" }
     },
     {
@@ -646,8 +660,9 @@
       "name": "Spider-Man: Edge of Time",
       "repository": "goliathret/EdgeOfTimeRecomp",
       "reviewed": true,
-      "source": "User data: profiles\\default, seen in a played install (2026-10-28).",
-      "userData": { "portable": "builtin", "local": "profiles" }
+      "source": "User data: profiles\\default, seen in a played install (2026-10-28). Achievements: seen in a played install (2026-11-05): profiles\\default\\achievements\\415608B2.toml, written by the ReXGlue runtime ([unlocked.<id>] with filetime); the names are only in game\\Default.xex (XDBF resource 415608B2; encrypted, basic compression).",
+      "userData": { "portable": "builtin", "local": "profiles" },
+      "achievements": { "kind": "rexglue", "file": "profiles\\default\\achievements\\415608B2.toml" }
     },
     {
       "name": "Banjo-Tooie",
@@ -709,15 +724,22 @@
       "name": "GoldenEye 007 (XBLA)",
       "repository": "SunJaycy/GoldenEye-Recomp",
       "reviewed": true,
-      "source": "Achievements: strings in its binaries (2026-10-29), ReXGlue runtime with achievement toasts and overlay; where it keeps the unlocks not verified. Not seen in played installs (2026-10-30): no .gpd or other achievement file in the app folder or AppData.",
-      "achievements": { "kind": "rexglue" }
+      "source": "Achievements: strings in its binaries (2026-10-29), ReXGlue runtime with achievement toasts and overlay. Not seen in played installs (2026-10-30): no .gpd or other achievement file in the app folder or AppData. Seen in a played install (2026-11-05): its ReXGlue user data is resources\\userdata (profile B13EBABEBABEBABE there), so the unlocks go to resources\\userdata\\achievements\\<title id>.toml as in the other ReXGlue ports (none unlocked yet: not verified).",
+      "achievements": { "kind": "rexglue", "file": "resources\\userdata\\achievements\\*.toml" }
     },
     {
       "name": "Kameo: Elements of Power",
       "repository": "birabittoh/KameoRePowered",
+      "play": { "file": "kameorepowered.exe", "arguments": "--game_data_root=\"{AppDir}\\assets\"" },
+      "others": [
+        { "name": "Setup", "file": "KameoLauncher.exe" },
+        { "name": "Shader editor", "file": "KameoShaderEditor.exe" }
+      ],
       "reviewed": true,
-      "source": "Achievements: strings in its binaries (2026-10-29), only in the ReXGlue runtime DLLs, not in the game exe; not verified that the game uses them.",
-      "achievements": { "kind": "rexglue" }
+      "source": "README and strings in the v0.3.4 binaries (2026-11-14): kameorepowered.exe needs --game_data_root (\"--game_data_root was not provided.\"); KameoLauncher.exe (closed source) unpacks the player's ISO or Games on Demand package into assets\\, starts the game with --game_data_root=\"<folder>\" and handles settings, mods and builds. Window mode is in kameo_settings.toml next to the exe. KameoBugReporter, KameoCrashDialog and sentry-crash are helpers. User data: README (DLC): %USERPROFILE%\\Documents\\kameorepowered\\<profile>\\4D5307D2; no portable string in the binaries (portable.txt probably ignored, not verified). Achievements: strings in its binaries (2026-10-29), only in the ReXGlue runtime DLLs, not in the game exe; not verified that the game uses them.",
+      "userData": { "portable": "none", "appData": "%USERPROFILE%\\Documents\\kameorepowered" },
+      "achievements": { "kind": "rexglue" },
+      "setup": { "built": "assets", "notes": "KameoLauncher.exe unpacks the disc into assets\\ once; Quiver's zip has no assets\\, so an update keeps it (not verified)." }
     },
     {
       "name": "Sonic and the Secret Rings",
@@ -817,15 +839,20 @@
     {
       "name": "Perfect Dark Zero Reinstated",
       "repository": "2023PerfectDark/Perfect-Dark-Zero-Reinstated",
-      "play": { "file": "PDZReinstatedTU3.exe", "searchSubfolders": true },
+      "play": { "file": "{GamesDir}\\*\\PDZReinstatedTU3.exe" },
       "others": [
-        { "name": "Bonus DVD", "file": "PDZ Bonus DVD.exe", "searchSubfolders": true },
         { "name": "Setup", "file": "PDZ Setup.exe" }
       ],
+      "display": {
+        "nativeHeight": 720, "integerScale": true,
+        "fullscreenArguments": "--fullscreen=true",
+        "scaleArguments": "--resolution_scale={Scale}",
+        "notes": "ReXGlue cvars seen in PDZReinstatedTU3.exe v135 (fullscreen 'Start the window in fullscreen mode', fullscreen_exclusive, resolution_scale); settings\\hardware.toml has none of them. Not verified that the command line works or wins over the in-game options."
+      },
       "reviewed": true,
-      "source": "README.txt and reinstated-tu3/installer/Setup.cs, Core.cs: 'PDZ Setup.exe' installs the game from the player's ISO into a new folder of their choice (default %LOCALAPPDATA%\\Perfect Dark Zero Reinstated); the game is PDZReinstatedTU3.exe (perfectdarkzerorecomp.exe for the US Rev 1 disc, choose it from the game menu), plus 'PDZ Bonus DVD.exe' when installed. User data: ModdedTU3 perfectdarkzerorecomp_app.h: user\\ next to the game unless user_data_root is set in its settings (cache in user\\cache, not verified on an install).",
+      "source": "README.txt (v135) and reinstated-tu3/installer/Setup.cs, Core.cs: 'PDZ Setup.exe' installs the game from the player's ISO into a new folder of their choice (default %LOCALAPPDATA%\\Perfect Dark Zero Reinstated); 'launch PDZReinstatedTU3.exe directly (or perfectdarkzerorecomp.exe for the original-disc build). No CMD launcher is needed.' Seen in the player's install (2026-11-15): put in the shared games folder as {GamesDir}\\Perfect Dark Zero Reinstated (installation.json: TU3, displayLanguage/dub spanish; settings\\hardware.toml user_language = 5, pdz_dub_language = 4, so the language is the installer's choice). PDZReinstatedTU3.exe is found in any folder of {GamesDir}; an original-disc build without TU3 (perfectdarkzerorecomp.exe) has to be chosen from the game menu. 'PDZ Bonus DVD.exe' (optional bonus disc) sits next to the game, outside the app folder, so it is not an action. User data: README: 'Saves and settings stay in the installed game folder': settings\\ (hardware.toml, keybindings.toml) and user\\ (user\\cache\\shaders\\shareable from the installer; local_profiles.txt and the save files not seen yet, the game had not been played).",
       "userData": { "portable": "builtin", "local": "user" },
-      "setup": {"kind": "installer", "defaultInstallDir": "%LOCALAPPDATA%\\Perfect Dark Zero Reinstated", "notes": "No command line found ('PDZ Setup.exe' strings, 2026-11-05; its source was not searchable). An update runs it again with its window."}
+      "setup": {"kind": "installer", "defaultInstallDir": "{GamesDir}\\Perfect Dark Zero Reinstated", "notes": "No command line found ('PDZ Setup.exe' strings, 2026-11-05; its source was not searchable). An update runs it again with its window into a NEW folder (the installer never overwrites an install). The installer's own default folder is %LOCALAPPDATA%\\Perfect Dark Zero Reinstated; defaultInstallDir is the shared games folder used in practice."}
     },
     {
       "name": "SoulCalibur",
@@ -1005,10 +1032,15 @@
     {
       "name": "Bayonetta 3",
       "repository": "Zexyen/Witch-Time",
-      "play": { "file": "witch-time.exe" },
+      "play": { "file": "witch-time.exe", "arguments": "--play" },
+      "display": {
+        "nativeHeight": 900, "maxScale": 3,
+        "configFile": "config\\graphics.ini", "fullscreenConfig": "window = fullscreen", "scaleConfig": "resolution_scale = {Scale}",
+        "notes": "config\\graphics.ini (v0.10.1): window = windowed | borderless | fullscreen; resolution_scale 0.25 to 3.0, 1.0 = 1600x900 (1.2 = 1080p, 1.6 = 1440p, 2.4 = 4K), Vulkan only."
+      },
       "reviewed": true,
-      "source": "README.md: witch-time.exe (launcher) asks for the Switch dump folder and builds the game (build\\wtbuild.exe setup --dump <folder>); the game runs as build\\witch-time-game.exe. Settings in config\\graphics.ini and config\\controllers.ini. User data: strings of the game program: WT_USERDATA, else ..\\userdata from the program's folder, that is userdata\\ in the app folder (not made yet in the install seen).",
-      "userData": { "portable": "builtin", "local": "userdata" },
+      "source": "README.md, 'Starting the game directly': 'witch-time.exe --play' skips the launcher's screens and closes with the game (meant for Playnite); the launcher still opens for a newer release, a game not built yet or one built by an older release. The picture book (Bayonetta Origins prologue, program 1 of update 1.2.0) needs program1\\exefs and program1\\romfs in the dump; with only exefs the 'book' step fails (seen on the other PC, 2026-11-15). README.md: witch-time.exe (launcher) asks for the Switch dump folder and builds the game (build\\wtbuild.exe setup --dump <folder>); the game runs as build\\witch-time-game.exe. Settings in config\\graphics.ini and config\\controllers.ini. User data: strings of the game program: WT_USERDATA, else ..\\userdata from the program's folder, that is userdata\\ in the app folder (not made yet in the install seen). Seen in a played install (2026-11-15): the saves are in build\\userdata\\save (GameData.dat, SlotData_0.dat, the same files as the Switch save); the app's userdata\\ stays empty.",
+      "userData": { "portable": "builtin", "local": "build\\userdata", "saves": "save" },
       "achievements": { "kind": "none" },
       "setup": { "kind": "builder", "notes": "README.md: 'wtbuild setup --dump <dump>' (steps deps verify convert mods tables lift compile link book text check, resumable with --only/--from, --status); the launcher does the same with progress. An update may need the setup again." }
     },
@@ -1029,7 +1061,7 @@
       "repository": "OTPR26/Ocarina-ReTuned",
       "play": { "file": "OcarinaReTuned.exe" },
       "reviewed": true,
-      "source": "START-HERE.txt: OcarinaReTuned.exe asks for the ROM and prepares the game locally (tools in setup\\). User data: Seen in an install on the other PC (2026-11-05): caches in %LOCALAPPDATA%\\Ocarina ReTuned\\cache, logs in logs\\; where it keeps the saves not found (no savedata folder there or in the app folder).",
+      "source": "START-HERE.txt: OcarinaReTuned.exe asks for the ROM and prepares the game locally (tools in setup\\). Seen on the other PC (2026-11-15, 0.6.7, USA ROM): with the game language set to Spanish (config\\game_language.json) it hangs about 20 s after Start Game (the log ends in repeated 'WASAPI output underrun'); in English it plays. User data: Seen in an install on the other PC (2026-11-05): caches in %LOCALAPPDATA%\\Ocarina ReTuned\\cache, logs in logs\\; where it keeps the saves not found (no savedata folder there or in the app folder).",
       "achievements": { "kind": "none" },
       "setup": { "kind": "builder", "notes": "HOTFIX.txt / START-HERE.txt: after an update choose 'Update game preparation' in General settings (saves and settings are kept)." }
     },
@@ -1081,6 +1113,411 @@
       "reviewed": true,
       "source": "User data: Seen in an install on the other PC (2026-11-05): %APPDATA%\\Luigi's Mansion Recompiled, memory card in EUR\\Card A (the game module in game\\GLMP01, dawn_cache.db).",
       "userData": { "portable": "none", "appData": "%APPDATA%\\Luigi's Mansion Recompiled", "saves": "EUR\\Card A;USA\\Card A;JPN\\Card A" }
+    },
+    {
+      "name": "Star Fox",
+      "repository": "SerenityG4K/SpaceAnimalsRecomp",
+      "play": { "file": "recomp\\build\\full\\recomp_main.exe" },
+      "others": [
+        { "name": "Setup", "file": "lanceur.exe" }
+      ],
+      "reviewed": true,
+      "source": "recomp/launcher/lanceur.cpp (lancer_jeu): lanceur.exe builds the game from the player's .nup into recomp\\build\\full\\ and starts recomp_main.exe there with no arguments; the game reads its settings from recomp.ini next to it (written by the launcher: resolution, window mode, language, controls). Before each start the launcher runs 'recomp_main.exe --precompile', which only does work after a GPU, driver or shader change (skipping it only means shader compiling in game). The launcher sets RECOMP_VOLUME only when its volume is not 100, and RECOMP_NUP (the chosen copy) only matters if the folder was moved. Not built yet: Play falls back to lanceur.exe. User data: recomp/launcher/sauvegardes.py and seen on the other PC (2026-11-14): saves in %APPDATA%\\SpaceAnimalsRecomp\\save since 1.0.3 (recomp\\build\\full\\save before).",
+      "userData": { "portable": "none", "appData": "%APPDATA%\\SpaceAnimalsRecomp", "saves": "save" },
+      "setup": { "kind": "builder", "notes": "LISEZMOI.txt / lanceur.log: after an update the launcher offers to rebuild the game (RECOMPILER LE JEU, 20-45 minutes); run Setup (lanceur.exe) after Quiver updates it." }
+    },
+    {
+      "name": "Burnout 2: Point of Impact",
+      "repository": "timftw21/burnout2-recompilation",
+      "play": { "file": "build\\windows\\Release\\b2.exe" },
+      "others": [
+        { "name": "Setup", "file": "Install.cmd" }
+      ],
+      "reviewed": true,
+      "source": "README.md (Windows x64): Install.cmd (Build.cmd calls it) asks for the US Xbox XISO, downloads the tools and builds the game; later launches open build\\windows\\Release\\b2.exe. Not built yet: Play falls back to the automatic choice (none, so Playnite offers Install.cmd as Setup). User data: README.md (Updating between releases): next to b2.exe, data\\user (saves), data\\local\\settings.cfg, data\\local\\achievements.cfg, data\\local\\custom-music and mods. Achievements: data\\local\\achievements.cfg, format not seen yet.",
+      "userData": { "portable": "builtin", "local": "build\\windows\\Release\\data", "saves": "user;local\\settings.cfg;local\\achievements.cfg" },
+      "achievements": { "kind": "custom", "file": "build\\windows\\Release\\data\\local\\achievements.cfg" },
+      "setup": { "kind": "builder", "notes": "README.md: an update is Installation.zip extracted over the folder keeping build\\ and data\\, then Install.cmd again with the XISO (rebuilds, keeps saves and settings)." }
+    },
+    {
+      "name": "Dead or Alive 2 Ultimate",
+      "repository": "Moonalesca/doa2u-re",
+      "play": { "file": "DOA2U.exe" },
+      "others": [
+        { "name": "Setup", "file": "Launcher.exe" },
+        { "name": "Voice editor", "file": "VoiceEditor.exe" }
+      ],
+      "reviewed": true,
+      "source": "tools/launcher.cs:8, 189, 957 and README.txt (v0.3.2-Alpha-Moonalesca.1): Launcher.exe builds the game from the Dead or Alive Ultimate (Xbox, USA) Disc 2 image and has the settings; DOA2U.exe plays with the saved settings (tools\\run_game.py --play --saved) and opens Launcher.exe while the game isn't built. Don't start build\\recomp-program-mingw\\recomp_program_runner.exe directly: run_game.py sets its environment and prepares private\\play-disc. User data: README.txt and run_game.py: private\\play-disc (saves, HDD cache), private\\launcher.json (settings), private\\play-logs.",
+      "userData": { "portable": "builtin", "local": "private", "saves": "play-disc;launcher.json" },
+      "achievements": { "kind": "none" },
+      "setup": { "kind": "builder", "built": "build\\recomp-program-mingw\\recomp_program_runner.exe", "notes": "README.txt: Launcher.exe builds in place (about 6 GB) from Disc 2 only; run_game.py checks the runner against build receipt.json, so a rebuild after an update is likely (not verified)." }
+    },
+    {
+      "name": "Astro Bot",
+      "repository": "imnotsharingmyname/pcportastrobot",
+      "play": {
+        "file": "Run-AstroHybrid.bat",
+        "environment": [ { "name": "KYTY_GPU_FULLSCREEN", "value": "1" } ]
+      },
+      "others": [
+        { "name": "Setup", "file": "AstroHybrid.exe" },
+        { "name": "Classic launcher", "file": "AstroBot Launcher.exe" }
+      ],
+      "reviewed": true,
+      "source": "Game version: tested on 01.019.000 (README.txt). The US dump PPSA21564 01.007.000 reaches the title screen but crashes in thread OdxAsyncLoader when a new game or the world map loads (seen on the other PC with 1.0.8, 2026-11-15; the game window stays loading): open issue #54, 'Duplicated definition name []' on 1.0.8/1.0.9 (#27 fixed only its save mount). Tools/hybrid source (v1.0.5-1.0.7): AstroHybrid.exe (WPF) builds Build\\RunHybrid\\AstroBot.exe from the player's PS5 dump (GameSetup.cs:51-160) and its Play button runs cmd /c Run-AstroHybrid.bat with environment variables from Build\\astrohybrid-settings.json (LauncherService.cs:23-58, 191-316); it has no play-only option. Run-AstroHybrid.bat on its own uses its defaults (1920x1080, AstroBot.exe) and ignores the app's settings, so fullscreen is set here (KYTY_GPU_FULLSCREEN); ASTROHYBRID_EXE=AstroBot-NonRT.exe (faster lighting) is left out because that exe may not exist. Shows a console window. Not verified by running it. User data: not found (probably under Build\\RunHybrid); portable.txt is not read.",
+      "achievements": { "kind": "none" },
+      "setup": { "kind": "builder", "built": "Build\\RunHybrid\\AstroBot.exe", "install": { "file": "AstroHybrid.exe", "arguments": "--setup \"{Image}\"" }, "notes": "App.xaml.cs:38-50: AstroHybrid.exe --setup \"<dump folder>\" builds without the window (exit 0 on success, Logs\\setup.log); --remove-game removes it. After an update the app offers to convert the game again." }
+    },
+    {
+      "name": "Cadence of Hyrule",
+      "repository": "SilvioDiaz/cadence-pc-recomp",
+      "play": { "file": "{GamesDir}\\*\\cadence.exe" },
+      "others": [
+        { "name": "Setup", "file": "Cadence-Setup.exe" }
+      ],
+      "reviewed": true,
+      "source": "README (Installing) and installer/gui.py:531-535 (v0.1.3): Cadence-Setup.exe installs into a folder the player picks (empty for a new install) and the game is cadence.exe there, started with no arguments from its folder; fullscreen=1 in cadence.ini (F11 toggles and saves). Seen on the other PC (2026-11-14): the user picked <app>\\game; installs failed with check.base_combined (base dump with the update inside). Seen on the other PC (2026-11-16): installed by the user into the shared games folder as {GamesDir}\\Cadence of Hyrule (base v0 + update 1.5.0 + DLC, release 0.1.3+e035988; cadence-install.json there) and played; cadence.ini lang = es, its display keys left commented (so no display field). Play is cadence.exe in any folder of {GamesDir} (as PDZ); a cadence.exe under the app's temp\\...\\build is only a build leftover and must not be used, so no searchSubfolders. User data: recomplauncher.json and installer/steps.py: profile\\save next to cadence.exe (+ 3 backups in profile), settings in cadence.ini.",
+      "userData": { "portable": "builtin", "local": "profile", "saves": "save" },
+      "achievements": { "kind": "none" },
+      "setup": { "kind": "installer", "defaultInstallDir": "{GamesDir}\\Cadence of Hyrule", "install": { "file": "python\\python.exe", "arguments": "-m installer --base \"{Image}\" --update \"{UpdateNsp}\" --keys \"{Keys}\" --lang en-US --dest \"{InstallDir}\"" }, "update": { "file": "python\\python.exe", "arguments": "-m installer --dest \"{GameDir}\"" }, "notes": "installer/cli.py:1-9: --base/--update/--keys/--lang/--dest [--dlc] [--firmware] [--temp] [--verify]; exit 0 done, 1 failed, 2 bad command line, 3 cancelled. On a folder with cadence-install.json only --dest is needed. That Cadence-Setup.exe is a stub for the bundled python is not verified." }
+    },
+    {
+      "name": "Hyrule Warriors: Definitive Edition",
+      "repository": "blocker-3/HWDER",
+      "play": { "file": "hwder.exe", "searchSubfolders": true },
+      "others": [
+        { "name": "Setup", "file": "HWDER Setup.exe" }
+      ],
+      "reviewed": true,
+      "source": "source/tools/setup_ui/bootstrap.cpp:247, 453-454 and source/docs/playing.md (v0.3.5): HWDER Setup.exe installs the tools and builds the game into a Data folder (default %LOCALAPPDATA%\\HWDER, chosen under Advanced and remembered in %LOCALAPPDATA%\\HWDER\\setup-prefs.json); the game is <Data>\\play\\hwder.exe, started from its folder without Setup (the desktop shortcut). F11 = borderless fullscreen. Choose <app>\\game as Data folder so it is found here; otherwise pick the exe with 'Choose the game program'. User data: playing.md:68-69: save\\ next to hwder.exe (zmha.bin), hwder_settings.ini, cache\\.",
+      "userData": { "portable": "builtin", "local": "save" },
+      "achievements": { "kind": "none" },
+      "setup": { "kind": "installer", "defaultInstallDir": "%LOCALAPPDATA%\\HWDER", "notes": "bootstrap.cpp:466-471: options --data DIR, --play (starts the game, the Setup window stays open), --advanced; no silent install. A newer Setup shows Update, which rebuilds keeping saves and settings." }
+    },
+    {
+      "name": "Hyrule Warriors: Age of Imprisonment (Quiver: Age of Calamity)",
+      "repository": "Alano6678/hwaoi-recomp",
+      "play": {
+        "file": "{GamesDir}\\HWAoI-Game\\work\\build\\hwaoi196608\\hwaoi.exe",
+        "arguments": "--play-experimental",
+        "hideConsole": true,
+        "environment": [
+          { "name": "HWAOI_GPU", "value": "vulkan" },
+          { "name": "HWAOI_FULLSCREEN", "value": "1" },
+          { "name": "HWAOI_INPUT", "value": "auto" },
+          { "name": "HWAOI_RUMBLE", "value": "0" },
+          { "name": "HWAOI_PIPE_SYNC", "value": "1" },
+          { "name": "HWAOI_PROGRESS", "value": "1" },
+          { "name": "HWAOI_EXEFS", "value": "{GamesDir}\\HWAoI-Game\\work\\game\\exefs" },
+          { "name": "HWAOI_PROFILE_DIR", "value": "{GamesDir}\\HWAoI-Game\\work\\saves\\hwaoi196608" },
+          { "name": "HWAOI_GSV_LOCAL_FRAME_POLICY", "value": "1" },
+          { "name": "HWAOI_NATIVE_INFLATE", "value": "1" },
+          { "name": "HWAOI_ZLIB_DLL", "value": "{ExeDir}\\zlib1.dll" },
+          { "name": "HWAOI_POOL_BACKPRESSURE", "value": "1" },
+          { "name": "HWAOI_POOL_DIAG", "value": "0" },
+          { "name": "HWAOI_IR_BANKS", "value": "1" },
+          { "name": "HWAOI_XLATE", "value": "{ExeDir}\\xlate-managed-irbanks\\totk_xlate.exe" },
+          { "name": "HWAOI_TRACE", "value": "sched,perf" },
+          { "name": "HWAOI_CORE_STALL_DIAG", "value": "0" },
+          { "name": "HWAOI_RATE_UNLOCK", "value": "0" }
+        ]
+      },
+      "others": [
+        { "name": "Setup", "file": "HWAoI-Compiler.exe" },
+        { "name": "Play (windowed, compiler's launcher)", "file": "python\\python.exe", "arguments": "-E -s \"{AppDir}\\source\\compiler\\backend.py\" launch --bundle \"{AppDir}\" --output \"{GamesDir}\\HWAoI-Game\"" }
+      ],
+      "reviewed": true,
+      "source": "source/compiler (v0.1.0-alpha.5): HWAoI-Compiler.exe runs python\\pythonw.exe source\\compiler\\gui.py; it builds into <chosen parent>\\HWAoI-Game (gui.py:93). The 'Open compiled game' command (gui.py:121-122, backend.py:293-306) checks the source NUP and the exe hash, then tools\\hwaoi.py launch_interactive (261-350) starts work\\build\\hwaoi196608\\hwaoi.exe --play-experimental from its folder, without a console (CREATE_NO_WINDOW) and without waiting for it, with about 20 HWAOI_* variables, forcing HWAOI_FULLSCREEN=0 and a 1280x720 window. HWAOI_* variables win over hwaoi.ini (runtime/cfg.c:286-296), so no setting can make that launcher start fullscreen. Play here starts hwaoi.exe itself with the variables of a real launch (work\\reports\\interactive-*\\launch.json, 2026-11-14) but HWAOI_FULLSCREEN=1 and no window size; left out: the diagnostic screenshots (as --no-captures does) and DKB_SHADER_FAILURE_DUMP. HWAOI_RATE_UNLOCK follows the build (rate_unlock in hwaoi-compiler.json, false here). The game window opens behind the others and goes fullscreen on its first activation (runtime/gfx_window_win.c:295-301). hwaoi.exe only needs system DLLs and the ones next to it (no PATH). The launcher's command stays as another action. The compiler refuses an output folder inside its own (app) folder, so the build goes to the shared games folder: choose {GamesDir} (<Quiver>\\games) as parent, giving {GamesDir}\\HWAoI-Game (decided with the user, 2026-11-14; tools\\hwaoi.py works from its own folder, so a finished build can also be copied there). The game reads its resources from the .nup, whose absolute path is kept in hwaoi-compiler.json (nup, checked by launch) and work\\game\\romfs\\index.json (nup_path): keep the .nup where it was built from. Seen on the other PC (2026-11-14): a complete build of Age of Imprisonment (Quiver calls the app Age of Calamity), 9.7 GB in work\\. Not verified by running it. User data: tools/hwaoi.py:396: <output>\\work\\saves\\hwaoi196608.",
+      "userData": { "portable": "builtin", "local": "{GamesDir}\\HWAoI-Game\\work\\saves", "saves": "hwaoi196608" },
+      "achievements": { "kind": "none" },
+      "setup": { "kind": "installer", "defaultInstallDir": "{GamesDir}\\HWAoI-Game", "notes": "backend.py:310-326: python\\python.exe -E -s source\\compiler\\backend.py build --bundle <app> --nup FILE --output DIR [--jobs 0] [--resolution 1920x1080] [--unlock]. START-HERE.txt: an update builds again into the same output folder, reusing what is unchanged and keeping saves." }
+    },
+    {
+      "name": "inFamous",
+      "repository": "whompay/inFAMOUSreborn",
+      "play": { "file": "inFamous.exe", "arguments": "--play", "searchSubfolders": true },
+      "others": [
+        { "name": "Setup", "file": "inFamous.Setup.FIXED.exe" }
+      ],
+      "reviewed": true,
+      "source": "installer/README.md and installer/src (release 1.1): inFamous.Setup.FIXED.exe unpacks the sources into a folder the player picks (default %USERPROFILE%\\Games\\inFamous PC, setup.rs:461-467, not verified) and builds there (needs Python 3.10+, VS 2022 Build Tools with clang, RPCS3 for an encrypted EBOOT). inFamous.exe --play skips the options window (infamous-launch.rs:5, 1654) and starts infamous-recomp\\build-install\\inFamousRecomp.exe with installer\\launch.txt (about 200 environment variables), then exits without waiting (infamous-launch.rs:204-206): play time tracking not verified. FULLSCREEN=1 in infamous-recomp\\settings.ini. User data: not verified (the runtime's dev_hdd0 under its VFS root).",
+      "achievements": { "kind": "none" },
+      "setup": { "kind": "installer", "defaultInstallDir": "%USERPROFILE%\\Games\\inFamous PC", "notes": "The setup window has no command line. Installed, the folder has installer\\infamous-installer.exe install --root DIR --game DUMP [--rpcs3 EXE] and update --root DIR [--check], and 'Update inFamous.cmd' (downloads changed files from GitHub and rebuilds what is affected)." }
+    },
+    {
+      "name": "Silent Hill: Book of Memories",
+      "repository": "aphixe/SilentHill-BookOfMemories-PC",
+      "play": { "file": "Silent Hill Book of Memories\\Silent Hill Book of Memories.exe", "arguments": "--play" },
+      "others": [
+        { "name": "Setup", "file": "SilentHillBoM-PC-Setup-*.exe" }
+      ],
+      "reviewed": true,
+      "source": "releases/app/app.cpp (v0.2.0) and README: the setup builds the game into 'Silent Hill Book of Memories' next to itself (app.cpp:34, 574), a portable folder with the launcher 'Silent Hill Book of Memories.exe', Game\\, Saves\\ and Save Backups\\. --play goes straight into the game and waits for it (app.cpp:477, 927-937); the game itself (Game\\game_host.exe) needs Game\\launch.cfg. Alt+Enter = fullscreen. User data: Saves\\, Save Backups\\ and Game\\settings.ini.",
+      "userData": { "portable": "builtin", "local": "Silent Hill Book of Memories", "saves": "Saves;Save Backups;Game\\settings.ini" },
+      "achievements": { "kind": "none" },
+      "setup": { "kind": "builder", "install": { "file": "SilentHillBoM-PC-Setup-*.exe", "arguments": "--install --target \"{AppDir}\\Silent Hill Book of Memories\" --firmware \"{Firmware}\" --game \"{Image}\" --no-shortcut" }, "notes": "app.cpp:468-498: --install --target DIR --firmware FILE|Vita3K folder --game DIR [--no-shortcut] (exit 0 ok, 1 fail, 2 bad input); also --root, --export ZIP, --import ZIP|DIR. {Firmware} is PSP2UPDAT.PUP/PSVUPDAT.PUP or a Vita3K folder. An update runs a newer setup on the same folder with the firmware and game again (keeps saves and settings)." }
+    },
+    {
+      "name": "Ratchet & Clank (OpenRAC)",
+      "repository": "OpenRAC/OpenRAC",
+      "play": { "file": "openrac-launcher.exe", "searchSubfolders": true },
+      "others": [
+        { "name": "Setup", "file": "OpenRAC.Launcher_*_x64-setup.exe" }
+      ],
+      "reviewed": true,
+      "source": "Seen on the other PC (2026-11-14) and launcher source (core/src/actions.rs, launcher/docs/INTEGRATION.md): the NSIS setup installs the launcher where the player picks (the user: <app>\\OpenRAC Launcher); the launcher sets up each game from its disc into its installDir (%APPDATA%\\dev.openrac.launcher\\launcher.json; the user: <app>\\game). Play is the launcher: each game has its own program and arguments (rac1 pal/ntsc: openrac\\port\\build\\release\\openrac-rac1-<region>.exe --data <installDir>\\active\\rac1\\data --window --levels ...; rac2 built per commit into {data}\\program\\<commit>), and launcher 1.0.2 has no --play option (develop has 'openrac-launcher.exe --play rac1-pal'). User data: core/src/saves.rs: %LOCALAPPDATA%\\openrac\\memcard\\<serial> and settings; no portable mode.",
+      "userData": { "portable": "none", "appData": "%LOCALAPPDATA%\\openrac", "saves": "memcard;settings" },
+      "achievements": { "kind": "none" },
+      "setup": { "kind": "installer", "notes": "The NSIS setup installs the launcher (NSIS: /S and /D=<folder>, not verified); the launcher updates itself and sets up each game from the disc." }
+    },
+    {
+      "name": "Tekken Tag Tournament 2 (Ultimate Edition)",
+      "repository": "Petexy/Tekken-Tag-2-Ultimate-Edition",
+      "play": { "file": "TTT2 Ultimate.exe", "searchSubfolders": true },
+      "others": [
+        { "name": "Setup", "file": "Ultimate_Launcher-x86_64.exe" }
+      ],
+      "reviewed": true,
+      "source": "README (Windows launcher) and launcher/windows/backend.py:84-110, window.py:291 (v0.6.2): Ultimate_Launcher-x86_64.exe unpacks into %LOCALAPPDATA%\\TTT2Ultimate\\launcher and builds the game from the EU Wii U dump (version 16 only) into the chosen folder, or <chosen>\\TTT2 Ultimate when it isn't empty (runtime/src/install.cpp:305-322); the game is 'TTT2 Ultimate.exe' with no arguments, started from its folder. The environment the launcher sets equals the defaults and the exe reads .ttt2-userdata next to it, so it should run on its own (not verified). Seen on the other PC (2026-11-14): install folder <app>\\game, the Wii U build failed (wrong version), and game\\Tekken Tag Tournament 2 holds the Xbox 360 TTT2 port. User data: runtime/src/main.cpp:95-101: %LOCALAPPDATA%\\TTT2Ultimate\\save (TTT2_SAVE_DIR), characters\\, logs\\.",
+      "userData": { "portable": "none", "appData": "%LOCALAPPDATA%\\TTT2Ultimate", "saves": "save;characters" },
+      "achievements": { "kind": "none" },
+      "setup": { "kind": "installer", "installMarker": ".ttt2-install", "notes": "backend.py installer_command: after a launcher update, its Update rebuilds with ttt2-ultimate.exe --update <folder>." }
+    },
+    {
+      "name": "Wario Land: Shake It!",
+      "repository": "santiagovalencia109/Wario-Land-Shake-It-Native-PC",
+      "play": { "file": "Play\\WarioRecomp.exe" },
+      "others": [
+        { "name": "Setup", "file": "WarioLauncher.exe" }
+      ],
+      "reviewed": true,
+      "source": "README (How to play, Windows) and launcher-avalonia (Core/Platform.cs:13-14, Core/Port.cs:45-47, UI/MainWindow.cs:641-645): WarioLauncher.exe imports the disc and builds the port into Play\\ (15-45 min); the game is Play\\WarioRecomp.exe, started from Play\\ with no arguments (the launcher also backs up saves first). The release's lone WarioLauncher.exe asset only updates the launcher: Quiver must download WarioRecomp-<version>.zip (on the other PC, 2026-11-14, it had the lone exe). User data: README (Saves): Play\\UserData (NAND\\title\\00010000\\52574c45\\data, Config.toml, SaveBackups, Logs).",
+      "userData": { "portable": "builtin", "local": "Play\\UserData", "saves": "NAND\\title\\00010000\\52574c45\\data;Config.toml" },
+      "achievements": { "kind": "none" },
+      "setup": { "kind": "builder", "notes": "README (Updating): after an update the launcher rebuilds (quick for runtime-only changes, full otherwise); it writes Play\\built_version.txt." }
+    },
+    {
+      "name": "Bayonetta 3",
+      "repository": "LuvAbyss/B3-Express",
+      "play": {
+        "file": "Bayo3_120\\Bayo3_120.exe",
+        "arguments": "--game=\"{ExeDir}\"",
+        "environment": [
+          { "name": "SNX_NVN_FRONTEND", "value": "2" },
+          { "name": "SNX_NVN_RELEASE_ONLY", "value": "1" }
+        ]
+      },
+      "others": [
+        { "name": "Setup", "file": "B3-Express.exe" }
+      ],
+      "reviewed": true,
+      "source": "launcher/bayonetta_launcher.py:18-52, 119-256, 398-399 and web_launcher.py:150-156 (0.2.6): B3-Express.exe (launcher\\python + web_launcher.py) copies the player's dump into Bayo3_120\\Bayo3_120_data and compiles Bayo3_120\\Bayo3_120_code.dll; Play runs Bayo3_120\\Bayo3_120.exe --game=<its folder> from its folder with SNX_NVN_FRONTEND=2 and SNX_NVN_RELEASE_ONLY=1 (the fast renderer). The first Play prepares the shaders (SNX_NVN_PREP_RUN=1, about 3 minutes) until shader_cache\\prepared.txt exists: do it once from Setup. Launch-Bayonetta3.cmd opens the old Tk window (same logic). Not verified by running it. User data: INSTALL.txt: Bayo3_120\\Bayo3_120_data\\save, settings Bayo3_120\\Bayo3_120.ini, backups in backups\\; nothing outside the folder.",
+      "userData": { "portable": "builtin", "local": "Bayo3_120", "saves": "Bayo3_120_data\\save;Bayo3_120.ini" },
+      "achievements": { "kind": "none" },
+      "setup": { "kind": "builder", "built": "Bayo3_120\\Bayo3_120_code.dll", "notes": "Release notes 0.2.5/0.2.6: an update is unzipped to a new folder and Install run again (the game code is compiled again); whether the launcher notices an old build by itself is not verified." }
+    },
+    {
+      "name": "NeverDead",
+      "repository": "Katzert/Neverdeth",
+      "play": {
+        "file": "Neverdeth.exe",
+        "arguments": "--user_language={XboxLanguage}"
+      },
+      "display": {
+        "nativeHeight": 720, "integerScale": true,
+        "scaleArguments": "--draw_resolution_scale_x={Scale} --draw_resolution_scale_y={Scale}",
+        "configFile": "config\\settings.ini", "fullscreenConfig": "WindowMode = 0",
+        "notes": "WindowMode = 0 started full screen in the player's install (2026-11-15); the other values are not verified. Not verified that the command-line scale wins over neverdead.toml (both 1 there)."
+      },
+      "reviewed": true,
+      "source": "README.md (v0.1.1-alpha): Neverdeth.exe asks for the ISO, Games on Demand container or game folder on first start, extracts it next to the exe and starts the game; F10 and config\\settings.ini hold the graphics options (WindowMode = 0 is full screen). Seen in an installed release (2026-11-15): ReXGlue runtime (SDK 0.10.0) with the cvars user_language (rexruntime.dll) and draw_resolution_scale_x/_y (rexgpu-xenos.dll); neverdead.toml (shipped in the zip) sets both scales to 1 (native 720p). The game ships Spanish, French, German and Italian text and voices (*.spBE etc.). Play passes the language from Playnite and a 2x internal resolution (1440p) as command-line cvars; not verified that the command line wins over neverdead.toml, nor in game. No REX_USER_LANGUAGE environment variable in this runtime. User data: seen in a played install (2026-11-15): Documents\\neverdead\\B13EBABEBABEBABE\\4B4E081F\\00000001\\ND\\ND.sav (ReXGlue's default user_data_root; portable.txt does not move it). The PS3 version's PROFILE (savedata BLUS30654_PRFL, not encrypted) has the same format and size; copied over ND.sav on 2026-11-15 to try it (not verified in game yet). Achievements: Documents\\neverdead\\achievements\\4B4E081F.toml.",
+      "userData": { "portable": "none", "appData": "%USERPROFILE%\\Documents\\neverdead", "saves": "B13EBABEBABEBABE" },
+      "achievements": { "kind": "rexglue", "file": "%USERPROFILE%\\Documents\\neverdead\\achievements\\4B4E081F.toml" }
+    },
+    {
+      "name": "Luigi's Mansion 3",
+      "repository": "Zexyen/Hotel-Luigi",
+      "play": { "file": "hotel-luigi-game.exe", "arguments": "--play" },
+      "display": {
+        "nativeHeight": 1080,
+        "maxScale": 3,
+        "configFile": "config\\graphics.ini",
+        "fullscreenConfig": "window = fullscreen",
+        "scaleConfig": "resolution_scale = {Scale}",
+        "notes": "config\\graphics.ini (v0.2.0): window = windowed | borderless | fullscreen; resolution_scale 0.25 to 3.0 (Vulkan only). The game's own render height is NOT VERIFIED (the file's comment uses a 1600x900 example copied from Witch Time)."
+      },
+      "reviewed": true,
+      "source": "README.md (v0.2.0): hotel-luigi-game.exe is the launcher; point it at the dump folder (exefs + romfs of title 0100DCA0064A6000, build id 79e5950ffa85acf6) and it builds (hlbuild setup: deps verify convert mods tables lift compile link check). launcher/win32/start.c: the top-level exe starts build\\hotel-luigi-game.exe with the same arguments and waits; launcher/src/main.cpp and app.cpp: --play starts the game at once and ends with it, unless an update is out or the game needs a build. Built = build\\built_version plus the game library and targets\\exefs\\main.elf (app.cpp refresh_title). Language: runtime/nnmisc.c, Windows display language or HL_LANGUAGE (e.g. es-ES). Seen on the other PC (2026-11-16): built (build\\built_version v0.2.1) and played by the user, works; config\\graphics.ini window = fullscreen, resolution_scale = 2.0, 3840x2160. User data: runtime/nnfs.c: <userdata>\\save with <userdata> = HL_USERDATA or ..\\userdata from build\\run, so build\\userdata (as Witch Time); build\\userdata\\save exists after playing (2026-11-16).",
+      "userData": { "portable": "builtin", "local": "build\\userdata", "saves": "save" },
+      "achievements": { "kind": "none" },
+      "setup": { "kind": "builder", "built": "build\\built_version", "notes": "hlbuild setup --dump <dump> (resumable, --from/--only, --status); the launcher does the same with progress. A new release leaves an old build (stale) and needs the build again." }
+    },
+    {
+      "name": "The Legend of Zelda: A Link to the Past",
+      "repository": "RadzPrower/Zelda-3-Launcher",
+      "play": { "file": "zelda3\\zelda3.exe" },
+      "others": [
+        { "name": "Setup", "file": "Zelda 3 Launcher.exe" }
+      ],
+      "display": {
+        "configFile": "zelda3.ini",
+        "fullscreenConfig": "Fullscreen = 2",
+        "notes": "zelda3.ini [Graphics]: Fullscreen = 0 windowed, 1 borderless (desktop), 2 fullscreen with mode change (the player's own choice, 2026-11-16). WindowScale only applies to a window; no internal resolution. The launcher rewrites zelda3.ini when it builds or restores (copy in saves\\zelda3.ini)."
+      },
+      "reviewed": true,
+      "source": "README (Zelda-3-Launcher): the launcher downloads snesrev/zelda3, builds zelda3.exe from the player's US ROM (sha256 66871d66...) and has a settings menu that edits zelda3.ini; strings of 'Zelda 3 Launcher.dll': it starts the game as 'cmd /C zelda3.exe' in zelda3\\ with no arguments, so Play starts zelda3\\zelda3.exe itself. Seen in the player's install (2026-11-15/16): zelda3.ini Language = us (other languages need assets generated with restool.py --languages=), Fullscreen = 2, Autosave = 1. User data: zelda3\\saves\\sram.dat (SNES SRAM, 8 KB, like an .srm) and, with Autosave, the state save0.sav; saves\\ref holds the reference chapter saves.",
+      "userData": { "portable": "builtin", "local": "zelda3\\saves", "saves": "sram.dat;save0.sav" },
+      "achievements": { "kind": "none" },
+      "setup": { "kind": "builder", "built": "zelda3\\zelda3.exe", "notes": "The launcher's Download/Restore/Update button fetches snesrev/zelda3, extracts the assets from zelda3.sfc and compiles (bundled TCC). No command line." }
+    },
+    {
+      "name": "Killer Instinct Gold",
+      "repository": "geno55/kigold-recomp",
+      "play": { "file": "kig.exe" },
+      "reviewed": true,
+      "source": "README.txt (v0.3.3): N64Recomp + RT64; needs the USA Rev 2 (v1.2) ROM, stored in %APPDATA%\\KIGRecomp on first run; kig.exe opens its own launcher (Start game / Choose ROM / Settings). src/main/main.cpp: options --frames --speed --mute --hidden --data-dir DIR --console --load-state FILE [rom]; only --frames test runs skip the launcher, so Play has to go through it. Settings in %APPDATA%\\KIGRecomp\\graphics.json (window_mode Windowed/Fullscreen, resolution Original/Original2x/Auto: JSON, not usable by display). Seen on the other PC (2026-11-16): ROM stored, window_mode Fullscreen. portable.txt in the app folder is not read by kig.exe (no 'portable' string); --data-dir would be the only way to keep data in the app folder. User data: README: %APPDATA%\\KIGRecomp\\saves (kig.us.bin EEPROM, controllerpak_port<N>\\).",
+      "userData": { "portable": "none", "appData": "%APPDATA%\\KIGRecomp", "saves": "saves" },
+      "achievements": { "kind": "none" }
+    },
+    {
+      "name": "Bloody Roar Extreme",
+      "repository": "bromurok/BloodyRoarExtremeRecomp",
+      "play": { "file": "BloodyRoarExtreme_EUR.exe" },
+      "others": [
+        { "name": "USA disc", "file": "BloodyRoarExtreme_USA.exe" },
+        { "name": "Japan disc", "file": "BloodyRoarExtreme_JPN.exe" }
+      ],
+      "display": {
+        "nativeHeight": 480,
+        "integerScale": true,
+        "configFile": "settings.toml",
+        "fullscreenConfig": "display_mode = 'fullscreen'",
+        "scaleConfig": "render_scale = {Scale}",
+        "notes": "src/app/settings.cpp: display_mode fullscreen | borderless | windowed, render_scale integer 1-16 (README offers 1, 2, 4, 6, 8); written back by the F1 menu. Not verified in game."
+      },
+      "reviewed": true,
+      "source": "README.md (v1.0.5): put the disc image (.iso, XISO or Redump) or the extracted files with default.xbe in assets\\ next to the exe and run the exe of your disc's region (EUR: English, Spanish, French, German, Italian; USA; JPN); F1 opens the configuration menu. The exe for another region's xbe refuses to boot ('wrong executable', sdk/runtime/kernel/boot.cpp). Play = the EUR exe is NOT VERIFIED: it depends on the player's disc. Language: settings.toml language = Xbox language number (1 English, 2 Japanese, 3 German, 4 French, 5 Spanish, 6 Italian; src/app/settings.cpp) or a name, menu_language es/en. Seen on the other PC (2026-11-16): no assets folder, never started. User data: sdk/runtime/app/main.cpp and src/kernel/files.cpp: the Xbox drives live in hdd\\ next to the exe (E = partition 1, so saves in hdd\\E\\UDATA\\<titleId>); not seen yet.",
+      "userData": { "portable": "builtin", "local": "hdd", "saves": "E\\UDATA" },
+      "achievements": { "kind": "none" }
+    },
+    {
+      "name": "Blinx: The Time Sweeper",
+      "repository": "mstan/BlinxRecomp",
+      "play": { "file": "Start Game.exe" },
+      "reviewed": true,
+      "source": "README-FIRST.txt and release.json (0.5.4, NTSC-U only, title 4D530013): Start Game.exe (runs python\\pythonw.exe tools\\native_release_runtime.py) opens native\\Launcher.exe, where the player picks the .iso/.xiso or .xbe, controller and mods; it then runs native\\BlinxRecomp.exe. The launcher has a 'Skip launcher' checkbox, remembered in data\\ (tools/native_mod_launcher.py skip_launcher), for starting straight into the game; source docs/GRAPHICS-MODS.md: --no-launcher / --launcher belong to the developer tools (tools/game.py), not verified for Start Game.exe. native_release_runtime.py points TEMP, APPDATA and LOCALAPPDATA at data\\: everything stays in the package. Seen on the other PC (2026-11-16): launcher opened once, no game image chosen yet. User data: README-FIRST.txt: 'Setup settings, console identity and saves live in this package's data folder' (automatic private save folders when no HDD image is chosen); the exact save subfolder is NOT VERIFIED (not created yet). Setup: none as a separate step; disc images are imported once into data\\discs (keep that folder across updates).",
+      "userData": { "portable": "builtin", "local": "data" },
+      "achievements": { "kind": "none" }
+    },
+    {
+      "name": "BLiNX 2: Masters of Time & Space",
+      "repository": "apexJCL/blinx2-recomp",
+      "play": { "file": "blinx2-wizard.exe" },
+      "reviewed": true,
+      "source": "README.md and docs/packaging.md, docs/playing.md (v2026.11.2): blinx2-wizard.exe checks the disc (region-free, title 0x4D530065, version 1), builds in its build folder (%LOCALAPPDATA%\\blinx2-recomp, about 15 GB) and makes dist\\BLiNX2-<v>-windows\\BLiNX2-<v>-setup.exe, which installs for the user into %LOCALAPPDATA%\\Programs\\BLiNX2 (Start Menu entry); play with BLiNX2.exe, not cat_recomp.exe. Options: config\\config.toml keys or RECOMP_* environment variables (present.fullscreen / RECOMP_PRESENT_FULLSCREEN borderless, render.scale / RECOMP_RENDER_SCALE 1-4 of 640x480), F10 in-game menu. Play is the wizard (the only program in the app folder): the installed game is outside the app folder and play.file does not take %LOCALAPPDATA%, so once installed choose %LOCALAPPDATA%\\Programs\\BLiNX2\\BLiNX2.exe from the game menu ('Choose the game program'). Seen on the other PC (2026-11-16): nothing built yet. User data: %LOCALAPPDATA%\\BLiNX2\\hdd (settings config\\, logs logs\\), kept across updates and uninstall.",
+      "userData": { "portable": "none", "appData": "%LOCALAPPDATA%\\BLiNX2", "saves": "hdd" },
+      "achievements": { "kind": "none" },
+      "setup": { "kind": "installer", "defaultInstallDir": "%LOCALAPPDATA%\\Programs\\BLiNX2", "notes": "Two steps: the wizard builds a setup program, then BLiNX2-<v>-setup.exe installs it (a newer setup installs on top). The setup takes /S (silent), tested only under Proton per packaging.md; no install-folder option documented." }
+    },
+    {
+      "name": "Alone in the Dark: The New Nightmare",
+      "repository": "alexbeavs-ps1-ports/alone-in-the-dark-the-new-nightmare-recomp",
+      "play": { "file": "build-release\\Alone_in_the_Dark__The_New_Nightmare.exe", "arguments": "--no-launcher" },
+      "others": [
+        { "name": "Setup", "file": "Alone_in_the_Dark__The_New_Nightmare.exe" }
+      ],
+      "display": {
+        "configFile": "settings.toml",
+        "fullscreenConfig": "fullscreen = 1",
+        "notes": "settings.toml [video] fullscreen = 0/1 (written by the launcher; the command line overrides it). Internal resolution: internal_resolution or PSX_INTERNAL_RESOLUTION (native, 720p, 1080p, 1440p, 4k, display), not a multiplier. Which settings.toml build-release\\ uses is NOT VERIFIED."
+      },
+      "reviewed": true,
+      "source": "README-SETUP.txt (0.3.8): run Alone_in_the_Dark__The_New_Nightmare.exe, give the two-disc PAL set and the SCPH-5552 BIOS, follow 'Generate & rebuild' (downloads cmake-clang-v1 to %LOCALAPPDATA%\\retcomm). Strings of the exe: 'Play uses build-release/ after rebuild', 'it starts the game from build-release/ (where bios/, mods/, and settings live). Or run build-release/<game>.exe directly', options --launcher / --no-launcher, --disc, --bios, --memcard-dir. Play path and --no-launcher NOT VERIFIED (no build yet). Seen on the other PC (2026-11-16): not built, disc\\ missing; settings.toml language = \"en\" ([localization]), fullscreen = 0. User data: settings.toml [memcard] dir = saves (card1.mcd, card2.mcd), assumed under build-release\\: NOT VERIFIED.",
+      "userData": { "portable": "builtin", "local": "build-release", "saves": "saves" },
+      "achievements": { "kind": "none" },
+      "setup": { "kind": "builder", "built": "build-release\\Alone_in_the_Dark__The_New_Nightmare.exe", "notes": "The host's Generate & rebuild wizard; RetComM Launcher can do the same. An update needs a rebuild." }
+    },
+    {
+      "name": "Hyrule Warriors: Age of Calamity",
+      "repository": "Azzulin/EXCUUUUSE-ME-PRINCESS-",
+      "play": { "file": "dist\\aoc-windows\\aoc.exe", "hideConsole": true },
+      "others": [
+        { "name": "Setup", "file": "AoC-Launcher.exe" }
+      ],
+      "reviewed": true,
+      "source": "README.md, GUIDE.md (0.1.2): a static recompilation of Age of Calamity (Switch, v1.3.0; not Age of Imprisonment, which is HWAoIRecomp). AoC-Launcher.exe asks for a folder with the base NSP (01002B00111A2000), the 1.3.0 update NSP (01002B00111A2800), optional DLC and prod.keys, and forges the game (MSYS2 in C:\\msys64 for Windows, WSL for the Steam Deck) into dist\\aoc-windows; then it becomes the game's launcher (PLAY). launcher/launcher.cpp play(): runs dist\\aoc-windows\\aoc.exe from its folder with CREATE_NO_WINDOW and no arguments, so Play starts it directly. Options in dist\\aoc-windows\\aoc.ini [display] (FULLSCREEN 0/1, WINDOW_SIZE, OUTPUT_RES, RENDER_SCALE) or AOC_* environment variables, which win (runtime/cfg.c); F11 toggles fullscreen. Seen on the other PC (2026-11-16): not forged (no Game Files, build or dist). User data: runtime/main.c: AOC_PROFILE_DIR, else profile\\ next to aoc.exe; GUIDE.md: saves and settings in dist/*/profile and dist/*/aoc.ini, never overwritten by an update.",
+      "userData": { "portable": "builtin", "local": "dist\\aoc-windows", "saves": "profile" },
+      "achievements": { "kind": "none" },
+      "setup": { "kind": "builder", "built": "dist\\aoc-windows\\aoc.exe", "notes": "launcher.cpp: python -u tools\\make_build.py --game-dir DIR --lang en --windows [--win-work DIR] (what FORGE runs; not tried). An update: unzip over the folder and forge again (reuses build\\ and dist\\)." }
+    },
+    {
+      "name": "Mario & Luigi: Brothership",
+      "repository": "Coaltergeist/Brothership-Recomp",
+      "play": {
+        "file": "BrothershipRecomp.exe",
+        "arguments": "--play",
+        "environment": [
+          { "name": "RT_WINDOW", "value": "borderless" }
+        ]
+      },
+      "others": [
+        { "name": "Setup", "file": "BrothershipRecomp.exe" }
+      ],
+      "reviewed": true,
+      "source": "README.txt (Beta 1.4.5): BrothershipRecomp.exe; Settings > Game files (base and 1.0.1 update .nsp) and Keys (prod.keys), then Build (unpack, translate, compile, shaders) and Play. Strings of the exe: --play, --build; settings.ini 'One option per line, NAME=value ... An environment variable of the same name wins over this file': RT_WINDOW windowed|borderless, RT_RES 360p..2160p|auto, RT_FPS 30|60|uncapped, RT_LANGUAGE. --play skipping the start screen is NOT VERIFIED. Seen on the other PC (2026-11-16): settings.ini RT_RES=2160p, RT_WINDOW=borderless, RT_LANGUAGE=es, build dir <app>\\game; the build of 2026-11-12 crashed while unpacking (abort) and game\\ only has the base v0 NSP (update 1.0.1 missing). User data: README: %LOCALAPPDATA%\\brothership-recomp (settings.ini, nxrt.log, saves; save subfolder not seen yet).",
+      "userData": { "portable": "none", "appData": "%LOCALAPPDATA%\\brothership-recomp" },
+      "achievements": { "kind": "none" },
+      "setup": { "kind": "builder", "notes": "Build from the start screen (or --build, NOT VERIFIED); build output goes to RT_BUILD_DIR (here <app>\\game). Exact 'built' marker not known yet." }
+    },
+    {
+      "name": "Dead or Alive 3",
+      "repository": "NoRain211/doa3-re",
+      "play": { "file": "DOA3.exe" },
+      "others": [
+        { "name": "Launcher", "file": "Launcher.exe" }
+      ],
+      "reviewed": true,
+      "source": "README.txt (v0.6.4): drag the ISO (Japan 3.1 main build, USA 3.0 also works) onto Launcher.exe and Build (downloads llvm-mingw, CMake, SDL3 into private\\); Launcher.exe picks resolution, AA, widescreen and volume (private\\launcher.json); 'DOA3.exe starts the game straight away with the choices you saved'. docs/runtime-options.md: RECOMP_D3D_SCALE = height / 480 (the launcher sets it); above 1 on Direct3D 11 a borderless window covers the primary screen. Seen on the other PC (2026-11-16): built from the USA 3.0 ISO (private\\build.json), played 2026-11-15, launcher.json height 2160, 16:9. User data: README.txt: 'Saves and the cache live in private\\play-disc'; seen: private\\play-disc\\.recomp-storage\\partition1\\TDATA\\54430001\\DOA3SAVE.DAT (UDATA\\54430001 has only the title image). Not the whole play-disc folder: it holds the disc data (several GB).",
+      "userData": { "portable": "builtin", "local": "private\\play-disc\\.recomp-storage\\partition1", "saves": "TDATA\\54430001;UDATA\\54430001" },
+      "achievements": { "kind": "none" },
+      "setup": { "kind": "builder", "built": "private\\build.json", "notes": "Build in Launcher.exe from the ISO or disc folder; after UPDATE > Install, Build again. Exact marker of a finished build NOT VERIFIED (private\\build.json exists after the build)." }
+    },
+    {
+      "name": "The Darkness",
+      "repository": "invinceble55-wq/Estacado-The-Darkness-Recomp",
+      "play": { "file": "TheDarkness.exe" },
+      "others": [
+        { "name": "Setup", "file": "TheDarknessSettings.exe" }
+      ],
+      "display": {
+        "nativeHeight": 720,
+        "integerScale": true,
+        "maxScale": 3,
+        "configFile": "TheDarkness.pc.toml",
+        "fullscreenConfig": "fullscreen = true;window_mode = \"borderless\"",
+        "scaleConfig": "resolution_scale = {Scale}",
+        "notes": "TheDarkness.pc.example.toml (0.9.8): borderless desktop or decorated window only (no exclusive fullscreen); resolution_scale 0 = automatic (GPU calibration), 1-3 x 1280x720. TheDarkness.pc.toml is created by the launcher or the F1 overlay; before that the defaults (fullscreen borderless, automatic scale) apply. Not verified in game."
+      },
+      "reviewed": true,
+      "source": "README.md (0.9.8): TheDarknessSettings.exe asks once for the disc image (USA/Europe En/Fr/De/Es/It, title 545407EE, default.xex sha256 aace35a8...) or a game folder and extracts it into game\\ next to it; presets and Play. TheDarkness.pc.example.toml: TheDarkness.exe runs these defaults without a TheDarkness.pc.toml; --pc-config <path>, --user-data-root <path>; [general] language auto|english|german|french|spanish|italian. Play starting without the launcher NOT VERIFIED. Seen on the other PC (2026-11-16): not set up (no game folder), portable.txt present (empty, 2026-11-15). User data: README 'Saves and settings': %USERPROFILE%\\Saved Games\\Estacado (TheDarkness.pc.toml, saves in content), or with portable.txt next to TheDarkness.exe: TheDarkness.pc.toml and runtime_data. Achievements: CHANGELOG 0.9.x: content/achievements/545407EE.toml in ReXGlue's format.",
+      "userData": { "portable": "portable.txt", "appData": "%USERPROFILE%\\Saved Games\\Estacado", "local": "runtime_data", "saves": "content" },
+      "achievements": { "kind": "rexglue", "file": "runtime_data\\content\\achievements\\545407EE.toml;%USERPROFILE%\\Saved Games\\Estacado\\content\\achievements\\545407EE.toml" },
+      "setup": { "built": "game\\default.xex", "notes": "The launcher extracts the disc image into game\\ once. 'built' path NOT VERIFIED (default.xex expected there)." }
+    },
+    {
+      "name": "Illusion of Gaia",
+      "repository": "mrOt4/babel-recomp",
+      "play": { "file": "babel-recomp.exe" },
+      "display": {
+        "configFile": "config.ini",
+        "fullscreenConfig": "Fullscreen = 1",
+        "notes": "config.ini [Graphics] Fullscreen 0 windowed, 1 desktop fullscreen, 2 fullscreen with mode change; WindowScale only for a window. [General] SkipLauncher = 1 starts the game without the launcher (set in the player's install)."
+      },
+      "reviewed": true,
+      "source": "README.md (v1.0): babel-recomp.exe opens a launcher (ROM picker, settings) unless config.ini SkipLauncher = 1 (so in the player's install, 2026-11-16); the ROM path is kept in rom.cfg (in the player's install it points to the user's Downloads folder, outside the app: moving or deleting that ROM breaks the game). Languages: European ROMs in languages\\ (any name), Ctrl+L picks the next language; Illusion of Time (Spain).sfc there since 2026-11-15. RetroAchievements (rcheevos, softcore; RetroAchievements = 1 in config.ini). User data: saves\\save.srm (SNES SRAM, compatible with the original .srm), seen in a played install (2026-11-14); save states via F1-F10.",
+      "userData": { "portable": "builtin", "local": "", "saves": "saves\\save.srm" },
+      "achievements": { "kind": "retroachievements" }
     }
   ]
 }

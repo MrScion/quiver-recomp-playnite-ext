@@ -34,7 +34,8 @@ namespace QuiverLibrary.Core.Tests
             {
                 Assert.False(string.IsNullOrWhiteSpace(e.Repository) && string.IsNullOrWhiteSpace(e.FolderName));
                 Assert.True(e.HasLaunchInfo || e.UserData != null || e.Achievements != null || e.Setup != null);
-                Assert.True(e.Setup == null || e.Setup.IsInstaller || e.Setup.IsBuilder);
+                // Without a kind, a setup only says when the game is ready (set up once, not after updates).
+                Assert.True(e.Setup == null || e.Setup.IsInstaller || e.Setup.IsBuilder || (e.Setup.Kind == null && !string.IsNullOrWhiteSpace(e.Setup.Built)));
                 Assert.True(e.Setup?.Install == null || !string.IsNullOrWhiteSpace(e.Setup.Install.File));
                 Assert.True(e.Setup?.Update == null || !string.IsNullOrWhiteSpace(e.Setup.Update.File));
                 if (e.HasLaunchInfo)
@@ -160,15 +161,17 @@ namespace QuiverLibrary.Core.Tests
                 var builder = temp.WriteFile(@"Game\Tekken 6 Builder.exe");
                 temp.WriteFile(@"Game\builder\cmake\bin\cmake.exe");
                 var launcher = temp.WriteFile(@"Game\My Games\Tekken\tekken6.exe");
-                temp.WriteFile(@"Game\My Games\Tekken\bin\tekken6.exe");
+                var engine = temp.WriteFile(@"Game\My Games\Tekken\bin\tekken6.exe");
                 var vulkan = temp.WriteFile(@"Game\My Games\Tekken\tekken6_vulkan.exe");
                 var app = new QuiverApp { Name = "Tekken 6", FolderName = "Tekken6-Tekken6Recomp", Repository = "mahmoud-mess/tekken6-recomp" };
 
                 var plan = ExecutablePlanner.Plan(temp.Combine("Game"), ExecutableDatabase.Load(null).Find(app));
 
                 Assert.Equal(launcher, plan.Play.Path);
-                Assert.Equal(new[] { "Vulkan", "Setup" }, plan.Others.Select(o => o.Name));
-                Assert.Equal(new[] { vulkan, builder }, plan.Others.Select(o => o.Path));
+                Assert.Equal(engine, plan.Play.Program);
+                Assert.True(plan.Play.Borderless);
+                Assert.Equal(new[] { "Launcher", "Vulkan", "Setup" }, plan.Others.Select(o => o.Name));
+                Assert.Equal(new[] { launcher, vulkan, builder }, plan.Others.Select(o => o.Path));
             }
         }
 
@@ -184,7 +187,174 @@ namespace QuiverLibrary.Core.Tests
                 var plan = ExecutablePlanner.Plan(temp.Combine("Game"), entry);
 
                 Assert.Null(plan.Play);
+                Assert.True(plan.PlayMissing);
                 Assert.Equal(installer, Assert.Single(plan.Others).Path);
+            }
+        }
+
+        [Fact]
+        public void Plan_PlayMissing_UntilTheGameIsBuilt_OrAProgramIsChosen()
+        {
+            using (var temp = new TempDirectory())
+            {
+                var launcher = temp.WriteFile(@"Game\lanceur.exe");
+                var dir = temp.Combine("Game");
+                var entry = Entry(@"recomp\build\full\recomp_main.exe", null, new ExecutableTarget { Name = "Setup", File = "lanceur.exe" });
+
+                var notBuilt = ExecutablePlanner.Plan(dir, entry);
+                Assert.True(notBuilt.PlayMissing);
+                Assert.Equal(launcher, notBuilt.Play.Path);
+                Assert.False(ExecutablePlanner.Plan(dir, entry, "lanceur.exe").PlayMissing);
+
+                var game = temp.WriteFile(@"Game\recomp\build\full\recomp_main.exe");
+                var built = ExecutablePlanner.Plan(dir, entry);
+                Assert.False(built.PlayMissing);
+                Assert.Equal(game, built.Play.Path);
+
+                // Without a play program in the entry nothing tells a missing game apart.
+                Assert.False(ExecutablePlanner.Plan(dir, null).PlayMissing);
+            }
+        }
+
+        [Fact]
+        public void GamesDir_IsTheGamesFolderNextToTheApps_ForPlayValuesAndPending()
+        {
+            using (var temp = new TempDirectory())
+            {
+                var compiler = temp.WriteFile(@"Quiver\Apps\HW\HWAoI-Compiler.exe");
+                var dir = temp.Combine(@"Quiver\Apps\HW");
+                var games = temp.Combine(@"Quiver\games");
+                var entry = Entry(@"{GamesDir}\HWAoI-Game\work\hwaoi.exe");
+                entry.Play.Environment = new List<EnvironmentVariable> { new EnvironmentVariable { Name = "HWAOI_EXEFS", Value = @"{GamesDir}\HWAoI-Game\exefs" } };
+
+                Assert.Equal(games, ExecutablePlanner.GamesDir(dir));
+                var notThere = ExecutablePlanner.Plan(dir, entry);
+                Assert.True(notThere.PlayMissing);
+                Assert.Equal(compiler, notThere.Play.Path);
+
+                var game = temp.WriteFile(@"Quiver\games\HWAoI-Game\work\hwaoi.exe");
+                var plan = ExecutablePlanner.Plan(dir, entry);
+                Assert.False(plan.PlayMissing);
+                Assert.Equal(game, plan.Play.Path);
+                Assert.Equal(games + @"\HWAoI-Game\exefs", plan.Play.Environment["HWAOI_EXEFS"]);
+                Assert.False(ExecutablePlanner.IsSetupPending(dir, plan, new SetupInfo { Built = @"{GamesDir}\HWAoI-Game\work" }));
+                Assert.True(ExecutablePlanner.IsSetupPending(dir, plan, new SetupInfo { Built = @"{GamesDir}\Other" }));
+            }
+        }
+
+        [Fact]
+        public void GamesDir_WithAWildcardFolder_FindsTheInstalledGameAndItsSaves()
+        {
+            using (var temp = new TempDirectory())
+            {
+                var setup = temp.WriteFile(@"Quiver\Apps\PDZ\PDZ Setup.exe");
+                var dir = temp.Combine(@"Quiver\Apps\PDZ");
+                var entry = Entry(@"{GamesDir}\*\PDZReinstatedTU3.exe");
+                var userData = new UserDataInfo { Portable = "builtin", Local = "user" };
+
+                Assert.True(entry.Play.IsInstalledGame);
+                Assert.False(Entry("game.exe").Play.IsInstalledGame);
+                var notThere = ExecutablePlanner.Plan(dir, entry);
+                Assert.True(notThere.PlayMissing);
+                Assert.Equal(setup, notThere.Play.Path);
+
+                temp.WriteFile(@"Quiver\games\HWAoI-Game\hwaoi.exe");
+                var game = temp.WriteFile(@"Quiver\games\Perfect Dark Zero Reinstated\PDZReinstatedTU3.exe");
+                var plan = ExecutablePlanner.Plan(dir, entry);
+                Assert.False(plan.PlayMissing);
+                Assert.Equal(game, plan.Play.Path);
+
+                var saves = Assert.Single(QuiverSaves.Find(dir, plan.Play.Path, userData, entry.Play.IsInstalledGame));
+                Assert.Equal(temp.Combine(@"Quiver\games\Perfect Dark Zero Reinstated\user"), saves.Path);
+            }
+        }
+
+        [Fact]
+        public void Plan_PlayHideConsole_ReachesTheTarget()
+        {
+            using (var temp = new TempDirectory())
+            {
+                temp.WriteFile(@"Game\hwaoi.exe");
+                var entry = Entry("hwaoi.exe");
+                entry.Play.HideConsole = true;
+
+                Assert.True(ExecutablePlanner.Plan(temp.Combine("Game"), entry).Play.HideConsole);
+                Assert.False(ExecutablePlanner.Plan(temp.Combine("Game"), Entry("hwaoi.exe")).Play.HideConsole);
+            }
+        }
+
+        [Fact]
+        public void Plan_PlayLaunch_StartsTheEngineButKeepsTheLauncherAsTheGame()
+        {
+            using (var temp = new TempDirectory())
+            {
+                var launcher = temp.WriteFile(@"Game\game\tekken6.exe");
+                var entry = Entry("tekken6.exe", "--user_data_root=\"{ExeDir}\\user\"");
+                entry.Play.SearchSubfolders = true;
+                entry.Play.Launch = @"bin\tekken6.exe";
+                entry.Play.Borderless = true;
+                entry.Play.Environment = new List<EnvironmentVariable> { new EnvironmentVariable { Name = "REX_USER_LANGUAGE", Value = ExecutablePlanner.XboxLanguageVariable } };
+
+                // Engine not there: the launcher as it is.
+                var plain = ExecutablePlanner.Plan(temp.Combine("Game"), entry).Play;
+                Assert.Equal(launcher, plain.Path);
+                Assert.Null(plain.Program);
+                Assert.Null(plain.Arguments);
+                Assert.Empty(plain.Environment);
+                Assert.False(plain.Borderless);
+
+                var engine = temp.WriteFile(@"Game\game\bin\tekken6.exe");
+                var play = ExecutablePlanner.Plan(temp.Combine("Game"), entry).Play;
+                Assert.Equal(launcher, play.Path);
+                Assert.Equal(engine, play.Program);
+                Assert.Equal(engine, play.StartPath);
+                Assert.Equal("--user_data_root=\"" + temp.Combine(@"Game\game\user") + "\"", play.Arguments);
+                Assert.True(play.Borderless);
+                Assert.Equal("5", ExecutablePlanner.ReplaceVariable(play.Environment["REX_USER_LANGUAGE"], "{xboxlanguage}", "5"));
+            }
+        }
+
+        [Fact]
+        public void Tekken6_PlaysTheEngineFromTheGameFolder()
+        {
+            using (var temp = new TempDirectory())
+            {
+                temp.WriteFile(@"Game\Tekken 6 Builder.exe");
+                var launcher = temp.WriteFile(@"Game\game\tekken6.exe");
+                var engine = temp.WriteFile(@"Game\game\bin\tekken6.exe");
+                var entry = ExecutableDatabase.Load(null).Find(new QuiverApp { Name = "Tekken 6", Repository = "mahmoud-mess/tekken6-recomp" });
+
+                var plan = ExecutablePlanner.Plan(temp.Combine("Game"), entry);
+                Assert.Equal(launcher, plan.Play.Path);
+                Assert.Equal(engine, plan.Play.Program);
+                Assert.Contains("--game_data_root=\"" + temp.Combine(@"Game\game\game") + "\"", plan.Play.Arguments);
+                Assert.True(plan.Play.Borderless);
+                Assert.Contains(plan.Others, o => o.Name == "Launcher" && o.Path == launcher);
+            }
+        }
+
+        [Fact]
+        public void IsSetupPending_UntilTheBuiltFileOrFolderExists()
+        {
+            using (var temp = new TempDirectory())
+            {
+                temp.WriteFile(@"Game\DOA2U.exe");
+                var dir = temp.Combine("Game");
+                var entry = Entry("DOA2U.exe");
+                var plan = ExecutablePlanner.Plan(dir, entry);
+                var file = new SetupInfo { Kind = SetupInfo.Builder, Built = @"build\*\runner.exe" };
+                var folder = new SetupInfo { Built = "assets" };
+
+                Assert.False(plan.PlayMissing);
+                Assert.True(ExecutablePlanner.IsSetupPending(dir, plan, file));
+                Assert.True(ExecutablePlanner.IsSetupPending(dir, plan, folder));
+                Assert.False(ExecutablePlanner.IsSetupPending(dir, plan, null));
+                Assert.False(ExecutablePlanner.IsSetupPending(dir, plan, file, "DOA2U.exe"));
+
+                temp.WriteFile(@"Game\build\mingw\runner.exe");
+                temp.WriteFile(@"Game\assets\default.xex");
+                Assert.False(ExecutablePlanner.IsSetupPending(dir, plan, file));
+                Assert.False(ExecutablePlanner.IsSetupPending(dir, plan, folder));
             }
         }
 

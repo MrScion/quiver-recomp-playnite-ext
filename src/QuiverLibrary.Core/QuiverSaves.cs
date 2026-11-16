@@ -62,9 +62,10 @@ namespace QuiverLibrary.Core
 
             var programDir = string.IsNullOrWhiteSpace(playProgram) ? null : Path.GetDirectoryName(playProgram);
             var localBase = localFromProgram ? programDir : appDir;
+            // {GamesDir} makes the "local" folder absolute (a game kept in the shared games folder).
             var local = userData.Local == null || string.IsNullOrWhiteSpace(localBase)
                 ? new List<string>()
-                : WithSaves(Path.Combine(localBase, userData.Local), userData);
+                : WithSaves(Path.Combine(localBase, ExecutablePlanner.ExpandFolders(userData.Local, appDir)), userData);
             if (skipGameFolder)
             {
                 local.RemoveAll(p => string.Equals(p, localBase.TrimEnd(Path.DirectorySeparatorChar), StringComparison.OrdinalIgnoreCase));

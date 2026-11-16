@@ -10,19 +10,38 @@ namespace QuiverLibrary.Playnite.Settings
     /// <summary>
     /// Settings view built in code: <c>dotnet build</c> without Visual Studio
     /// installed can't compile XAML markup for net462 (no PresentationBuildTasks).
+    /// One tab per group: general, saves and achievements, display, import.
     /// </summary>
     public class QuiverSettingsView : UserControl
     {
         public QuiverSettingsView()
         {
-            var root = new StackPanel { Margin = new Thickness(20) };
+            var tabs = new TabControl { Margin = new Thickness(10) };
+            tabs.Items.Add(Tab("LOCQuiverSettingsTabGeneral", BuildGeneral()));
+            tabs.Items.Add(Tab("LOCQuiverSettingsTabSaves", BuildSaves()));
+            tabs.Items.Add(Tab("LOCQuiverSettingsTabDisplay", BuildDisplay()));
+            tabs.Items.Add(Tab("LOCQuiverSettingsTabImport", BuildImport()));
+            Content = tabs;
+        }
 
-            root.Children.Add(new TextBlock
+        private static TabItem Tab(string headerKey, UIElement content)
+        {
+            return new TabItem
             {
-                Text = ResourceProvider.GetString("LOCQuiverSettingsFolderHeader"),
-                FontWeight = FontWeights.Bold,
-                Margin = new Thickness(0, 0, 0, 4),
-            });
+                Header = ResourceProvider.GetString(headerKey),
+                Content = new ScrollViewer
+                {
+                    VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                    Content = content,
+                },
+            };
+        }
+
+        /// <summary>Quiver's folder, what was found there, the last played time and how the library works.</summary>
+        private static StackPanel BuildGeneral()
+        {
+            var root = new StackPanel { Margin = new Thickness(16) };
+            root.Children.Add(Header("LOCQuiverSettingsFolderHeader", 0));
             root.Children.Add(Hint(ResourceProvider.GetString("LOCQuiverSettingsFolderHint")));
 
             var folderRow = new DockPanel { LastChildFill = true, Margin = new Thickness(0, 8, 0, 0) };
@@ -59,64 +78,60 @@ namespace QuiverLibrary.Playnite.Settings
             status.Style = errorStyle;
             root.Children.Add(status);
 
-            var syncLastPlayed = new CheckBox
-            {
-                Content = ResourceProvider.GetString("LOCQuiverSettingsSyncLastPlayed"),
-                Margin = new Thickness(0, 16, 0, 4),
-            };
-            syncLastPlayed.SetBinding(ToggleButton.IsCheckedProperty, new Binding(nameof(QuiverSettingsViewModel.SyncLastPlayed)) { Mode = BindingMode.TwoWay });
-            root.Children.Add(syncLastPlayed);
-            root.Children.Add(Hint(ResourceProvider.GetString("LOCQuiverSettingsSyncLastPlayedHint")));
+            AddCheck(root, "LOCQuiverSettingsSyncLastPlayed", "LOCQuiverSettingsSyncLastPlayedHint", nameof(QuiverSettingsViewModel.SyncLastPlayed));
 
-            var makePortable = new CheckBox
-            {
-                Content = ResourceProvider.GetString("LOCQuiverSettingsMakePortable"),
-                Margin = new Thickness(0, 16, 0, 4),
-            };
-            makePortable.SetBinding(ToggleButton.IsCheckedProperty, new Binding(nameof(QuiverSettingsViewModel.MakePortable)) { Mode = BindingMode.TwoWay });
-            root.Children.Add(makePortable);
-            root.Children.Add(Hint(ResourceProvider.GetString("LOCQuiverSettingsMakePortableHint")));
+            root.Children.Add(Header("LOCQuiverSettingsHowItWorksHeader", 20));
+            root.Children.Add(Hint(ResourceProvider.GetString("LOCQuiverSettingsHowItWorks")));
+            return root;
+        }
 
-            var ludusaviBackup = new CheckBox
-            {
-                Content = ResourceProvider.GetString("LOCQuiverSettingsLudusaviBackup"),
-                Margin = new Thickness(0, 16, 0, 4),
-            };
-            ludusaviBackup.SetBinding(ToggleButton.IsCheckedProperty, new Binding(nameof(QuiverSettingsViewModel.LudusaviBackup)) { Mode = BindingMode.TwoWay });
-            root.Children.Add(ludusaviBackup);
-            root.Children.Add(Hint(ResourceProvider.GetString("LOCQuiverSettingsLudusaviBackupHint")));
+        /// <summary>Portable installs, Ludusavi backups and achievements.</summary>
+        private static StackPanel BuildSaves()
+        {
+            var root = new StackPanel { Margin = new Thickness(16) };
+            AddCheck(root, "LOCQuiverSettingsMakePortable", "LOCQuiverSettingsMakePortableHint", nameof(QuiverSettingsViewModel.MakePortable), 0);
+            AddCheck(root, "LOCQuiverSettingsLudusaviBackup", "LOCQuiverSettingsLudusaviBackupHint", nameof(QuiverSettingsViewModel.LudusaviBackup));
+            AddCheck(root, "LOCQuiverSettingsAchievementsExport", "LOCQuiverSettingsAchievementsExportHint", nameof(QuiverSettingsViewModel.AchievementsExport));
+            return root;
+        }
 
-            var achievementsExport = new CheckBox
-            {
-                Content = ResourceProvider.GetString("LOCQuiverSettingsAchievementsExport"),
-                Margin = new Thickness(0, 16, 0, 4),
-            };
-            achievementsExport.SetBinding(ToggleButton.IsCheckedProperty, new Binding(nameof(QuiverSettingsViewModel.AchievementsExport)) { Mode = BindingMode.TwoWay });
-            root.Children.Add(achievementsExport);
-            root.Children.Add(Hint(ResourceProvider.GetString("LOCQuiverSettingsAchievementsExportHint")));
+        /// <summary>Common display settings: full screen and internal resolution.</summary>
+        private static StackPanel BuildDisplay()
+        {
+            var root = new StackPanel { Margin = new Thickness(16) };
+            root.Children.Add(Header("LOCQuiverSettingsDisplayHeader", 0));
+            root.Children.Add(Hint(ResourceProvider.GetString("LOCQuiverSettingsDisplayHint")));
+
+            AddCheck(root, "LOCQuiverSettingsDisplayFullscreen", "LOCQuiverSettingsDisplayFullscreenHint", nameof(QuiverSettingsViewModel.DisplayFullscreen));
 
             root.Children.Add(new TextBlock
             {
-                Text = ResourceProvider.GetString("LOCQuiverSettingsFeaturesHeader"),
-                FontWeight = FontWeights.Bold,
-                Margin = new Thickness(0, 20, 0, 4),
+                Text = ResourceProvider.GetString("LOCQuiverSettingsDisplayResolution"),
+                Margin = new Thickness(0, 16, 0, 4),
             });
+            var resolution = new ComboBox
+            {
+                Width = 260,
+                HorizontalAlignment = HorizontalAlignment.Left,
+                DisplayMemberPath = nameof(QuiverResolutionOption.Name),
+                SelectedValuePath = nameof(QuiverResolutionOption.Height),
+                Margin = new Thickness(0, 0, 0, 4),
+            };
+            resolution.SetBinding(ItemsControl.ItemsSourceProperty, new Binding(nameof(QuiverSettingsViewModel.Resolutions)));
+            resolution.SetBinding(Selector.SelectedValueProperty, new Binding(nameof(QuiverSettingsViewModel.DisplayHeight)) { Mode = BindingMode.TwoWay });
+            root.Children.Add(resolution);
+            root.Children.Add(Hint(ResourceProvider.GetString("LOCQuiverSettingsDisplayResolutionHint")));
+            return root;
+        }
+
+        /// <summary>Port features imported from Quiver's tags.</summary>
+        private static StackPanel BuildImport()
+        {
+            var root = new StackPanel { Margin = new Thickness(16) };
+            root.Children.Add(Header("LOCQuiverSettingsFeaturesHeader", 0));
             root.Children.Add(Hint(ResourceProvider.GetString("LOCQuiverSettingsFeaturesHint")));
             root.Children.Add(BuildFeatureList());
-
-            root.Children.Add(new TextBlock
-            {
-                Text = ResourceProvider.GetString("LOCQuiverSettingsHowItWorksHeader"),
-                FontWeight = FontWeights.Bold,
-                Margin = new Thickness(0, 20, 0, 4),
-            });
-            root.Children.Add(Hint(ResourceProvider.GetString("LOCQuiverSettingsHowItWorks")));
-
-            Content = new ScrollViewer
-            {
-                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-                Content = root,
-            };
+            return root;
         }
 
         /// <summary>One checkbox per <see cref="QuiverSettingsViewModel.Features"/> entry, wrapping into columns.</summary>
@@ -136,6 +151,28 @@ namespace QuiverLibrary.Playnite.Settings
             };
             list.SetBinding(ItemsControl.ItemsSourceProperty, new Binding(nameof(QuiverSettingsViewModel.Features)));
             return list;
+        }
+
+        private static void AddCheck(Panel root, string textKey, string hintKey, string property, double top = 16)
+        {
+            var check = new CheckBox
+            {
+                Content = ResourceProvider.GetString(textKey),
+                Margin = new Thickness(0, top, 0, 4),
+            };
+            check.SetBinding(ToggleButton.IsCheckedProperty, new Binding(property) { Mode = BindingMode.TwoWay });
+            root.Children.Add(check);
+            root.Children.Add(Hint(ResourceProvider.GetString(hintKey)));
+        }
+
+        private static TextBlock Header(string key, double top)
+        {
+            return new TextBlock
+            {
+                Text = ResourceProvider.GetString(key),
+                FontWeight = FontWeights.Bold,
+                Margin = new Thickness(0, top, 0, 4),
+            };
         }
 
         private static TextBlock Hint(string text)

@@ -78,13 +78,15 @@ namespace QuiverLibrary.Core.Cli
         /// Quiver is stopped and the result is <see cref="QuiverCliResult.EndedByWatcher"/>.
         /// </param>
         /// <param name="timeout">Quiver is stopped and the result is <see cref="QuiverCliResult.TimedOut"/> after this long.</param>
+        /// <param name="onLine">Optional: gets each output line (without colour codes) as Quiver writes it, on a background thread.</param>
         public static QuiverCliResult Run(
             string quiverExe,
             IEnumerable<string> args,
             CancellationToken cancel,
             Func<bool> finishedWhen = null,
             TimeSpan? stableFor = null,
-            TimeSpan? timeout = null)
+            TimeSpan? timeout = null,
+            Action<string> onLine = null)
         {
             if (string.IsNullOrWhiteSpace(quiverExe) || !File.Exists(quiverExe))
             {
@@ -106,8 +108,33 @@ namespace QuiverLibrary.Core.Cli
 
             using (var process = new Process { StartInfo = info })
             {
-                process.OutputDataReceived += (s, e) => { if (e.Data != null) lock (output) output.AppendLine(Clean(e.Data)); };
-                process.ErrorDataReceived += (s, e) => { if (e.Data != null) lock (output) output.AppendLine(Clean(e.Data)); };
+                DataReceivedEventHandler received = (s, e) =>
+                {
+                    if (e.Data == null)
+                    {
+                        return;
+                    }
+
+                    var line = Clean(e.Data);
+                    lock (output)
+                    {
+                        output.AppendLine(line);
+                    }
+
+                    if (onLine != null)
+                    {
+                        try
+                        {
+                            onLine(line);
+                        }
+                        catch
+                        {
+                            // A listener's failure never stops the run.
+                        }
+                    }
+                };
+                process.OutputDataReceived += received;
+                process.ErrorDataReceived += received;
                 process.Start();
                 process.StandardInput.Close();
                 process.BeginOutputReadLine();
