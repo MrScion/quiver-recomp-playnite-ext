@@ -48,8 +48,12 @@ namespace QuiverLibrary.Playnite.Settings
 
         private List<bool> _beforeFeatures;
         private string _beforeQuiverFolder;
+        private string _beforeGamesFolder;
+        private string _gamesFolder;
         private bool _beforeSyncLastPlayed;
         private bool _syncLastPlayed;
+        private bool _beforeGamepadExit;
+        private bool _gamepadExit;
         private bool _beforeMakePortable;
         private bool _makePortable;
         private bool _beforeLudusaviBackup;
@@ -74,6 +78,13 @@ namespace QuiverLibrary.Playnite.Settings
             }
         }
 
+        /// <summary>Folder for games their compiler or installer puts outside the app; empty = &lt;Quiver&gt;\games.</summary>
+        public string GamesFolder
+        {
+            get => _gamesFolder;
+            set => SetValue(ref _gamesFolder, value);
+        }
+
         /// <summary>What was found at <see cref="QuiverFolder"/> — refreshed as the user types.</summary>
         public string Status
         {
@@ -91,6 +102,12 @@ namespace QuiverLibrary.Playnite.Settings
         {
             get => _syncLastPlayed;
             set => SetValue(ref _syncLastPlayed, value);
+        }
+
+        public bool GamepadExit
+        {
+            get => _gamepadExit;
+            set => SetValue(ref _gamepadExit, value);
         }
 
         public bool MakePortable
@@ -129,6 +146,8 @@ namespace QuiverLibrary.Playnite.Settings
 
         public RelayCommand BrowseQuiverFolderCommand { get; }
 
+        public RelayCommand BrowseGamesFolderCommand { get; }
+
         /// <summary>Port features Playnite imports from Quiver's tags; unticked ones are left out.</summary>
         public List<QuiverFeatureOption> Features { get; }
 
@@ -137,7 +156,9 @@ namespace QuiverLibrary.Playnite.Settings
             _plugin = plugin;
             var settings = plugin.LoadSettings();
             _quiverFolder = settings.QuiverFolder;
+            _gamesFolder = settings.GamesFolder;
             _syncLastPlayed = settings.SyncLastPlayed;
+            _gamepadExit = settings.GamepadExit;
             _makePortable = settings.MakePortable;
             _ludusaviBackup = settings.LudusaviBackup;
             _achievementsExport = settings.AchievementsExport;
@@ -158,6 +179,15 @@ namespace QuiverLibrary.Playnite.Settings
                 if (!string.IsNullOrEmpty(folder))
                 {
                     QuiverFolder = folder;
+                }
+            });
+
+            BrowseGamesFolderCommand = new RelayCommand(() =>
+            {
+                var folder = _plugin.PlayniteApi.Dialogs.SelectFolder();
+                if (!string.IsNullOrEmpty(folder))
+                {
+                    GamesFolder = folder;
                 }
             });
 
@@ -200,7 +230,9 @@ namespace QuiverLibrary.Playnite.Settings
         public void BeginEdit()
         {
             _beforeQuiverFolder = QuiverFolder;
+            _beforeGamesFolder = GamesFolder;
             _beforeSyncLastPlayed = SyncLastPlayed;
+            _beforeGamepadExit = GamepadExit;
             _beforeMakePortable = MakePortable;
             _beforeLudusaviBackup = LudusaviBackup;
             _beforeAchievementsExport = AchievementsExport;
@@ -212,7 +244,9 @@ namespace QuiverLibrary.Playnite.Settings
         public void CancelEdit()
         {
             QuiverFolder = _beforeQuiverFolder;
+            GamesFolder = _beforeGamesFolder;
             SyncLastPlayed = _beforeSyncLastPlayed;
+            GamepadExit = _beforeGamepadExit;
             MakePortable = _beforeMakePortable;
             LudusaviBackup = _beforeLudusaviBackup;
             AchievementsExport = _beforeAchievementsExport;
@@ -229,8 +263,11 @@ namespace QuiverLibrary.Playnite.Settings
             // Reloaded so fields the plugin itself saves (cleanup flag, warned apps) aren't overwritten with stale values.
             var settings = _plugin.LoadSettings();
             settings.QuiverFolder = (QuiverFolder ?? "").Trim();
+            settings.GamesFolder = (GamesFolder ?? "").Trim();
+            ExecutablePlanner.GamesDirOverride = settings.GamesFolder;
             settings.DisabledFeatures = Features.Where(f => !f.IsEnabled).Select(f => f.Key).ToList();
             settings.SyncLastPlayed = SyncLastPlayed;
+            settings.GamepadExit = GamepadExit;
             var portableTurnedOn = MakePortable && !settings.MakePortable;
             settings.MakePortable = MakePortable;
             var ludusaviTurnedOn = LudusaviBackup && !settings.LudusaviBackup;

@@ -98,12 +98,13 @@
     {
       "name": "The Legend of Zelda: Ocarina of Time 3D",
       "repository": "coccofresco/TriAevum",
-      "play": { "file": "TriAevum.exe" },
+      "play": { "file": "Echoes_of_Time.exe" },
       "others": [
         { "name": "Setup", "file": "TriAevumForge.exe" }
       ],
       "reviewed": true,
-      "source": "README: TriAevumForge.exe prepares the game from the ROM (and applies optional mods); afterwards use TriAevum.exe."
+      "source": "README (v0.8.0-beta.2): TriAevumForge.exe prepares the game from the ROM (and applies optional mods); afterwards the game is Echoes_of_Time.exe next to it (installs made before that name had TriAevum.exe; Forge replaces it). User data: docs/USER_GUIDE.md and TRIAEVUM_USER_DATA.md: everything in <app>\\data (saves in data\\savedata: save00.bin, save01.bin, save03.bin, system.dat, the 3DS cartridge's own files; settings in data\\config). Seen in the user's install 2026-11-17: EUR title (USA input made canonical EUR), a 3DS/Azahar EUR save copied into data\\savedata.",
+      "userData": { "portable": "builtin", "local": "data", "saves": "savedata" }
     },
     {
       "name": "Donkey Kong Country",
@@ -1185,15 +1186,15 @@
     {
       "name": "Hyrule Warriors: Definitive Edition",
       "repository": "blocker-3/HWDER",
-      "play": { "file": "hwder.exe", "searchSubfolders": true },
+      "play": { "file": "{GamesDir}\\*\\play\\hwder.exe" },
       "others": [
         { "name": "Setup", "file": "HWDER Setup.exe" }
       ],
       "reviewed": true,
-      "source": "source/tools/setup_ui/bootstrap.cpp:247, 453-454 and source/docs/playing.md (v0.3.5): HWDER Setup.exe installs the tools and builds the game into a Data folder (default %LOCALAPPDATA%\\HWDER, chosen under Advanced and remembered in %LOCALAPPDATA%\\HWDER\\setup-prefs.json); the game is <Data>\\play\\hwder.exe, started from its folder without Setup (the desktop shortcut). F11 = borderless fullscreen. Choose <app>\\game as Data folder so it is found here; otherwise pick the exe with 'Choose the game program'. User data: playing.md:68-69: save\\ next to hwder.exe (zmha.bin), hwder_settings.ini, cache\\.",
+      "source": "source/tools/setup_ui/bootstrap.cpp:247, 453-454 and source/docs/playing.md (v0.3.5): HWDER Setup.exe installs the tools and builds the game into a Data folder (default %LOCALAPPDATA%\\HWDER, chosen under Advanced and remembered in %LOCALAPPDATA%\\HWDER\\setup-prefs.json); the game is <Data>\\play\\hwder.exe, started from its folder without Setup (the desktop shortcut). F11 = borderless fullscreen. The Data folder goes in the shared games folder ({GamesDir}\\<any name>\\play\\hwder.exe); anywhere else, pick the exe with 'Choose the game program'. Seen on the other PC (2026-11-17): built (v0.3.5, base + 1.0.1 update) into {GamesDir}\\Hyrule Warriors Definitive Edition and played; installed-game.json there names the exe; hwder_settings.ini is key=value without spaces (borderless=1, res_scale=1.000), so no display entry. User data: playing.md:68-69: save\\ next to hwder.exe (zmha.bin), hwder_settings.ini, cache\\.",
       "userData": { "portable": "builtin", "local": "save" },
       "achievements": { "kind": "none" },
-      "setup": { "kind": "installer", "defaultInstallDir": "%LOCALAPPDATA%\\HWDER", "notes": "bootstrap.cpp:466-471: options --data DIR, --play (starts the game, the Setup window stays open), --advanced; no silent install. A newer Setup shows Update, which rebuilds keeping saves and settings." }
+      "setup": { "kind": "installer", "defaultInstallDir": "{GamesDir}\\Hyrule Warriors Definitive Edition", "notes": "bootstrap.cpp:466-471: options --data DIR, --play (starts the game, the Setup window stays open), --advanced; no silent install. A newer Setup shows Update, which rebuilds keeping saves and settings." }
     },
     {
       "name": "Hyrule Warriors: Age of Imprisonment (Quiver: Age of Calamity)",
@@ -1279,7 +1280,7 @@
         { "name": "Setup", "file": "Ultimate_Launcher-x86_64.exe" }
       ],
       "reviewed": true,
-      "source": "README (Windows launcher) and launcher/windows/backend.py:84-110, window.py:291 (v0.6.2): Ultimate_Launcher-x86_64.exe unpacks into %LOCALAPPDATA%\\TTT2Ultimate\\launcher and builds the game from the EU Wii U dump (version 16 only) into the chosen folder, or <chosen>\\TTT2 Ultimate when it isn't empty (runtime/src/install.cpp:305-322); the game is 'TTT2 Ultimate.exe' with no arguments, started from its folder. The environment the launcher sets equals the defaults and the exe reads .ttt2-userdata next to it, so it should run on its own (not verified). Seen on the other PC (2026-11-14): install folder <app>\\game, the Wii U build failed (wrong version), and game\\Tekken Tag Tournament 2 holds the Xbox 360 TTT2 port. User data: runtime/src/main.cpp:95-101: %LOCALAPPDATA%\\TTT2Ultimate\\save (TTT2_SAVE_DIR), characters\\, logs\\.",
+      "source": "README (Windows launcher) and launcher/windows/backend.py:84-110, window.py:291 (v0.6.2): Ultimate_Launcher-x86_64.exe unpacks into %LOCALAPPDATA%\\TTT2Ultimate\\launcher and builds the game from the EU Wii U dump (version 16 only) into the chosen folder, or <chosen>\\TTT2 Ultimate when it isn't empty (runtime/src/install.cpp:305-322); the game is 'TTT2 Ultimate.exe' with no arguments, started from its folder. The environment the launcher sets equals the defaults and the exe reads .ttt2-userdata next to it, so it should run on its own (not verified). Seen on the other PC (2026-11-14): install folder <app>\\game, the Wii U build failed (wrong version), and game\\Tekken Tag Tournament 2 holds the Xbox 360 TTT2 port. Seen again (2026-11-17): built from the EU v16 dump into <app>\\game\\TTT2 Ultimate (the Xbox 360 port is gone from game\\) and played; %LOCALAPPDATA%\\TTT2Ultimate\\installed names that folder, so the exe runs with no arguments. Display: %LOCALAPPDATA%\\TTT2Ultimate\\config\\display.ini (fullscreen = yes, resolution = auto) or TTT2_FULLSCREEN / TTT2_SCALE environment variables, which win (runtime/src/host/display_settings.cpp). Practice mode resets positions with 3 + Select. User data: runtime/src/main.cpp:95-101: %LOCALAPPDATA%\\TTT2Ultimate\\save (TTT2_SAVE_DIR), characters\\, logs\\.",
       "userData": { "portable": "none", "appData": "%LOCALAPPDATA%\\TTT2Ultimate", "saves": "save;characters" },
       "achievements": { "kind": "none" },
       "setup": { "kind": "installer", "installMarker": ".ttt2-install", "notes": "backend.py installer_command: after a launcher update, its Update rebuilds with ttt2-ultimate.exe --update <folder>." }
@@ -1446,8 +1447,8 @@
         { "name": "Setup", "file": "AoC-Launcher.exe" }
       ],
       "reviewed": true,
-      "source": "README.md, GUIDE.md (0.1.2): a static recompilation of Age of Calamity (Switch, v1.3.0; not Age of Imprisonment, which is HWAoIRecomp). AoC-Launcher.exe asks for a folder with the base NSP (01002B00111A2000), the 1.3.0 update NSP (01002B00111A2800), optional DLC and prod.keys, and forges the game (MSYS2 in C:\\msys64 for Windows, WSL for the Steam Deck) into dist\\aoc-windows; then it becomes the game's launcher (PLAY). launcher/launcher.cpp play(): runs dist\\aoc-windows\\aoc.exe from its folder with CREATE_NO_WINDOW and no arguments, so Play starts it directly. Options in dist\\aoc-windows\\aoc.ini [display] (FULLSCREEN 0/1, WINDOW_SIZE, OUTPUT_RES, RENDER_SCALE) or AOC_* environment variables, which win (runtime/cfg.c); F11 toggles fullscreen. Seen on the other PC (2026-11-16): not forged (no Game Files, build or dist). User data: runtime/main.c: AOC_PROFILE_DIR, else profile\\ next to aoc.exe; GUIDE.md: saves and settings in dist/*/profile and dist/*/aoc.ini, never overwritten by an update.",
-      "userData": { "portable": "builtin", "local": "dist\\aoc-windows", "saves": "profile" },
+      "source": "README.md, GUIDE.md (0.1.2): a static recompilation of Age of Calamity (Switch, v1.3.0; not Age of Imprisonment, which is HWAoIRecomp). AoC-Launcher.exe asks for a folder with the base NSP (01002B00111A2000), the 1.3.0 update NSP (01002B00111A2800), optional DLC and prod.keys, and forges the game (MSYS2 in C:\\msys64 for Windows, WSL for the Steam Deck) into dist\\aoc-windows; then it becomes the game's launcher (PLAY). launcher/launcher.cpp play(): runs dist\\aoc-windows\\aoc.exe from its folder with CREATE_NO_WINDOW and no arguments, so Play starts it directly. Options in dist\\aoc-windows\\aoc.ini [display] (FULLSCREEN 0/1, WINDOW_SIZE, OUTPUT_RES, RENDER_SCALE) or AOC_* environment variables, which win (runtime/cfg.c); F11 toggles fullscreen. Seen on the other PC (2026-11-17): forged (base + 1.3.0, lang en) and played; aoc.ini written by the F1 menu in lower case ([display] fullscreen = 1, render_scale = 100 as a percentage), so no display entry. User data: runtime/main.c: AOC_PROFILE_DIR, else profile\\ next to aoc.exe; GUIDE.md: saves and settings in dist/*/profile and dist/*/aoc.ini, never overwritten by an update. Seen: profile\\save\\<id>\\svdt, profile\\save-backup\\<date>, profile\\account.uid, and cache\\, temp\\ (not saves).",
+      "userData": { "portable": "builtin", "local": "dist\\aoc-windows", "saves": "profile\\save;profile\\save-backup;profile\\account.uid" },
       "achievements": { "kind": "none" },
       "setup": { "kind": "builder", "built": "dist\\aoc-windows\\aoc.exe", "notes": "launcher.cpp: python -u tools\\make_build.py --game-dir DIR --lang en --windows [--win-work DIR] (what FORGE runs; not tried). An update: unzip over the folder and forge again (reuses build\\ and dist\\)." }
     },

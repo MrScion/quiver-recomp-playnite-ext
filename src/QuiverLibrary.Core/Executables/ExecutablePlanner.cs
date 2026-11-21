@@ -98,11 +98,24 @@ namespace QuiverLibrary.Core.Executables
         public const string GamesFolderName = "games";
 
         /// <summary>
-        /// The shared games folder of the app in <paramref name="appDir"/>: <c>games</c> next to the folder that
-        /// holds the apps (Quiver's <c>Apps</c>), e.g. <c>&lt;Quiver&gt;\games</c>. Null when it can't be told.
+        /// The games folder chosen in the settings ("Games folder"); empty or null = the default
+        /// <c>&lt;Quiver&gt;\games</c>. Environment variables are expanded. Set by the plugin from its settings.
+        /// </summary>
+        public static string GamesDirOverride { get; set; }
+
+        /// <summary>
+        /// The shared games folder of the app in <paramref name="appDir"/>: <see cref="GamesDirOverride"/> when set,
+        /// otherwise <c>games</c> next to the folder that holds the apps (Quiver's <c>Apps</c>), e.g.
+        /// <c>&lt;Quiver&gt;\games</c>. Null when it can't be told.
         /// </summary>
         public static string GamesDir(string appDir)
         {
+            var custom = GamesDirOverride;
+            if (!string.IsNullOrWhiteSpace(custom))
+            {
+                return Environment.ExpandEnvironmentVariables(custom.Trim()).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            }
+
             try
             {
                 var apps = string.IsNullOrWhiteSpace(appDir) ? null : Path.GetDirectoryName(appDir.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));

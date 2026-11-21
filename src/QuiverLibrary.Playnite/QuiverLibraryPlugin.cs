@@ -65,11 +65,18 @@ namespace QuiverLibrary.Playnite
         {
             Properties = new LibraryPluginProperties { HasSettings = true };
             Client = new QuiverClient(this);
+            LoadSettings(); // applies the chosen games folder before anything resolves {GamesDir}
         }
 
         #region Settings and paths
 
-        internal QuiverSettings LoadSettings() => LoadPluginSettings<QuiverSettings>() ?? new QuiverSettings();
+        internal QuiverSettings LoadSettings()
+        {
+            var settings = LoadPluginSettings<QuiverSettings>() ?? new QuiverSettings();
+            // Every path with {GamesDir} goes through ExecutablePlanner, so the chosen folder is applied here.
+            ExecutablePlanner.GamesDirOverride = settings.GamesFolder;
+            return settings;
+        }
 
         internal QuiverInstallation FindInstallation() => QuiverInstallation.Detect(LoadSettings().QuiverFolder, LocalAppData);
 
@@ -376,11 +383,25 @@ namespace QuiverLibrary.Playnite
             }
         }
 
-        /// <summary>Quiver's "last played" order follows the games started from Playnite (Quiver writes it on launch too).</summary>
+        /// <summary>
+        /// Quiver's "last played" order follows the games started from Playnite (Quiver writes it on launch too),
+        /// and the gamepad exit combination starts being watched.
+        /// </summary>
         public override void OnGameStarted(OnGameStartedEventArgs args)
         {
             var game = args.Game;
-            if (game == null || game.PluginId != Id || !LoadSettings().SyncLastPlayed)
+            if (game == null || game.PluginId != Id)
+            {
+                return;
+            }
+
+            var settings = LoadSettings();
+            if (settings.GamepadExit)
+            {
+                StartGamepadExit(game, args.StartedProcessId, settings);
+            }
+
+            if (!settings.SyncLastPlayed)
             {
                 return;
             }
@@ -403,6 +424,11 @@ namespace QuiverLibrary.Playnite
         public override void OnGameStopped(OnGameStoppedEventArgs args)
         {
             var game = args.Game;
+            if (game != null)
+            {
+                StopGamepadExit(game.Id);
+            }
+
             if (game == null || game.PluginId != Id || !LoadSettings().AchievementsExport)
             {
                 return;
@@ -420,6 +446,56 @@ namespace QuiverLibrary.Playnite
             catch (Exception e)
             {
                 Logger.Error(e, $"Cannot update the achievements CSV of {game.Name}.");
+            }
+        }
+
+        private readonly Dictionary<Guid, GamepadExitWatcher> _gamepadExits = new Dictionary<Guid, GamepadExitWatcher>();
+
+        /// <summary>Watches Back + Start while the game runs (see <see cref="GamepadExitWatcher"/>).</summary>
+        private void StartGamepadExit(Game game, int startedProcessId, QuiverSettings settings)
+        {
+            try
+            {
+                var folders = new List<string>();
+                var state = GetAppState(game.GameId);
+                if (state != null && state.IsInstalled)
+                {
+                    folders.Add(state.InstallDirectory);
+                    var play = PlanFor(state, LoadExecutables(), settings)?.Play?.Path;
+                    if (!string.IsNullOrEmpty(play))
+                    {
+                        folders.Add(Path.GetDirectoryName(play));
+                    }
+                }
+
+                var watcher = new GamepadExitWatcher(game.Name, startedProcessId, folders);
+                lock (_gamepadExits)
+                {
+                    if (_gamepadExits.TryGetValue(game.Id, out var old))
+                    {
+                        old.Dispose();
+                    }
+
+                    _gamepadExits[game.Id] = watcher;
+                }
+
+                watcher.Start();
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, $"Cannot watch the gamepad exit combination for {game.Name}.");
+            }
+        }
+
+        private void StopGamepadExit(Guid gameId)
+        {
+            lock (_gamepadExits)
+            {
+                if (_gamepadExits.TryGetValue(gameId, out var watcher))
+                {
+                    watcher.Dispose();
+                    _gamepadExits.Remove(gameId);
+                }
             }
         }
 

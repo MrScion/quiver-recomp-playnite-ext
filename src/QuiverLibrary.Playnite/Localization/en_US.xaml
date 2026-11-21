@@ -11,8 +11,12 @@
     <sys:String x:Key="LOCQuiverSettingsStatusNoExe">QuiverLauncher.exe was not found. Looked for: {0}</sys:String>
     <sys:String x:Key="LOCQuiverSettingsStatusNoLibrary">Quiver Launcher found in {0}, but it has no game library yet (apps.json). Open Quiver once so it creates it.</sys:String>
     <sys:String x:Key="LOCQuiverSettingsStatusOk">Quiver Launcher found in {0} — {1} apps in its library.</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsGamesFolderHeader">Games folder</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsGamesFolderHint">Some apps build or install the game outside their own folder (Perfect Dark Zero Reinstated, Cadence of Hyrule, Hyrule Warriors: Age of Imprisonment...). Put those games in this folder and they are found by themselves. Leave it empty to use the "games" folder next to Quiver's Apps folder. For a game installed anywhere else, use "Choose game executable..." in the game's menu.</sys:String>
     <sys:String x:Key="LOCQuiverSettingsSyncLastPlayed">Sync the last played time with Quiver Launcher</sys:String>
     <sys:String x:Key="LOCQuiverSettingsSyncLastPlayedHint">The most recent time wins: games started from Playnite update Quiver's "Last played" order, and games started from Quiver update Playnite on the next library update. Play time and play count are not touched (Quiver doesn't keep them).</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsGamepadExit">Close the game with Select + Start on the gamepad</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsGamepadExitHint">Hold Select (Back, View, −) and then press Start to close the running recomp: first as with its window's close button, and if it is still open after 5 seconds, its programs are ended (whatever wasn't saved is lost). Pressing Start first doesn't count. Only Xbox-style (XInput) controllers are seen; other controllers need Steam Input, DS4Windows or reWASD.</sys:String>
     <sys:String x:Key="LOCQuiverSettingsMakePortable">Make the installed apps portable</sys:String>
     <sys:String x:Key="LOCQuiverSettingsLudusaviBackup">Back up the saves with Ludusavi</sys:String>
     <sys:String x:Key="LOCQuiverSettingsAchievementsExport">Export achievements for Playnite Achievements (EXPERIMENTAL)</sys:String>

@@ -17,6 +17,12 @@ namespace QuiverLibrary.Playnite.Settings
         public string QuiverFolder { get; set; } = "";
 
         /// <summary>
+        /// Where games that their compiler or installer puts outside the app folder live ({GamesDir} in
+        /// executables.json). Empty = <c>games</c> next to Quiver's Apps folder.
+        /// </summary>
+        public string GamesFolder { get; set; } = "";
+
+        /// <summary>
         /// <c>QuiverFeature.Key</c>s the user unticked. Stored as the disabled ones so that a
         /// feature added in a later version is imported by default.
         /// </summary>
@@ -27,6 +33,9 @@ namespace QuiverLibrary.Playnite.Settings
         /// newest one winning: on game start and on every library update.
         /// </summary>
         public bool SyncLastPlayed { get; set; } = true;
+
+        /// <summary>Back (Select) held and then Start on an XInput gamepad closes the running recomp.</summary>
+        public bool GamepadExit { get; set; } = true;
 
         /// <summary>
         /// Creates each installed app's portable marker (usually <c>portable.txt</c>) on every library

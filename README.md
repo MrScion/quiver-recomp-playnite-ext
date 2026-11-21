@@ -121,8 +121,8 @@ one chosen from the game menu does.
   game window into a borderless one covering its monitor (when the game's own full screen option
   doesn't work), and `{XboxLanguage}` in arguments and `environment`: Playnite's language as an
   Xbox 360 language number (ReXGlue's `REX_USER_LANGUAGE`).
-- `{GamesDir}` is the shared games folder, `games` next to Quiver's `Apps` folder
-  (`<Quiver>\games`): for games whose compiler or installer refuses a folder inside the app's
+- `{GamesDir}` is the shared games folder: the "Games folder" setting (General tab) or, when it is empty,
+  `games` next to Quiver's `Apps` folder (`<Quiver>\games`): for games whose compiler or installer refuses a folder inside the app's
   own. It may start the play program's `file`, and be used in arguments, `environment`,
   `userData.local`, `achievements.file`, `setup.built` and `setup.defaultInstallDir`.
 - `userData` says where the app keeps its saves: `portable` (the marker file's name,
@@ -177,6 +177,26 @@ Achievements extension knows none of these games. What the extension does today
   Rising 2 (Case Zero / Case West) sends them to a XenonLive account.
 
 ## Changelog
+
+**0.3.14**
+- New "Close the game with Select + Start on the gamepad" setting (General tab, on by default): holding Select
+  (Back, View, −) and then pressing Start closes the running recomp, first as with its window's close button and,
+  if it is still open 5 seconds later, by ending its programs (the one Playnite started, its children and anything
+  running from the game's folders). Xbox-style (XInput) controllers only.
+
+**0.3.13**
+- Hyrule Warriors: Definitive Edition: Play is `play\hwder.exe` in the shared games folder (`{GamesDir}`, any
+  folder name), where its setup builds the game; the uninstall warning points there too.
+- Hyrule Warriors: Age of Calamity: saves are `profile\save`, its backups and the account file (no longer the
+  whole profile with its caches).
+
+**0.3.12**
+- The Legend of Zelda: Ocarina of Time 3D (TriAevum): Play is `Echoes_of_Time.exe` (the game's new name since
+  v0.8.0; `TriAevum.exe` no longer exists); saves folder `data\savedata`.
+
+**0.3.11**
+- New "Games folder" setting (General tab): where games built or installed outside their app folder live
+  (`{GamesDir}`), for PCs that keep them somewhere other than `<Quiver>\games`. Empty keeps the old folder.
 
 **0.3.10**
 - Cadence of Hyrule: Play is `cadence.exe` where its installer put it in the shared games folder (`{GamesDir}`,
@@ -318,3 +338,7 @@ dotnet test src/QuiverLibrary.Core.Tests -c Release
 The extension is the content of `src/QuiverLibrary.Playnite/bin/Release`
 (`QuiverLibrary.Playnite.dll`, `QuiverLibrary.Core.dll`, `extension.yaml`, `pluginicon.png`,
 `Localization/`). Zip it and rename the `.zip` to `.pext`.
+
+## License
+
+[MIT](LICENSE).

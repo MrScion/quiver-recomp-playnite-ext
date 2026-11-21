@@ -11,8 +11,12 @@
     <sys:String x:Key="LOCQuiverSettingsStatusNoExe">No se ha encontrado QuiverLauncher.exe. Rutas buscadas: {0}</sys:String>
     <sys:String x:Key="LOCQuiverSettingsStatusNoLibrary">Quiver Launcher encontrado en {0}, pero todavía no tiene biblioteca de juegos (apps.json). Abre Quiver una vez para que la cree.</sys:String>
     <sys:String x:Key="LOCQuiverSettingsStatusOk">Quiver Launcher encontrado en {0}: {1} apps en su biblioteca.</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsGamesFolderHeader">Carpeta de juegos</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsGamesFolderHint">Algunas apps compilan o instalan el juego fuera de su propia carpeta (Perfect Dark Zero Reinstated, Cadence of Hyrule, Hyrule Warriors: Age of Imprisonment...). Pon esos juegos en esta carpeta y se encontrarán solos. Déjala vacía para usar la carpeta "games" que está junto a la carpeta Apps de Quiver. Para un juego instalado en cualquier otro sitio, usa "Elegir ejecutable del juego..." en el menú del juego.</sys:String>
     <sys:String x:Key="LOCQuiverSettingsSyncLastPlayed">Sincronizar la última vez jugado con Quiver Launcher</sys:String>
     <sys:String x:Key="LOCQuiverSettingsSyncLastPlayedHint">Gana la fecha más reciente: los juegos que arrancas desde Playnite actualizan el orden "Last played" de Quiver, y los que arrancas desde Quiver actualizan Playnite en la siguiente actualización de la biblioteca. No se tocan el tiempo de juego ni el número de partidas (Quiver no los guarda).</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsGamepadExit">Cerrar el juego con Select + Start en el mando</sys:String>
+    <sys:String x:Key="LOCQuiverSettingsGamepadExitHint">Mantén Select (Back, View, −) y pulsa Start para cerrar el recomp que se está jugando: primero como con el botón de cerrar de su ventana y, si a los 5 segundos sigue abierto, se cierran sus programas a la fuerza (se pierde lo que no estuviera guardado). Pulsar Start primero no cuenta. Solo se ven los mandos tipo Xbox (XInput); otros mandos necesitan Steam Input, DS4Windows o reWASD.</sys:String>
     <sys:String x:Key="LOCQuiverSettingsMakePortable">Hacer portables las apps instaladas</sys:String>
     <sys:String x:Key="LOCQuiverSettingsLudusaviBackup">Hacer copias de las partidas con Ludusavi</sys:String>
     <sys:String x:Key="LOCQuiverSettingsAchievementsExport">Exportar logros para Playnite Achievements (EXPERIMENTAL)</sys:String>

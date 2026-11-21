@@ -243,6 +243,35 @@ namespace QuiverLibrary.Core.Tests
         }
 
         [Fact]
+        public void GamesDir_UsesTheFolderChosenInTheSettings_WhenThereIsOne()
+        {
+            using (var temp = new TempDirectory())
+            {
+                temp.WriteFile(@"Quiver\Apps\PDZ\PDZ Setup.exe");
+                var dir = temp.Combine(@"Quiver\Apps\PDZ");
+                var custom = temp.Combine(@"D\My Games");
+                var game = temp.WriteFile(@"D\My Games\Perfect Dark Zero Reinstated\PDZReinstatedTU3.exe");
+                var entry = Entry(@"{GamesDir}\*\PDZReinstatedTU3.exe");
+                try
+                {
+                    ExecutablePlanner.GamesDirOverride = custom + @"\";
+                    Assert.Equal(custom, ExecutablePlanner.GamesDir(dir));
+                    var plan = ExecutablePlanner.Plan(dir, entry);
+                    Assert.False(plan.PlayMissing);
+                    Assert.Equal(game, plan.Play.Path);
+
+                    ExecutablePlanner.GamesDirOverride = "  ";
+                    Assert.Equal(temp.Combine(@"Quiver\games"), ExecutablePlanner.GamesDir(dir));
+                    Assert.True(ExecutablePlanner.Plan(dir, entry).PlayMissing);
+                }
+                finally
+                {
+                    ExecutablePlanner.GamesDirOverride = null;
+                }
+            }
+        }
+
+        [Fact]
         public void GamesDir_WithAWildcardFolder_FindsTheInstalledGameAndItsSaves()
         {
             using (var temp = new TempDirectory())

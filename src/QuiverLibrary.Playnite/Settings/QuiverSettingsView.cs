@@ -78,7 +78,28 @@ namespace QuiverLibrary.Playnite.Settings
             status.Style = errorStyle;
             root.Children.Add(status);
 
+            root.Children.Add(Header("LOCQuiverSettingsGamesFolderHeader", 20));
+            root.Children.Add(Hint(ResourceProvider.GetString("LOCQuiverSettingsGamesFolderHint")));
+            var gamesRow = new DockPanel { LastChildFill = true, Margin = new Thickness(0, 8, 0, 0) };
+            var browseGames = new Button
+            {
+                Content = ResourceProvider.GetString("LOCQuiverSettingsBrowse"),
+                Margin = new Thickness(8, 0, 0, 0),
+                Padding = new Thickness(10, 2, 10, 2),
+            };
+            browseGames.SetBinding(Button.CommandProperty, new Binding(nameof(QuiverSettingsViewModel.BrowseGamesFolderCommand)));
+            DockPanel.SetDock(browseGames, Dock.Right);
+            gamesRow.Children.Add(browseGames);
+            var gamesBox = new TextBox { VerticalContentAlignment = VerticalAlignment.Center };
+            gamesBox.SetBinding(TextBox.TextProperty, new Binding(nameof(QuiverSettingsViewModel.GamesFolder))
+            {
+                UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged,
+            });
+            gamesRow.Children.Add(gamesBox);
+            root.Children.Add(gamesRow);
+
             AddCheck(root, "LOCQuiverSettingsSyncLastPlayed", "LOCQuiverSettingsSyncLastPlayedHint", nameof(QuiverSettingsViewModel.SyncLastPlayed));
+            AddCheck(root, "LOCQuiverSettingsGamepadExit", "LOCQuiverSettingsGamepadExitHint", nameof(QuiverSettingsViewModel.GamepadExit));
 
             root.Children.Add(Header("LOCQuiverSettingsHowItWorksHeader", 20));
             root.Children.Add(Hint(ResourceProvider.GetString("LOCQuiverSettingsHowItWorks")));
