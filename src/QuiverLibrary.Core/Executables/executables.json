@@ -1237,14 +1237,59 @@
     {
       "name": "inFamous",
       "repository": "whompay/inFAMOUSreborn",
-      "play": { "file": "inFamous.exe", "arguments": "--play", "searchSubfolders": true },
+      "play": { "file": "{GamesDir}\\*\\inFamous.exe", "arguments": "--play" },
       "others": [
         { "name": "Setup", "file": "inFamous.Setup.FIXED.exe" }
       ],
+      "display": {
+        "nativeHeight": 720, "integerScale": true,
+        "configFile": "infamous-recomp\\settings.ini",
+        "fullscreenConfig": "FULLSCREEN = 1",
+        "scaleConfig": "RES_SCALE = {Scale}",
+        "notes": "infamous-recomp\\settings.ini is written by the in-game Settings menu (F10) and wins over the launcher's launch.txt (its own header comment). Seen in the player's install: FULLSCREEN=1, RES_SCALE=3, PS3_LANG=spanish. Not verified that RES_SCALE takes decimals, so whole numbers only."
+      },
       "reviewed": true,
-      "source": "installer/README.md and installer/src (release 1.1): inFamous.Setup.FIXED.exe unpacks the sources into a folder the player picks (default %USERPROFILE%\\Games\\inFamous PC, setup.rs:461-467, not verified) and builds there (needs Python 3.10+, VS 2022 Build Tools with clang, RPCS3 for an encrypted EBOOT). inFamous.exe --play skips the options window (infamous-launch.rs:5, 1654) and starts infamous-recomp\\build-install\\inFamousRecomp.exe with installer\\launch.txt (about 200 environment variables), then exits without waiting (infamous-launch.rs:204-206): play time tracking not verified. FULLSCREEN=1 in infamous-recomp\\settings.ini. User data: not verified (the runtime's dev_hdd0 under its VFS root).",
+      "source": "installer/README.md and installer/src (release 1.1): inFamous.Setup.FIXED.exe unpacks the sources into a folder the player picks (default %USERPROFILE%\\Games\\inFamous PC, setup.rs:461-467, not verified) and builds there (needs Python 3.10+, VS 2022 Build Tools with clang, RPCS3 for an encrypted EBOOT). inFamous.exe --play skips the options window (infamous-launch.rs:5, 1654) and starts infamous-recomp\\build-install\\inFamousRecomp.exe with installer\\launch.txt (about 170 environment variables, exe, cwd infamous-recomp, arg = the dump's PS3_GAME\\USRDIR\\EBOOT.elf), then exits without waiting (infamous-launch.rs:204-206): play time tracking not verified. 'Play inFamous.cmd' does the same and waits, but shows a console and pauses on an error. Seen in the player's install (2026-11-22): put in the shared games folder as {GamesDir}\\Infamous (European BCES00220 dump copied inside, built 11:16); inFamous.exe is found in any folder of {GamesDir}. User data: the runtime's VFS root is infamous-recomp\\gamedata (dev_hdd0\\home\\00000001\\savedata, empty before the first play); settings in infamous-recomp\\settings.ini.",
+      "userData": { "portable": "builtin", "local": "infamous-recomp", "saves": "gamedata\\dev_hdd0\\home\\00000001\\savedata;settings.ini" },
       "achievements": { "kind": "none" },
-      "setup": { "kind": "installer", "defaultInstallDir": "%USERPROFILE%\\Games\\inFamous PC", "notes": "The setup window has no command line. Installed, the folder has installer\\infamous-installer.exe install --root DIR --game DUMP [--rpcs3 EXE] and update --root DIR [--check], and 'Update inFamous.cmd' (downloads changed files from GitHub and rebuilds what is affected)." }
+      "setup": { "kind": "installer", "built": "{GamesDir}\\Infamous\\infamous-recomp\\build-install\\inFamousRecomp.exe", "defaultInstallDir": "{GamesDir}\\Infamous", "notes": "The setup window has no command line. Installed, the folder has installer\\infamous-installer.exe install --root DIR --game DUMP [--rpcs3 EXE] and update --root DIR [--check], and 'Update inFamous.cmd' (downloads changed files from GitHub and rebuilds what is affected)." }
+    },
+    {
+      "name": "Sonic the Hedgehog (2006)",
+      "repository": "sonicnext-dev/MarathonRecomp",
+      "play": { "file": "MarathonRecomp.exe" },
+      "others": [
+        { "name": "Setup", "file": "MarathonRecomp.exe", "arguments": "--install" }
+      ],
+      "reviewed": true,
+      "source": "README (v1.0.0) and MarathonRecomp/install/installer.cpp, main.cpp, user/paths.h, user/config_def.h: one program; the first start runs its installer, which asks for the player's Xbox 360 dump (disc or container; title update and DLC optional) and writes game\\ (default.xex), update\\ and dlc\\ next to the exe; --install runs the installer again. Same code base as Unleashed Recompiled. User data: %APPDATA%\\MarathonRecomp (config.toml, save\\SonicNextSaveData.bin), or next to the exe with an empty portable.txt. Display and language are in config.toml (Video Fullscreen = true by default, ResolutionScale = 1.0; System Language / VoiceLanguage, Spanish = 5); config.toml is outside the game folder unless portable, so there is no display entry. Achievements: save\\SonicNextAchievementData.bin (user/achievement_manager.h), its own format, not exported. Seen in the player's install (2026-11-22): v1.0.0, not started yet (no game\\, no %APPDATA%\\MarathonRecomp).",
+      "userData": { "portable": "portable.txt", "appData": "%APPDATA%\\MarathonRecomp", "local": "", "saves": "save;config.toml" },
+      "achievements": { "kind": "custom", "file": "save\\SonicNextAchievementData.bin;%APPDATA%\\MarathonRecomp\\save\\SonicNextAchievementData.bin" },
+      "setup": { "kind": "builder", "built": "game\\default.xex", "notes": "The installer is the game's own first start (or --install). An update is a new release unpacked on top; the installed game\\ files stay the same across versions (README), so nothing has to be run again." }
+    },
+    {
+      "name": "Fighting Vipers",
+      "repository": "tmcleroy/fighting-vipers-recomp",
+      "play": { "file": "fighting_vipers-launcher.exe", "arguments": "--play" },
+      "others": [
+        { "name": "Launcher", "file": "fighting_vipers-launcher.exe" }
+      ],
+      "reviewed": true,
+      "source": "README and docs/LAUNCHER.md (v0.2.0), recomp-common launcher/src/main.cpp and app.cpp (play_directly): fighting_vipers-launcher.exe --play goes straight into the game with the disc and options chosen earlier in the launcher (launcher.ini: [game] disc, [video] fullscreen/widescreen/high_resolution), starts fighting_vipers.exe with --disc, --backup saves\\backup.bin, --settings settings.ini and the video options, and waits for it; without a disc set up it shows a message. fighting_vipers.exe on its own has none of those, so it is not an action. The launcher checks the disc (USA MK-81041); the player's EU .cue was accepted and played on 2026-11-22. Esc/F1/Back opens the in-game menu, its 'Quit game' row leaves; F11 = fullscreen. User data: %APPDATA%\\Fighting Vipers (launcher.ini, settings.ini, saves\\backup.bin, logs\\game.log), or user\\Fighting Vipers next to the launcher with an empty portable.txt (recomp-common folders.h); save states' folder not verified. Fullscreen is chosen in the launcher (launcher.ini, outside the game folder unless portable), so there is no display entry.",
+      "userData": { "portable": "portable.txt", "appData": "%APPDATA%\\Fighting Vipers", "local": "user\\Fighting Vipers", "saves": "saves;settings.ini;launcher.ini" },
+      "achievements": { "kind": "none" }
+    },
+    {
+      "name": "Fighters Megamix",
+      "repository": "tmcleroy/fighters-megamix-recomp",
+      "play": { "file": "fighters_megamix-launcher.exe", "arguments": "--play" },
+      "others": [
+        { "name": "Launcher", "file": "fighters_megamix-launcher.exe" }
+      ],
+      "reviewed": true,
+      "source": "README and docs/LAUNCHER.md (v0.2.0): the same launcher (recomp-common) and machine (satrecomp) as Fighting Vipers: fighters_megamix-launcher.exe --play goes straight into the game with the disc and options chosen in the launcher and waits for it (--play seen in the v0.2.0 exe). The launcher checks the disc (USA MK-81073); the player's European .cue was accepted and played on 2026-11-22. A Fighting Vipers or Virtua Fighter 2 Saturn image in the soundtrack folder gives full-length stage music. User data: %APPDATA%\\Fighters Megamix (launcher.ini, settings.ini, saves\\backup.bin, soundtrack\\, logs\\game.log), or user\\Fighters Megamix next to the launcher with an empty portable.txt. No display entry, as for Fighting Vipers.",
+      "userData": { "portable": "portable.txt", "appData": "%APPDATA%\\Fighters Megamix", "local": "user\\Fighters Megamix", "saves": "saves;settings.ini;launcher.ini" },
+      "achievements": { "kind": "none" }
     },
     {
       "name": "Silent Hill: Book of Memories",

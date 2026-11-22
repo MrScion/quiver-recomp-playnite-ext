@@ -178,6 +178,13 @@ Achievements extension knows none of these games. What the extension does today
 
 ## Changelog
 
+**0.3.15**
+- inFamous: Play now finds the game the setup built in the shared games folder (`{GamesDir}\<folder>\inFamous.exe
+  --play`), with its save folder, the common display settings (`infamous-recomp\settings.ini`) and the reminder
+  on uninstall.
+- New entries: Sonic the Hedgehog (2006) (Marathon Recompiled), Fighting Vipers and Fighters Megamix (their
+  launchers' `--play`, straight into the game with the disc and options chosen in the launcher).
+
 **0.3.14**
 - New "Close the game with Select + Start on the gamepad" setting (General tab, on by default): holding Select
   (Back, View, −) and then pressing Start closes the running recomp, first as with its window's close button and,
